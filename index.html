@@ -94,7 +94,7 @@
                 projectList.innerHTML = items.map(p => {
                     const snippetHtml = p.snippet ? `<p class="project-desc">${p.snippet}</p>` : '';
                     // The image src is relative to the projects directory, e.g. "Resume Parser/image.jpg"
-                    const imageHtml = p.image ? `<img src="projects/${p.image}" alt="${p.title}" class="project-thumb">` : '';
+                    const imageHtml = p.image ? `<img src="projects/${p.image}" alt="${p.title}" class="project-thumb" style="object-fit: contain; background-color: #f8f9fc;">` : '';
                     
                     return `
                         <a href="projects/${p.slug}" class="project-card">
