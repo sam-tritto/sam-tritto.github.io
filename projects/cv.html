@@ -5,17 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CV - Sam's Data Portfolio</title>
     <link rel="stylesheet" href="../style.css">
+    <style>
+        .cv-actions {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .cv-download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .cv-download-btn:hover {
+            background-color: var(--primary-dark);
+            color: white;
+        }
+        .cv-image-container {
+            box-shadow: var(--shadow-lg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background: white;
+            padding: 1rem;
+        }
+    </style>
 </head>
 <body>
     <div class="post-container">
         <header class="post-header-area">
-            <h1>CV</h1>
+            <h1>Curriculum Vitae</h1>
         </header>
-        <div class="post-back-container">
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
             <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <h2>Get in touch at: <a href="mailto:mr.sam.tritto@gmail.com" style="color: var(--primary-color);">mr.sam.tritto@gmail.com</a></h2>
         </div>
-        <article class="post-content">
-            <img src="CV/0b6d328bea1faa269300ed5a0f28562b.jpg" alt="" class="post-image"><h2>Get in touch at:       mr.sam.tritto@gmail.com</h2>
+
+        <div class="cv-actions">
+            <!-- Download button pointing to the user's PDF -->
+            <a href="CV/Resume - Sam Tritto.pdf" download="Resume - Sam Tritto.pdf" class="cv-download-btn">
+                <span>📄</span> Download CV (PDF)
+            </a>
+        </div>
+
+        <article class="post-content" style="max-width: 900px; margin: 0 auto;">
+            <div class="cv-viewer-container" style="box-shadow: var(--shadow-lg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); background: white; height: 1100px;">
+                <iframe src="CV/Resume - Sam Tritto.pdf" width="100%" height="100%" style="border: none;"></iframe>
+            </div>
         </article>
     </div>
 </body>
