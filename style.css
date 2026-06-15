@@ -240,7 +240,8 @@ body {
 .project-thumb {
     width: 100%;
     height: 180px;
-    object-fit: cover;
+    object-fit: contain;
+    background-color: #f8f9fc;
     border-bottom: 1px solid var(--border-light);
 }
 
