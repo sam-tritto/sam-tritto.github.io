@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sam Tritto - Data Science Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Profile Info -->
+        <aside class="sidebar">
+            <div class="profile">
+                <h1>Sam Tritto</h1>
+                <p class="bio">
+                    Data Scientist at The Home Depot (People Analytics) & Georgia Tech M.S. in Analytics graduate. 
+                    Python enthusiast with 8+ years of experience specializing in Bayesian Statistics, Causal Inference, Experimental Design, and MLOps.
+                </p>
+                <div class="profile-links">
+                    <a href="mailto:mr.sam.tritto@gmail.com">
+                        <span>📧 mr.sam.tritto@gmail.com</span>
+                    </a>
+                    <a href="https://github.com/sam-tritto" target="_blank" rel="noopener noreferrer">
+                        <span>💻 GitHub (sam-tritto)</span>
+                    </a>
+                    <a href="projects/cv.html">
+                        <span>📄 Curriculum Vitae</span>
+                    </a>
+                    <a href="projects/certificates.html">
+                        <span>🏆 Certificates & Journey</span>
+                    </a>
+                    <a href="projects/reading-list.html">
+                        <span>📚 Reading List</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content (Project Listings) -->
+        <main>
+            <!-- Dynamic Filters -->
+            <div class="filter-bar">
+                <input type="text" id="search" class="search-input" placeholder="Search projects, methods, libraries..." aria-label="Search projects">
+                <div class="categories" id="category-filters">
+                    <button class="cat-btn active" data-category="all">All Projects</button>
+                    <button class="cat-btn" data-category="stats">A/B Testing & Stats</button>
+                    <button class="cat-btn" data-category="ml-ai">ML & AI</button>
+                    <button class="cat-btn" data-category="bayesian">Bayesian</button>
+                    <button class="cat-btn" data-category="music">Music Analytics</button>
+                    <button class="cat-btn" data-category="forecast">Forecasting</button>
+                    <button class="cat-btn" data-category="simulation">Simulation</button>
+                </div>
+            </div>
+
+            <!-- Project Cards Grid -->
+            <div class="project-list" id="project-list">
+                <!-- Dynamically populated via JS -->
+                <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading portfolio projects...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Client-side logic for search, category filtering, and metadata rendering -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const projectList = document.getElementById('project-list');
+            const searchInput = document.getElementById('search');
+            const filterContainer = document.getElementById('category-filters');
+            let projects = [];
+
+            // Category assignment helper based on project title
+            function getCategories(title) {
+                const lowerTitle = title.toLowerCase();
+                const tags = [];
+                
+                if (lowerTitle.includes('test') || lowerTitle.includes('anova') || lowerTitle.includes('manova') || lowerTitle.includes('correlation') || lowerTitle.includes('ab test') || lowerTitle.includes('proportions') || lowerTitle.includes('means')) {
+                    tags.push({ id: 'stats', label: 'A/B Testing & Stats' });
+                }
+                if (lowerTitle.includes('machine learning') || lowerTitle.includes('deep learning') || lowerTitle.includes('llm') || lowerTitle.includes('ai') || lowerTitle.includes('explainability') || lowerTitle.includes('neural') || lowerTitle.includes('nlp') || lowerTitle.includes('parser') || lowerTitle.includes('agent') || lowerTitle.includes('tableau')) {
+                    tags.push({ id: 'ml-ai', label: 'ML & AI' });
+                }
+                if (lowerTitle.includes('bayesian')) {
+                    tags.push({ id: 'bayesian', label: 'Bayesian' });
+                }
+                if (lowerTitle.includes('spotify') || lowerTitle.includes('song') || lowerTitle.includes('band') || lowerTitle.includes('takeover') || lowerTitle.includes('marley') || lowerTitle.includes('music') || lowerTitle.includes('nelson') || lowerTitle.includes('podcast')) {
+                    tags.push({ id: 'music', label: 'Music Analytics' });
+                }
+                if (lowerTitle.includes('forecast') || lowerTitle.includes('forecasting') || lowerTitle.includes('prophet') || lowerTitle.includes('time series')) {
+                    tags.push({ id: 'forecast', label: 'Forecasting' });
+                }
+                if (lowerTitle.includes('simulation') || lowerTitle.includes('sir model')) {
+                    tags.push({ id: 'simulation', label: 'Simulation' });
+                }
+                
+                return tags;
+            }
+
+            // Fetch metadata and render projects
+            fetch('projects_meta.json')
+                .then(res => res.json())
+                .then(data => {
+                    // Filter out years and other structural placeholder files
+                    const yearPattern = /^(2019|2020|2021|2022|2023|2024|2025)$/;
+                    projects = data.filter(p => {
+                        const title = p.title.trim();
+                        return !yearPattern.test(title) && 
+                               p.slug !== 'cv.html' && 
+                               p.slug !== 'certificates.html' && 
+                               p.slug !== 'reading-list.html' &&
+                               p.slug !== 'new-project.html';
+                    });
+
+                    // Sort projects alphabetically by title
+                    projects.sort((a, b) => a.title.localeCompare(b.title));
+
+                    renderProjects(projects);
+                })
+                .catch(err => {
+                    projectList.innerHTML = '<div style="color: red; text-align: center;">Error loading projects. Make sure projects_meta.json is generated.</div>';
+                    console.error(err);
+                });
+
+            function renderProjects(items) {
+                if (items.length === 0) {
+                    projectList.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No projects match your search criteria.</div>';
+                    return;
+                }
+
+                projectList.innerHTML = items.map(p => {
+                    const categories = getCategories(p.title);
+                    const tagsHtml = categories.map(cat => `<span class="tag" style="background-color: var(--code-bg); color: var(--accent); font-weight: 500;">${cat.label}</span>`).join(' ');
+                    const snippetHtml = p.snippet ? `<p class="project-desc">${p.snippet}</p>` : '';
+                    
+                    return `
+                        <a href="projects/${p.slug}" class="project-card">
+                            <div class="project-header">
+                                <h2 class="project-title">${p.title}</h2>
+                            </div>
+                            ${snippetHtml}
+                            <div class="project-tags">
+                                ${tagsHtml}
+                            </div>
+                        </a>
+                    `;
+                }).join('');
+            }
+
+            // Real-time search and filter functionality
+            function filterProjects() {
+                const query = searchInput.value.toLowerCase().trim();
+                const activeBtn = filterContainer.querySelector('.cat-btn.active');
+                const category = activeBtn ? activeBtn.getAttribute('data-category') : 'all';
+
+                const filtered = projects.filter(p => {
+                    const matchesSearch = p.title.toLowerCase().includes(query) || (p.snippet && p.snippet.toLowerCase().includes(query));
+                    
+                    if (category === 'all') {
+                        return matchesSearch;
+                    } else {
+                        const categories = getCategories(p.title);
+                        const hasCategory = categories.some(cat => cat.id === category);
+                        return matchesSearch && hasCategory;
+                    }
+                });
+
+                renderProjects(filtered);
+            }
+
+            searchInput.addEventListener('input', filterProjects);
+
+            filterContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('cat-btn')) {
+                    filterContainer.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    filterProjects();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
