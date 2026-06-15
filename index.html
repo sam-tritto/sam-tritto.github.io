@@ -7,58 +7,59 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar Profile Info -->
-        <aside class="sidebar">
-            <div class="profile">
-                <h1>Sam Tritto</h1>
-                <p class="bio">
-                    Data Scientist at The Home Depot (People Analytics) & Georgia Tech M.S. in Analytics graduate. 
-                    Python enthusiast with 8+ years of experience specializing in Bayesian Statistics, Causal Inference, Experimental Design, and MLOps.
-                </p>
-                <div class="profile-links">
-                    <a href="mailto:mr.sam.tritto@gmail.com">
-                        <span>📧 mr.sam.tritto@gmail.com</span>
-                    </a>
-                    <a href="https://github.com/sam-tritto" target="_blank" rel="noopener noreferrer">
-                        <span>💻 GitHub (sam-tritto)</span>
-                    </a>
-                    <a href="projects/cv.html">
-                        <span>📄 Curriculum Vitae</span>
-                    </a>
-                    <a href="projects/certificates.html">
-                        <span>🏆 Certificates & Journey</span>
-                    </a>
-                    <a href="projects/reading-list.html">
-                        <span>📚 Reading List</span>
-                    </a>
-                </div>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">Sam's Data Portfolio</a>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="projects/cv.html" class="nav-link">Curriculum Vitae</a>
+                <a href="projects/certificates.html" class="nav-link">Certificates & Journey</a>
+                <a href="projects/reading-list.html" class="nav-link">Reading List</a>
             </div>
-        </aside>
+        </div>
+    </nav>
 
-        <!-- Main Content (Project Listings) -->
-        <main>
-            <!-- Dynamic Filters -->
-            <div class="filter-bar">
-                <input type="text" id="search" class="search-input" placeholder="Search projects, methods, libraries..." aria-label="Search projects">
-                <div class="categories" id="category-filters">
-                    <button class="cat-btn active" data-category="all">All Projects</button>
-                    <button class="cat-btn" data-category="stats">A/B Testing & Stats</button>
-                    <button class="cat-btn" data-category="ml-ai">ML & AI</button>
-                    <button class="cat-btn" data-category="bayesian">Bayesian</button>
-                    <button class="cat-btn" data-category="music">Music Analytics</button>
-                    <button class="cat-btn" data-category="forecast">Forecasting</button>
-                    <button class="cat-btn" data-category="simulation">Simulation</button>
-                </div>
+    <!-- Header Hero Banner -->
+    <header class="hero-banner">
+        <div class="hero-container">
+            <h1 class="hero-title">Sam Tritto</h1>
+            <p class="hero-bio">
+                Data Scientist at The Home Depot (People Analytics) & Georgia Tech M.S. in Analytics graduate. 
+                Python enthusiast specializing in Bayesian Statistics, Causal Inference, Experimental Design, and MLOps.
+            </p>
+            <div class="hero-links">
+                <a href="mailto:mr.sam.tritto@gmail.com" class="hero-btn">
+                    <span>📧 mr.sam.tritto@gmail.com</span>
+                </a>
+                <a href="https://github.com/sam-tritto" target="_blank" rel="noopener noreferrer" class="hero-btn">
+                    <span>💻 GitHub (sam-tritto)</span>
+                </a>
             </div>
+        </div>
+    </header>
 
-            <!-- Project Cards Grid -->
-            <div class="project-list" id="project-list">
-                <!-- Dynamically populated via JS -->
-                <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading portfolio projects...</div>
+    <!-- Main Content Area -->
+    <main class="main-layout">
+        <!-- Search and Filter Panel -->
+        <div class="filter-bar">
+            <input type="text" id="search" class="search-input" placeholder="Search projects, methods, libraries..." aria-label="Search projects">
+            <div class="categories" id="category-filters">
+                <button class="cat-btn active" data-category="all">All Projects</button>
+                <button class="cat-btn" data-category="stats">A/B Testing & Stats</button>
+                <button class="cat-btn" data-category="ml-ai">ML & AI</button>
+                <button class="cat-btn" data-category="bayesian">Bayesian</button>
+                <button class="cat-btn" data-category="music">Music Analytics</button>
+                <button class="cat-btn" data-category="forecast">Forecasting</button>
+                <button class="cat-btn" data-category="simulation">Simulation</button>
             </div>
-        </main>
-    </div>
+        </div>
+
+        <!-- Project Cards Grid -->
+        <div class="project-list" id="project-list">
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading portfolio projects...</div>
+        </div>
+    </main>
 
     <!-- Client-side logic for search, category filtering, and metadata rendering -->
     <script>
