@@ -114,6 +114,16 @@ def slugify(name):
     slug = re.sub(r'[\s_-]+', '-', slug)
     return slug.lower() + '.html'
 
+def strip_tags(text):
+    while '<' in text and '>' in text:
+        start = text.find('<')
+        end = text.find('>', start)
+        if end != -1:
+            text = text[:start] + text[end+1:]
+        else:
+            break
+    return text.strip()
+
 def main():
     pub_dir = "/Users/sam/Desktop/Desktop Cloud/Data_Science/Portfolio/PUBLISHED"
     dest_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "projects")
@@ -131,6 +141,7 @@ def main():
             continue
             
         src_path = os.path.join(pub_dir, fname)
+        print(f"Processing: {fname}", flush=True)
         
         # 1. Parse Title
         with open(src_path, 'r', encoding='utf-8') as f:
@@ -148,7 +159,7 @@ def main():
         
         body_content = "".join(c_parser.body_parts)
         # Post-processing cleaning
-        body_content = re.sub(r'<p>\s*</p>', '', body_content)
+        body_content = body_content.replace('<p></p>', '')
         
         # 3. Save clean page
         slug = slugify(fname)
@@ -184,13 +195,36 @@ def main():
         
         # Extract a snippet for index.html card preview
         snippet = ""
-        # Find first paragraph
-        p_match = re.search(r'<p>(.*?)</p>', body_content, re.DOTALL)
-        if p_match:
-            # Strip tag wrappers
-            snippet = re.sub(r'<[^>]+>', '', p_match.group(1)).strip()
-            if len(snippet) > 180:
-                snippet = snippet[:177] + "..."
+        
+        # Fast extraction without regex backtracking
+        parts = body_content.split('</p>')
+        for part in parts:
+            if '<p>' in part:
+                p_text = part[part.find('<p>')+3:]
+                clean_text = strip_tags(p_text)
+                if len(clean_text) > 30 and 'GitHub Repo' not in clean_text:
+                    snippet = clean_text
+                    break
+        
+        if not snippet and parts:
+            for part in parts:
+                if '<p>' in part:
+                    p_text = part[part.find('<p>')+3:]
+                    snippet = strip_tags(p_text)
+                    break
+            
+        if len(snippet) > 180:
+            snippet = snippet[:177] + "..."
+            
+        # Extract the first image found using fast string match
+        image_src = ""
+        img_idx = body_content.find('<img')
+        if img_idx != -1:
+            src_idx = body_content.find('src="', img_idx)
+            if src_idx != -1:
+                end_quote = body_content.find('"', src_idx + 5)
+                if end_quote != -1:
+                    image_src = body_content[src_idx + 5:end_quote]
         
         # 4. Copy asset folders if they exist
         asset_folder_name = fname.replace('.html', '')
@@ -198,16 +232,17 @@ def main():
         if os.path.isdir(src_asset_path):
             dest_asset_path = os.path.join(dest_dir, asset_folder_name)
             # Remove existing to overwrite cleanly if rerun
-            if os.path.exists(dest_asset_path):
-                shutil.rmtree(dest_asset_path)
-            shutil.copytree(src_asset_path, dest_asset_path)
-            print(f"  Copied assets folder: {asset_folder_name}")
+            # if os.path.exists(dest_asset_path):
+            #    shutil.rmtree(dest_asset_path)
+            # shutil.copytree(src_asset_path, dest_asset_path)
+            # print(f"  Copied assets folder: {asset_folder_name}")
             
         # Collect metadata
         project_metadata.append({
             'title': title,
             'slug': slug,
             'snippet': snippet,
+            'image': image_src,
             'filename': fname
         })
         

@@ -41,78 +41,34 @@
 
     <!-- Main Content Area -->
     <main class="main-layout">
-        <!-- Search and Filter Panel -->
-        <div class="filter-bar">
-            <input type="text" id="search" class="search-input" placeholder="Search projects, methods, libraries..." aria-label="Search projects">
-            <div class="categories" id="category-filters">
-                <button class="cat-btn active" data-category="all">All Projects</button>
-                <button class="cat-btn" data-category="stats">A/B Testing & Stats</button>
-                <button class="cat-btn" data-category="ml-ai">ML & AI</button>
-                <button class="cat-btn" data-category="bayesian">Bayesian</button>
-                <button class="cat-btn" data-category="music">Music Analytics</button>
-                <button class="cat-btn" data-category="forecast">Forecasting</button>
-                <button class="cat-btn" data-category="simulation">Simulation</button>
-            </div>
-        </div>
-
+        <h2 style="margin-bottom: 2rem; color: var(--primary-dark); font-weight: 700;">Featured Projects</h2>
+        
         <!-- Project Cards Grid -->
         <div class="project-list" id="project-list">
-            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading portfolio projects...</div>
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading featured projects...</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="more-projects.html" class="hero-btn" style="padding: 1rem 2rem; font-size: 1.2rem;">View All Projects by Year</a>
         </div>
     </main>
 
-    <!-- Client-side logic for search, category filtering, and metadata rendering -->
+    <!-- Client-side logic for metadata rendering -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const projectList = document.getElementById('project-list');
-            const searchInput = document.getElementById('search');
-            const filterContainer = document.getElementById('category-filters');
             let projects = [];
-
-            // Category assignment helper based on project title
-            function getCategories(title) {
-                const lowerTitle = title.toLowerCase();
-                const tags = [];
-                
-                if (lowerTitle.includes('test') || lowerTitle.includes('anova') || lowerTitle.includes('manova') || lowerTitle.includes('correlation') || lowerTitle.includes('ab test') || lowerTitle.includes('proportions') || lowerTitle.includes('means')) {
-                    tags.push({ id: 'stats', label: 'A/B Testing & Stats' });
-                }
-                if (lowerTitle.includes('machine learning') || lowerTitle.includes('deep learning') || lowerTitle.includes('llm') || lowerTitle.includes('ai') || lowerTitle.includes('explainability') || lowerTitle.includes('neural') || lowerTitle.includes('nlp') || lowerTitle.includes('parser') || lowerTitle.includes('agent') || lowerTitle.includes('tableau')) {
-                    tags.push({ id: 'ml-ai', label: 'ML & AI' });
-                }
-                if (lowerTitle.includes('bayesian')) {
-                    tags.push({ id: 'bayesian', label: 'Bayesian' });
-                }
-                if (lowerTitle.includes('spotify') || lowerTitle.includes('song') || lowerTitle.includes('band') || lowerTitle.includes('takeover') || lowerTitle.includes('marley') || lowerTitle.includes('music') || lowerTitle.includes('nelson') || lowerTitle.includes('podcast')) {
-                    tags.push({ id: 'music', label: 'Music Analytics' });
-                }
-                if (lowerTitle.includes('forecast') || lowerTitle.includes('forecasting') || lowerTitle.includes('prophet') || lowerTitle.includes('time series')) {
-                    tags.push({ id: 'forecast', label: 'Forecasting' });
-                }
-                if (lowerTitle.includes('simulation') || lowerTitle.includes('sir model')) {
-                    tags.push({ id: 'simulation', label: 'Simulation' });
-                }
-                
-                return tags;
-            }
 
             // Fetch metadata and render projects
             fetch('projects_meta.json')
                 .then(res => res.json())
                 .then(data => {
-                    // Filter out years and other structural placeholder files
-                    const yearPattern = /^(2019|2020|2021|2022|2023|2024|2025)$/;
-                    projects = data.filter(p => {
-                        const title = p.title.trim();
-                        return !yearPattern.test(title) && 
-                               p.slug !== 'cv.html' && 
-                               p.slug !== 'certificates.html' && 
-                               p.slug !== 'reading-list.html' &&
-                               p.slug !== 'new-project.html';
-                    });
-
-                    // Sort projects alphabetically by title
-                    projects.sort((a, b) => a.title.localeCompare(b.title));
+                    // Filter specifically for the 3 featured projects
+                    const featuredSlugs = ['resume-parser.html', 'explainability-agents-and-the-airline-passenger.html', 'evaluating-multimodal-llms-that-think.html'];
+                    projects = data.filter(p => featuredSlugs.includes(p.slug));
+                    
+                    // Maintain order
+                    projects.sort((a, b) => featuredSlugs.indexOf(a.slug) - featuredSlugs.indexOf(b.slug));
 
                     renderProjects(projects);
                 })
@@ -123,59 +79,28 @@
 
             function renderProjects(items) {
                 if (items.length === 0) {
-                    projectList.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No projects match your search criteria.</div>';
+                    projectList.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No projects found.</div>';
                     return;
                 }
 
                 projectList.innerHTML = items.map(p => {
-                    const categories = getCategories(p.title);
-                    const tagsHtml = categories.map(cat => `<span class="tag" style="background-color: var(--code-bg); color: var(--accent); font-weight: 500;">${cat.label}</span>`).join(' ');
                     const snippetHtml = p.snippet ? `<p class="project-desc">${p.snippet}</p>` : '';
+                    // The image src is relative to the projects directory, e.g. "Resume Parser/image.jpg"
+                    const imageHtml = p.image ? `<img src="projects/${p.image}" alt="${p.title}" class="project-thumb">` : '';
                     
                     return `
                         <a href="projects/${p.slug}" class="project-card">
-                            <div class="project-header">
-                                <h2 class="project-title">${p.title}</h2>
-                            </div>
-                            ${snippetHtml}
-                            <div class="project-tags">
-                                ${tagsHtml}
+                            ${imageHtml}
+                            <div class="project-card-body">
+                                <div class="project-header">
+                                    <h2 class="project-title">${p.title}</h2>
+                                </div>
+                                ${snippetHtml}
                             </div>
                         </a>
                     `;
                 }).join('');
             }
-
-            // Real-time search and filter functionality
-            function filterProjects() {
-                const query = searchInput.value.toLowerCase().trim();
-                const activeBtn = filterContainer.querySelector('.cat-btn.active');
-                const category = activeBtn ? activeBtn.getAttribute('data-category') : 'all';
-
-                const filtered = projects.filter(p => {
-                    const matchesSearch = p.title.toLowerCase().includes(query) || (p.snippet && p.snippet.toLowerCase().includes(query));
-                    
-                    if (category === 'all') {
-                        return matchesSearch;
-                    } else {
-                        const categories = getCategories(p.title);
-                        const hasCategory = categories.some(cat => cat.id === category);
-                        return matchesSearch && hasCategory;
-                    }
-                });
-
-                renderProjects(filtered);
-            }
-
-            searchInput.addEventListener('input', filterProjects);
-
-            filterContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('cat-btn')) {
-                    filterContainer.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-                    e.target.classList.add('active');
-                    filterProjects();
-                }
-            });
         });
     </script>
 </body>
