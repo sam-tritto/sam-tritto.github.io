@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+projects/.DS_Store
+.gitignore
+projects/.DS_Store
