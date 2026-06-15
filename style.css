@@ -264,14 +264,11 @@ body {
 
 .project-desc {
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 0.75rem; /* ~10px */
     line-height: 1.6;
     margin-bottom: 1.5rem;
     flex-grow: 1;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    display: block;
 }
 
 .project-tags {

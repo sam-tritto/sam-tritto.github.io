@@ -53,6 +53,9 @@
         </div>
     </main>
 
+    <!-- Load data script -->
+    <script src="projects_data.js"></script>
+    
     <!-- Client-side logic for search, category filtering, grouping by year, and metadata rendering -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -88,34 +91,27 @@
                 return tags;
             }
 
-            // Fetch metadata and render projects
-            fetch('projects_meta.json')
-                .then(res => res.json())
-                .then(data => {
-                    const yearPattern = /^(2019|2020|2021|2022|2023|2024|2025)$/;
-                    
-                    // We extract the order of years from the data
-                    // The Google site often had projects listed under their respective year banners.
-                    // Since projects_meta doesn't have an explicit 'year' field per project, 
-                    // we will infer it based on the layout of projects_meta where year markers were placed.
-                    let currentYear = 'Unknown Year';
-                    
-                    data.forEach(p => {
-                        const title = p.title.trim();
-                        if (yearPattern.test(title)) {
-                            currentYear = title;
-                        } else if (p.slug !== 'cv.html' && p.slug !== 'certificates.html' && p.slug !== 'reading-list.html' && p.slug !== 'new-project.html' && p.slug !== 'home.html') {
-                            p.year = currentYear;
-                            allProjects.push(p);
-                        }
-                    });
-
-                    renderProjects(allProjects);
-                })
-                .catch(err => {
-                    projectContainer.innerHTML = '<div style="color: red; text-align: center;">Error loading projects. Make sure projects_meta.json is generated.</div>';
-                    console.error(err);
+            try {
+                const data = window.PROJECTS_DATA;
+                const yearPattern = /^(2019|2020|2021|2022|2023|2024|2025)$/;
+                
+                let currentYear = 'Unknown Year';
+                
+                data.forEach(p => {
+                    const title = p.title.trim();
+                    if (yearPattern.test(title)) {
+                        currentYear = title;
+                    } else if (p.slug !== 'cv.html' && p.slug !== 'certificates.html' && p.slug !== 'reading-list.html' && p.slug !== 'new-project.html' && p.slug !== 'home.html') {
+                        p.year = currentYear;
+                        allProjects.push(p);
+                    }
                 });
+
+                renderProjects(allProjects);
+            } catch (err) {
+                projectContainer.innerHTML = '<div style="color: red; text-align: center;">Error loading projects.</div>';
+                console.error(err);
+            }
 
             function renderProjects(items) {
                 if (items.length === 0) {

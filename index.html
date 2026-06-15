@@ -22,19 +22,24 @@
 
     <!-- Header Hero Banner -->
     <header class="hero-banner">
-        <div class="hero-container">
-            <h1 class="hero-title">Sam Tritto</h1>
-            <p class="hero-bio">
-                Data Scientist at The Home Depot (People Analytics) & Georgia Tech M.S. in Analytics graduate. 
-                Python enthusiast specializing in Bayesian Statistics, Causal Inference, Experimental Design, and MLOps.
-            </p>
-            <div class="hero-links">
-                <a href="mailto:mr.sam.tritto@gmail.com" class="hero-btn">
-                    <span>📧 mr.sam.tritto@gmail.com</span>
-                </a>
-                <a href="https://github.com/sam-tritto" target="_blank" rel="noopener noreferrer" class="hero-btn">
-                    <span>💻 GitHub (sam-tritto)</span>
-                </a>
+        <div class="hero-container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px; padding-right: 2rem;">
+                <h1 class="hero-title">Sam Tritto</h1>
+                <p class="hero-bio">
+                    Data Scientist at The Home Depot (People Analytics) & Georgia Tech M.S. in Analytics graduate. 
+                    Python enthusiast specializing in Bayesian Statistics, Causal Inference, Experimental Design, and MLOps.
+                </p>
+                <div class="hero-links">
+                    <a href="mailto:mr.sam.tritto@gmail.com" class="hero-btn">
+                        <span>📧 mr.sam.tritto@gmail.com</span>
+                    </a>
+                    <a href="https://github.com/sam-tritto" target="_blank" rel="noopener noreferrer" class="hero-btn">
+                        <span>💻 GitHub (sam-tritto)</span>
+                    </a>
+                </div>
+            </div>
+            <div style="flex: 0 0 auto; text-align: center; margin-top: 1rem;">
+                <img src="assets/Home/42daf3da109d0ffe489d7fbc347a54fd.jpg" alt="Sam Tritto Headshot" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 4px solid var(--bg-surface); box-shadow: var(--shadow-lg);">
             </div>
         </div>
     </header>
@@ -53,29 +58,29 @@
         </div>
     </main>
 
+    <!-- Load data script -->
+    <script src="projects_data.js"></script>
+    
     <!-- Client-side logic for metadata rendering -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const projectList = document.getElementById('project-list');
             let projects = [];
 
-            // Fetch metadata and render projects
-            fetch('projects_meta.json')
-                .then(res => res.json())
-                .then(data => {
-                    // Filter specifically for the 3 featured projects
-                    const featuredSlugs = ['resume-parser.html', 'explainability-agents-and-the-airline-passenger.html', 'evaluating-multimodal-llms-that-think.html'];
-                    projects = data.filter(p => featuredSlugs.includes(p.slug));
-                    
-                    // Maintain order
-                    projects.sort((a, b) => featuredSlugs.indexOf(a.slug) - featuredSlugs.indexOf(b.slug));
+            try {
+                const data = window.PROJECTS_DATA;
+                // Filter specifically for the 3 featured projects
+                const featuredSlugs = ['resume-parser.html', 'explainability-agents-and-the-airline-passenger.html', 'evaluating-multimodal-llms-that-think.html'];
+                projects = data.filter(p => featuredSlugs.includes(p.slug));
+                
+                // Maintain order
+                projects.sort((a, b) => featuredSlugs.indexOf(a.slug) - featuredSlugs.indexOf(b.slug));
 
-                    renderProjects(projects);
-                })
-                .catch(err => {
-                    projectList.innerHTML = '<div style="color: red; text-align: center;">Error loading projects. Make sure projects_meta.json is generated.</div>';
-                    console.error(err);
-                });
+                renderProjects(projects);
+            } catch (err) {
+                projectList.innerHTML = '<div style="color: red; text-align: center;">Error loading projects.</div>';
+                console.error(err);
+            }
 
             function renderProjects(items) {
                 if (items.length === 0) {
