@@ -116,7 +116,7 @@ def slugify(name):
 
 def main():
     pub_dir = "/Users/sam/Desktop/Desktop Cloud/Data_Science/Portfolio/PUBLISHED"
-    dest_dir = "/Users/sam/Desktop/Desktop Cloud/Data_Science/Projects/sam-tritto.github.io/projects"
+    dest_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "projects")
     
     os.makedirs(dest_dir, exist_ok=True)
     
@@ -163,15 +163,17 @@ def main():
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-    <article class="post-container">
-        <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+    <div class="post-container">
         <header class="post-header-area">
             <h1>{title}</h1>
         </header>
-        <section class="post-content">
+        <div class="post-back-container">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+        </div>
+        <article class="post-content">
             {body_content}
-        </section>
-    </article>
+        </article>
+    </div>
 </body>
 </html>
 """
