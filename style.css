@@ -215,7 +215,7 @@ body {
 .project-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 2rem;
+    gap: 1.2rem;
 }
 
 /* Project Card */
@@ -239,7 +239,7 @@ body {
 
 .project-thumb {
     width: 100%;
-    height: 180px;
+    height: 260px;
     object-fit: contain;
     background-color: #f8f9fc;
     border-bottom: 1px solid var(--border-light);
