@@ -459,6 +459,59 @@ def verify_approval_token(request_id: str, token: str) -> bool:
                 </div>
             </div>
 
+            <h2>Advanced Infrastructure & Dependency Injection</h2>
+            <p>
+                To decouple environment execution, ScrantonOS uses a <strong>Tool Dispatcher</strong> pattern. Specialist agents query resources exclusively through a package-level interface. At initialization, the dispatcher inspects the global settings instance and injects either real cloud-native client interfaces or static local mocks:
+            </p>
+            <pre><code># tools/__init__.py
+from config import get_config
+
+_cfg = get_config()
+
+if _cfg.is_dev:
+    from tools.mock_tools import (
+        fetch_app_logs,
+        query_billing_data,
+        apply_iam_grant,
+    )
+else:
+    from tools.cloud_tools import (
+        fetch_app_logs,
+        query_billing_data,
+        apply_iam_grant,
+    )</code></pre>
+            <p>
+                This strategy lets engineers run dry-runs locally without GCP authentication, but guarantees that identical code paths execute real GCP Client SDK bindings (like <code>google.cloud.logging_v2</code> or project-level project IAM policy bindings) on staging or production servers.
+            </p>
+
+            <h2>Full-Duplex WebSocket Orchestration</h2>
+            <p>
+                The frontend communicates with the FastAPI back-end via a persistent WebSocket connection (<code>/ws</code>). User queries trigger an asynchronous worker loop inside the workflow engine, broadcasting real-time agent updates. If a gated compliance action is encountered, the server emits a specialized <code>hitl_pause</code> payload:
+            </p>
+            <pre><code># server.py WebSocket Event Router
+try:
+    while True:
+        data = await ws.receive_text()
+        msg = json.loads(data)
+        msg_type = msg.get("type", "chat")
+
+        if msg_type == "chat" and msg.get("message"):
+            # Process natural language through the orchestrator loop
+            await workflow.process_input(msg["message"], session_id=session_id)
+
+        elif msg_type == "hitl_response":
+            # Resume suspended worker threads
+            await workflow.process_hitl_response(
+                request_id=msg.get("request_id"),
+                approved=msg.get("approved"),
+                note=msg.get("note")
+            )
+except WebSocketDisconnect:
+    logger.info("Client disconnected.")</code></pre>
+            <p>
+                When the client clicks "Approve", a <code>hitl_response</code> frame returns the signed token. The server verifies it using the HMAC checker, applies the change to GCP, and alerts the specialist (Stanley) to finalize the role allocation.
+            </p>
+
             <h2>Cloud Scaling and Persistence Modes</h2>
             <p>
                 To support local development and production deployments, ScrantonOS implements a clean database abstraction:
