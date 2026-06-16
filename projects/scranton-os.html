@@ -56,6 +56,8 @@
             height: 100%;
             object-fit: cover;
             display: block;
+            transform: scale(1.75);
+            transform-origin: center 25%;
         }
         .char-info {
             flex-grow: 1;
@@ -427,7 +429,7 @@ def verify_approval_token(request_id: str, token: str) -> bool:
                 <!-- Kevin Malone -->
                 <div class="char-card">
                     <div class="char-avatar-container">
-                        <img src="ScrantonOS/avatars/kevin.png" alt="Kevin Malone" class="char-avatar-img" style="transform: scale(1.35); transform-origin: center 30%;">
+                        <img src="ScrantonOS/avatars/kevin.png" alt="Kevin Malone" class="char-avatar-img">
                     </div>
                     <div class="char-info">
                         <div class="char-name">Kevin Malone</div>
