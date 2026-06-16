@@ -93,7 +93,7 @@
 
             try {
                 const data = window.PROJECTS_DATA;
-                const yearPattern = /^(2019|2020|2021|2022|2023|2024|2025)$/;
+                const yearPattern = /^(2019|2020|2021|2022|2023|2024|2025|2026)$/;
                 
                 let currentYear = 'Unknown Year';
                 
@@ -147,10 +147,17 @@
                         const categories = getCategories(p.title);
                         const tagsHtml = categories.map(cat => `<span class="tag" style="background-color: var(--code-bg); color: var(--accent); font-weight: 500;">${cat.label}</span>`).join(' ');
                         const snippetHtml = p.snippet ? `<p class="project-desc">${p.snippet}</p>` : '';
-                        const imageHtml = p.image ? `<img src="projects/${p.image}" alt="${p.title}" class="project-thumb" style="object-fit: contain; background-color: #f8f9fc;">` : '';
+                        
+                        const isExternal = p.slug.startsWith('http');
+                        const href = isExternal ? p.slug : `projects/${p.slug}`;
+                        const targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+                        
+                        const isAsset = p.image.startsWith('assets/') || p.image.startsWith('http');
+                        const imgSrc = isAsset ? p.image : `projects/${p.image}`;
+                        const imageHtml = p.image ? `<img src="${imgSrc}" alt="${p.title}" class="project-thumb" style="object-fit: contain; background-color: #f8f9fc;">` : '';
                         
                         return `
-                            <a href="projects/${p.slug}" class="project-card">
+                            <a href="${href}"${targetAttr} class="project-card">
                                 ${imageHtml}
                                 <div class="project-card-body">
                                     <div class="project-header">
