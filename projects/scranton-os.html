@@ -189,6 +189,57 @@ def check_prod_requirements(self) -> "ScrantonConfig":
     return self</code></pre>
             </div>
 
+            <div class="tech-box">
+                <h3>4. Factual Correctness: Python Pre-computation vs. LLM Arithmetic</h3>
+                <p>
+                    LLMs are notoriously prone to math errors and hallucinations when asked to perform aggregate arithmetic (like calculating daily budget spend averages or scanning logs for memory trends). ScrantonOS guarantees 100% factual accuracy by implementing a **deterministic pre-computation layer** in Python.
+                </p>
+                <p>
+                    Before the user's prompt is routed to the specialist LLM, the backend executes pure Python tools to parse log CSVs or load JSON billing databases, calculate statistical data, and check rules (like memory growth thresholds or GPU cost ratios). The structured metrics are then injected directly into the LLM's system prompt context. This decouples arithmetic from semantics: Python runs the numbers, and the LLM handles the reasoning, explanations, and office banter.
+                </p>
+                <p>For example, Dwight's SRE module checks if a service's memory usage grew monotonically over five consecutive samples:</p>
+                <pre><code>def analyze_logs_structured(entries: list[dict[str, Any]]) -> dict[str, Any]:
+    """Pre-compute structured metrics from log entries via deterministic Python."""
+    total = len(entries)
+    severity_counts = Counter(e["severity"] for e in entries)
+    
+    # Detect memory leak pattern (monotonic increase over 5+ samples from payment-processor)
+    payment_mem = [e["memory_mb"] for e in entries if e.get("service") == "payment-processor" and e.get("memory_mb")]
+    memory_leak = False
+    if len(payment_mem) >= 5:
+        increases = sum(1 for i in range(1, len(payment_mem)) if payment_mem[i] > payment_mem[i - 1])
+        memory_leak = (increases / (len(payment_mem) - 1)) > 0.8
+
+    return {
+        "total_entries": total,
+        "critical_count": severity_counts.get("CRITICAL", 0),
+        "error_count": severity_counts.get("ERROR", 0),
+        "memory_leak_detected": memory_leak,
+        "peak_memory_mb": max([e["memory_mb"] for e in entries if e.get("memory_mb")], default=0.0)
+    }</code></pre>
+                <p>Similarly, Oscar's FinOps billing tool aggregates GCP SKU charges, flags GPU budget utilization, and maps cost outliers before Oscar writes the report:</p>
+                <pre><code>def compute_billing_metrics(data: dict[str, Any]) -> dict[str, Any]:
+    """Pre-compute billing statistics for Oscar's financial analysis."""
+    items = data["line_items"]
+    budget = data.get("budget_usd", 12000.0)
+    total_cost = sum(item["cost_usd"] for item in items)
+    daily_avg = total_cost / max(len(set(item["date"] for item in items)), 1)
+
+    # Detect GPU cost spikes exceeding 30% of total spend
+    gpu_cost = sum(item["cost_usd"] for item in items if "GPU" in item.get("sku_description", ""))
+    anomalies = []
+    if gpu_cost > total_cost * 0.3:
+        anomalies.append(f"GPU costs are {gpu_cost/total_cost*100:.1f}% of total spend (${gpu_cost:.2f})")
+
+    return {
+        "total_cost_usd": round(total_cost, 2),
+        "daily_average_usd": round(daily_avg, 2),
+        "anomalies": anomalies,
+        "over_budget": total_cost > budget,
+        "budget_utilization_pct": round((total_cost / budget) * 100, 1),
+    }</code></pre>
+            </div>
+
             <h2>How We Built the Pseudorandom Banter & Personality Loop</h2>
             <p>
                 A core requirement of ScrantonOS was making sure the agent interactions felt authentically Dunder Mifflin. We solved this with two specific algorithmic systems:
@@ -214,14 +265,14 @@ def check_prod_requirements(self) -> "ScrantonConfig":
                 This leads to organic, emergent interactions—like Jim Halpert making a dry comment about Dwight's SRE alarmist alert, or Angela Martin expressing deep disappointment in the cleanliness of Kevin's metrics calculation.
             </p>
 
-            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 2rem 0;">
-                <div style="flex: 1; min-width: 300px;">
-                    <h4 style="margin-top: 0; font-size: 1rem; color: var(--text-color);">SRE Outage Inquiry (Michael & Dwight)</h4>
-                    <img src="ScrantonOS/banter_sre.png" alt="SRE Outage Banter Screenshot" style="width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow);">
+            <div style="display: flex; flex-direction: column; gap: 2rem; margin: 2.5rem 0;">
+                <div>
+                    <h4 style="margin-top: 0; font-size: 1rem; color: var(--text-color); margin-bottom: 0.75rem;">SRE Outage Inquiry (Michael & Dwight)</h4>
+                    <img src="ScrantonOS/banter_sre.png" alt="SRE Outage Banter Screenshot" style="width: 100%; max-width: 800px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); display: block;">
                 </div>
-                <div style="flex: 1; min-width: 300px;">
-                    <h4 style="margin-top: 0; font-size: 1rem; color: var(--text-color);">FinOps Audit Query (Michael & Oscar)</h4>
-                    <img src="ScrantonOS/banter_finops.png" alt="FinOps Audit Banter Screenshot" style="width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow);">
+                <div>
+                    <h4 style="margin-top: 0; font-size: 1rem; color: var(--text-color); margin-bottom: 0.75rem;">FinOps Audit Query (Michael & Oscar)</h4>
+                    <img src="ScrantonOS/banter_finops.png" alt="FinOps Audit Banter Screenshot" style="width: 100%; max-width: 800px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); display: block;">
                 </div>
             </div>
 
