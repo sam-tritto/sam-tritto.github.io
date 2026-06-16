@@ -162,6 +162,7 @@
                                 <div class="project-card-body">
                                     <div class="project-header">
                                         <h3 class="project-title">${p.title}</h3>
+                                        ${p.date ? `<div class="project-date" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; font-weight: 500;">${p.date}</div>` : ''}
                                     </div>
                                     ${snippetHtml}
                                     <div class="project-tags">
