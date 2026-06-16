@@ -66,7 +66,7 @@ window.PROJECTS_DATA = [
     "title": "Mixed ANOVA for Longitudinal Studies",
     "slug": "mixed-anova-for-longitudinal-studies-.html",
     "snippet": "An implementation of the Mixed ANOVA Test from end to end including power analysis, testing, and post-hoc-testing. This test is the appropriate test for comparing the means of multiple groups over time in a Longitudinal Study scenario such as comparing Satisfaction Scores from user surveys taken each year.",
-    "image": "Mixed ANOVA for Longitudinal Studies /7d570b4ab02bcaaead916dd9f35376e8.jpg",
+    "image": "Mixed ANOVA for Longitudinal Studies/7d570b4ab02bcaaead916dd9f35376e8.jpg",
     "filename": "Mixed ANOVA for Longitudinal Studies_.html"
   },
   {
@@ -115,7 +115,7 @@ window.PROJECTS_DATA = [
     "title": "Survey Analysis",
     "slug": "survey-analysis.html",
     "snippet": "Here is a comprehensive project from end to end where I analyze survey data to find measureable company metrics which are most relevant to the survey to use as proxy metrics for measurement throughout the year. Also these survey responses are fed into Google's Gemini model for sentiment analysis and topic summarization, at scale.",
-    "image": "",
+    "image": "Survey Analysis/4c44a93828a925ebe5d85485af539461.jpg",
     "filename": "Survey Analysis.html"
   },
   {
@@ -248,7 +248,7 @@ window.PROJECTS_DATA = [
     "title": "Bayesian Hierarchical A/B Testing",
     "slug": "bayesian-hierarchical-ab-testing-.html",
     "snippet": "Bayesian Hierarchical A/B Testing with pyMC3For this product Data Science project I\u2019ll explore the use of Bayesian Inference in A/B testing using the PyMC3 library. Using synthetic data, the idea behind the project will be to test 4 new playlist algorithms against the current algorithm. The metrics will focus on user interaction during the first selected song, and the metrics measures will be the skip rate and the average time it took a user to skip the song.",
-    "image": "Bayesian Hierarchical AB Testing /e619d49b0faa7d5deb01e88bb29724be.jpg",
+    "image": "Bayesian Hierarchical AB Testing/e619d49b0faa7d5deb01e88bb29724be.jpg",
     "filename": "Bayesian Hierarchical AB Testing_.html"
   },
   {
@@ -304,7 +304,7 @@ window.PROJECTS_DATA = [
     "title": "Creating A Willie Nelson Inspired Song",
     "slug": "creating-a-willie-nelson-inspired-song-.html",
     "snippet": "Creating a Willie Nelson Inspired Song with textgenrnn and spaCyFor this project I wanted to try my hand at some text generation. And as a Willie Nelson fan, I was hoping to use it to write a brand new Willie Nelson Song based off of all of his song lyrics. The lyrics were obtained easily through the Genius API and the text generation was performed with textgenrnn and spaCy.",
-    "image": "Creating A Willie Nelson Inspired Song /c19fce8d6851a36e93bfd0f0b512c6fc.jpg",
+    "image": "Creating A Willie Nelson Inspired Song/c19fce8d6851a36e93bfd0f0b512c6fc.jpg",
     "filename": "Creating A Willie Nelson Inspired Song_.html"
   },
   {
