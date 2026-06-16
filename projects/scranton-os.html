@@ -37,29 +37,25 @@
             transform: translateY(-2px);
             box-shadow: var(--card-shadow-hover);
         }
-        .char-avatar {
+        .char-avatar-container {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            object-fit: cover;
+            overflow: hidden;
             border: 2px solid var(--primary-color);
             flex-shrink: 0;
             margin-right: 1rem;
-        }
-        .char-avatar-badge {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 2px solid var(--primary-color);
-            flex-shrink: 0;
-            margin-right: 1rem;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 700;
-            background-color: var(--primary-color);
-            color: #ffffff;
+            background-color: var(--bg-alt);
+            position: relative;
+        }
+        .char-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
         .char-info {
             flex-grow: 1;
@@ -262,7 +258,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
             <div class="char-grid">
                 <!-- Michael Scott -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/michael.png" alt="Michael Scott" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/michael.png" alt="Michael Scott" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Michael Scott</div>
                         <div class="char-role">Chief Orchestrator</div>
@@ -272,7 +270,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Dwight Schrute -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/dwight.png" alt="Dwight Schrute" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/dwight.png" alt="Dwight Schrute" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Dwight Schrute</div>
                         <div class="char-role">SRE Specialist</div>
@@ -282,7 +282,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Oscar Martinez -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/oscar.png" alt="Oscar Martinez" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/oscar.png" alt="Oscar Martinez" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Oscar Martinez</div>
                         <div class="char-role">FinOps Analyst</div>
@@ -292,7 +294,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Angela Martin -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/angela.png" alt="Angela Martin" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/angela.png" alt="Angela Martin" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Angela Martin</div>
                         <div class="char-role">Firebase Monitor</div>
@@ -302,7 +306,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Stanley Hudson -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/stanley.png" alt="Stanley Hudson" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/stanley.png" alt="Stanley Hudson" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Stanley Hudson</div>
                         <div class="char-role">IAM Gatekeeper</div>
@@ -312,7 +318,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Toby Flenderson -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/toby.png" alt="Toby Flenderson" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/toby.png" alt="Toby Flenderson" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Toby Flenderson</div>
                         <div class="char-role">Compliance Officer</div>
@@ -322,7 +330,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Jim Halpert -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/jim.png" alt="Jim Halpert" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/jim.png" alt="Jim Halpert" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Jim Halpert</div>
                         <div class="char-role">UI/UX Lint Reviewer</div>
@@ -332,7 +342,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Pam Beesly -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/pam.png" alt="Pam Beesly" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/pam.png" alt="Pam Beesly" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Pam Beesly</div>
                         <div class="char-role">Report Generator</div>
@@ -342,7 +354,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Jan Levinson -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/jan.png" alt="Jan Levinson" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/jan.png" alt="Jan Levinson" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Jan Levinson</div>
                         <div class="char-role">Tech Debt Auditor</div>
@@ -352,7 +366,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Meredith Palmer -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/meredith.png" alt="Meredith Palmer" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/meredith.png" alt="Meredith Palmer" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Meredith Palmer</div>
                         <div class="char-role">Chaos Engineer</div>
@@ -362,7 +378,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Gabe Lewis -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/gabe.png" alt="Gabe Lewis" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/gabe.png" alt="Gabe Lewis" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Gabe Lewis</div>
                         <div class="char-role">RAG Search Agent</div>
@@ -372,7 +390,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Bob Vance -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/bob_vance.png" alt="Bob Vance" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/bob_vance.png" alt="Bob Vance" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Bob Vance</div>
                         <div class="char-role">Legacy Migrator</div>
@@ -382,7 +402,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Creed Bratton -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/creed.png" alt="Creed Bratton" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/creed.png" alt="Creed Bratton" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Creed Bratton</div>
                         <div class="char-role">Data Shredder</div>
@@ -392,7 +414,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Erin Hannon -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/erin.png" alt="Erin Hannon" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/erin.png" alt="Erin Hannon" class="char-avatar-img">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Erin Hannon</div>
                         <div class="char-role">Git Pipeline Manager</div>
@@ -402,7 +426,9 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Kevin Malone -->
                 <div class="char-card">
-                    <img src="ScrantonOS/avatars/kevin.png" alt="Kevin Malone" class="char-avatar">
+                    <div class="char-avatar-container">
+                        <img src="ScrantonOS/avatars/kevin.png" alt="Kevin Malone" class="char-avatar-img" style="transform: scale(1.35); transform-origin: center 30%;">
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Kevin Malone</div>
                         <div class="char-role">Metrics Dashboard</div>
@@ -412,7 +438,19 @@ def verify_approval_token(request_id: str, token: str) -> bool:
 
                 <!-- Ryan Howard -->
                 <div class="char-card">
-                    <div class="char-avatar-badge">RH</div>
+                    <div class="char-avatar-container" style="background-color: #BDC3C7;">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+                            <circle cx="50" cy="48" r="22" fill="#f5d6c6"/>
+                            <path d="M25 40 C 25 20, 75 20, 75 40 C 75 25, 25 25, 25 40" fill="#2c3e50"/>
+                            <path d="M32 35 Q 50 15 68 35 Q 50 25 32 35" fill="#2c3e50"/>
+                            <rect x="36" y="42" width="12" height="8" rx="2" fill="none" stroke="#2c3e50" stroke-width="2.5"/>
+                            <rect x="52" y="42" width="12" height="8" rx="2" fill="none" stroke="#2c3e50" stroke-width="2.5"/>
+                            <line x1="48" y1="46" x2="52" y2="46" stroke="#2c3e50" stroke-width="2.5"/>
+                            <path d="M45 58 Q 50 61 55 58" stroke="#2c3e50" stroke-width="2" fill="none"/>
+                            <path d="M38 70 L 50 82 L 62 70 Z" fill="#ffffff"/>
+                            <path d="M20 90 C 20 75, 35 68, 50 68 C 65 68, 80 75, 80 90 Z" fill="#34495e"/>
+                        </svg>
+                    </div>
                     <div class="char-info">
                         <div class="char-name">Ryan Howard</div>
                         <div class="char-role">Modernize Specialist</div>
