@@ -7,6 +7,14 @@
     "filename": "2026.html"
   },
   {
+    "title": "ScrantonOS — Multi-Agent Cloud Command Center",
+    "slug": "scranton-os.html",
+    "snippet": "A persistent, multi-agent orchestration engine and web interface modeled after The Office staff, designed to handle cloud operations, system diagnostics, and Human-in-the-Loop workflows. Built using the Google Antigravity SDK, FastAPI, and WebSockets, with dual-persistence modes for local development and scalable production deployments.",
+    "image": "ScrantonOS/thumbnail.png",
+    "filename": "scranton-os.html",
+    "date": "June 2026"
+  },
+  {
     "title": "PhoneTag",
     "slug": "https://www.phonetag.me",
     "snippet": "Building my very first app!  Introducing... PhoneTag\n\nPhoneTag eliminates the \"Can you talk?\" text dance by giving your inner circle a real-time glance at your availability. Using a streamlined, one-tap status system (Available, Quick Chat, or Focused) it replaces the exhausting cycle of missed calls with intentional connection. Designed for privacy and deep focus, PhoneTag ensures you reach out only when the time is right, making every conversation count without the social media noise.",

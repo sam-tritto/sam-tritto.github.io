@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScrantonOS: Dunder Mifflin Cloud Command Center - Sam's Data Portfolio</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>ScrantonOS: Dunder Mifflin Cloud Command Center</h1>
+        </header>
+        
+        <div class="post-back-container">
+            <a href="../more-projects.html" class="post-back">&larr; Back to Projects</a>
+        </div>
+        
+        <article class="post-content">
+            <h1>Orchestrating Cloud Ops with a Multi-Agent Team modeled after The Office</h1>
+            
+            <img src="ScrantonOS/thumbnail.png" alt="ScrantonOS Dashboard Illustration" class="post-image">
+            
+            <p>
+                What happens when you combine the chaotic energy of Dunder Mifflin with the Google Antigravity SDK and FastAPI? You get <strong>ScrantonOS</strong>—a persistent, multi-agent orchestration engine and web interface built to handle corporate cloud operations, system diagnostics, and compliance workflows. 
+            </p>
+            <p>
+                In a typical engineering environment, routing cloud requests, reviewing IAM permissions, analyzing budgets, and managing data deletion is handled by disjointed CLI scripts or tickets. ScrantonOS replaces this with a cohesive, Natural Language processing routing loop that delegates technical tasks to a team of agents, each possessing the distinct personality (and functional competence) of characters from <em>The Office</em>.
+            </p>
+
+            <h2>Architecture Overview</h2>
+            <p>
+                ScrantonOS operates as a hub-and-spoke system. Natural language requests are received by the orchestrator agent and then routed dynamically to subject matter experts based on intent classification. If a task requires multiple steps, the orchestrator can chain tasks together, creating an automated pipeline.
+            </p>
+            
+            <h2>The Full Cast of ScrantonOS Subagents</h2>
+            <p>
+                ScrantonOS maps 16 distinct characters from <em>The Office</em> to functional system roles in the cloud command center. Each character uses custom instructions to enforce their corporate persona while managing critical infrastructure nodes:
+            </p>
+            <div style="overflow-x: auto; margin: 2rem 0;">
+                <table style="width: 100%; border-collapse: collapse; min-width: 600px; text-align: left; font-family: inherit;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--accent); color: var(--accent); font-weight: 600;">
+                            <th style="padding: 12px; font-size: 0.95rem;">Character Agent</th>
+                            <th style="padding: 12px; font-size: 0.95rem;">System Role</th>
+                            <th style="padding: 12px; font-size: 0.95rem;">System Responsibility</th>
+                            <th style="padding: 12px; font-size: 0.95rem;">Key Personality Trait</th>
+                        </tr>
+                    </thead>
+                    <tbody style="color: var(--text-color);">
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Michael Scott</td>
+                            <td style="padding: 12px;">Chief Orchestrator</td>
+                            <td style="padding: 12px;">Command routing & intent classification</td>
+                            <td style="padding: 12px;">Enthusiastic delegator, high energy</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Dwight Schrute</td>
+                            <td style="padding: 12px;">SRE Specialist</td>
+                            <td style="padding: 12px;">Cloud logs, memory leaks & system uptime</td>
+                            <td style="padding: 12px;">Threat assessment, intensely rigid</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Oscar Martinez</td>
+                            <td style="padding: 12px;">FinOps Analyst</td>
+                            <td style="padding: 12px;">Cloud budgets, expenses & cost audits</td>
+                            <td style="padding: 12px;">Pedantic, detail-oriented analyst</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Angela Martin</td>
+                            <td style="padding: 12px;">Firebase Monitor</td>
+                            <td style="padding: 12px;">Crashlytics crash-free users & ANR rates</td>
+                            <td style="padding: 12px;">Zero tolerance, references cats</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Stanley Hudson</td>
+                            <td style="padding: 12px;">IAM Gatekeeper</td>
+                            <td style="padding: 12px;">Permissions, access grants & whitelists</td>
+                            <td style="padding: 12px;">Sassy, impatient, wants to go home</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Toby Flenderson</td>
+                            <td style="padding: 12px;">Compliance Officer</td>
+                            <td style="padding: 12px;">Human-in-the-Loop approval gate</td>
+                            <td style="padding: 12px;">Apologetic, procedural, blocks tasks</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Jim Halpert</td>
+                            <td style="padding: 12px;">UI/UX Lint Reviewer</td>
+                            <td style="padding: 12px;">Frontend alignments, css & design coherence</td>
+                            <td style="padding: 12px;">Casual, dry humor, deadpan comments</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Pam Beesly</td>
+                            <td style="padding: 12px;">Report Generator</td>
+                            <td style="padding: 12px;">System summaries & markdown artifacts</td>
+                            <td style="padding: 12px;">Helpful, cares about report formatting</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Jan Levinson</td>
+                            <td style="padding: 12px;">Tech Debt Auditor</td>
+                            <td style="padding: 12px;">TODO/FIXME comments & sprint velocity</td>
+                            <td style="padding: 12px;">Highly stressed, uncompromising corporate tone</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Meredith Palmer</td>
+                            <td style="padding: 12px;">Chaos Engineer</td>
+                            <td style="padding: 12px;">Fuzz testing & load simulation</td>
+                            <td style="padding: 12px;">Unfiltered, loves breaking endpoints</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Gabe Lewis</td>
+                            <td style="padding: 12px;">RAG Search Agent</td>
+                            <td style="padding: 12px;">Internal wiki & documentation delivery</td>
+                            <td style="padding: 12px;">Over-thorough, pedantic corporate liaison</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Bob Vance</td>
+                            <td style="padding: 12px;">Legacy Migrator</td>
+                            <td style="padding: 12px;">Cold data archival & lifecycle policies</td>
+                            <td style="padding: 12px;">"Bob Vance, Vance Refrigeration" branding</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Creed Bratton</td>
+                            <td style="padding: 12px;">Data Shredder</td>
+                            <td style="padding: 12px;">GDPR erasure & data purging</td>
+                            <td style="padding: 12px;">Untraceable, mysterious compliance denial</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Erin Hannon</td>
+                            <td style="padding: 12px;">Git pipeline Reception</td>
+                            <td style="padding: 12px;">CI/CD status, PR reviews & branch merges</td>
+                            <td style="padding: 12px;">Eager, overly enthusiastic about commits</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Kevin Malone</td>
+                            <td style="padding: 12px;">Metrics Dashboard</td>
+                            <td style="padding: 12px;">Dashboard queries, sums & statistics</td>
+                            <td style="padding: 12px;">Struggles with basic math, food analogies</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--code-bg);">
+                            <td style="padding: 12px; font-weight: 500;">Ryan Howard</td>
+                            <td style="padding: 12px;">Modernize Specialist</td>
+                            <td style="padding: 12px;">Trendy recommendations & WUPHF integration</td>
+                            <td style="padding: 12px;">Bleeding-edge tech bro, arrogant buzzwords</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Detailed Agent Showcases</h3>
+            <p>
+                To illustrate how these personalities influence operations, here's a look at how key subagents execute their system duties:
+            </p>
+            <ul>
+                <li><strong>Angela Martin (Firebase)</strong>: Angela's agent instructions enforce a strict 99.9% crash-free rate constraint. If the system logs show a crash rate of 99.8%, Angela declares a "moral failing" of the engineering team rather than a standard software bug. She lists crashes by how much they offend her, ensuring quality is kept at an absolute premium.</li>
+                <li><strong>Ryan Howard (Modernize)</strong>: True to his corporate tech-bro phase, Ryan’s solution to any cloud latency or code issue is to "rewrite it entirely in Rust or serverless Go." He bombards the chat logs with buzzwords and relentlessly tries to pitch routing system alerts through <em>WUPHF.com</em>.</li>
+                <li><strong>Creed Bratton (Purge)</strong>: Creed handles the GDPR "Right to be Forgotten" tasks. When you request a data wipe, Creed executes the tools perfectly to purge user data, but immediately denies the existence of the database or the user in the follow-up logs: <em>"What database? I don't know what you're talking about, man."</em></li>
+                <li><strong>Kevin Malone (Metrics)</strong>: When asked for billing sums or uptime numbers, Kevin attempts to compile dashboard queries but gets hopelessly confused by basic math, suggesting the team measures database performance in "M&Ms or pots of chili."</li>
+                <li><strong>Bob Vance (Legacy)</strong>: Always introducing himself as "Bob Vance, Vance Refrigeration," Bob treats data archival like freezing meat, packaging old code tables tight and sliding them into cold storage (Google Cloud Storage Archive or Glacier) to keep them "fresh and chilled."</li>
+            </ul>
+
+            <h2>Multi-Agent Routing & The Orchestration Loop</h2>
+            <p>
+                When a request is submitted, Michael Scott classifies it into one of over 12 operational categories (such as SRE, FinOps, IAM, and Data Purge). Below is a snippet of Michael's intent classification instructions:
+            </p>
+            <pre style="background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; color: var(--text-color);"><code># Intent Classification Categories
+- **sre**: Cloud logs, crashes, errors, system failures, uptime
+- **finops**: Billing, costs, spending, budget, GPU usage
+- **iam**: Access requests, permissions, roles, security clearance
+- **purge**: Data deletion, GDPR compliance, PII removal
+- **report**: Generate a summary, artifact, formatted output</code></pre>
+            <p>
+                Once classified, the session payload is forwarded to the corresponding agent. The workflow supports multi-turn conversations, caching state dynamically.
+            </p>
+
+            <h2>Human-in-the-Loop (HITL) Gatekeeping</h2>
+            <p>
+                Not all operations should be automated. Destructive tasks (like <code>DELETE</code> operations) or security elevations (like IAM role changes) require human oversight. ScrantonOS enforces this via a compliance mechanism managed by Toby Flenderson:
+            </p>
+            <ol>
+                <li>The agent identifies a high-risk operation and generates a pending workflow token.</li>
+                <li>The orchestration engine suspends execution and routes the token to Toby.</li>
+                <li>Toby blocks the workflow and surfaces an approval request on the Web Interface (or returns a pending token via the REST API).</li>
+                <li>The user must review, add a reason, and explicitly click "Approve" or "Reject" to resume or abort the operation.</li>
+            </ol>
+            <p>
+                This ensures compliance is maintained without halting the chat interface for other non-destructive queries.
+            </p>
+
+            <h2>Cloud Scaling and Persistence Modes</h2>
+            <p>
+                To support local development and production deployments, ScrantonOS implements a clean database abstraction:
+            </p>
+            <ul>
+                <li><strong>DEV Mode</strong>: Relies on local CSV files for conversation logging, audit logs, and session management. This enables fast offline iteration without needing cloud database connections.</li>
+                <li><strong>PROD Mode</strong>: Auto-switches to <strong>Google Cloud Firestore</strong>. In production, session documents, thread states, and compliance logs are written to Firestore collections. Secrets are pulled securely from <strong>GCP Secret Manager</strong> at runtime rather than being hardcoded.</li>
+            </ul>
+
+            <h2>Local Setup and Deployment</h2>
+            <p>
+                Testing ScrantonOS locally is straightforward using Docker:
+            </p>
+            <pre style="background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; color: var(--text-color);"><code># Build and run the multi-agent container
+docker-compose up --build
+
+# Generate synthetic billing, logs, and ticket data for testing
+python scripts/generate_synthetics.py</code></pre>
+            <p>
+                For cloud environments, the server is fully containerized and compatible with serverless engines like Google Cloud Run. WebSocket support ensures real-time streaming of agent responses back to the browser console.
+            </p>
+
+            <div style="margin-top: 3rem; text-align: center;">
+                <a href="../more-projects.html" class="post-back" style="display: inline-block;">&larr; Back to Catalog</a>
+            </div>
+        </article>
+    </div>
+</body>
+</html>
