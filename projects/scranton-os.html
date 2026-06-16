@@ -214,6 +214,17 @@ def check_prod_requirements(self) -> "ScrantonConfig":
                 This leads to organic, emergent interactions—like Jim Halpert making a dry comment about Dwight's SRE alarmist alert, or Angela Martin expressing deep disappointment in the cleanliness of Kevin's metrics calculation.
             </p>
 
+            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 2rem 0;">
+                <div style="flex: 1; min-width: 300px;">
+                    <h4 style="margin-top: 0; font-size: 1rem; color: var(--text-color);">SRE Outage Inquiry (Michael & Dwight)</h4>
+                    <img src="ScrantonOS/banter_sre.png" alt="SRE Outage Banter Screenshot" style="width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow);">
+                </div>
+                <div style="flex: 1; min-width: 300px;">
+                    <h4 style="margin-top: 0; font-size: 1rem; color: var(--text-color);">FinOps Audit Query (Michael & Oscar)</h4>
+                    <img src="ScrantonOS/banter_finops.png" alt="FinOps Audit Banter Screenshot" style="width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow);">
+                </div>
+            </div>
+
             <h2>Human-in-the-Loop (HITL) Gatekeeping & Cryptographic Tokens</h2>
             <p>
                 Not all operations should be automated. Destructive tasks (like <code>DELETE</code> operations) or security elevations (like IAM role changes) require human oversight. ScrantonOS enforces this via a compliance mechanism managed by Toby Flenderson.
@@ -251,6 +262,11 @@ def verify_approval_token(request_id: str, token: str) -> bool:
             }
         # Validate token cryptographically in production flow...
     return {"success": True, "user": user, "role": role}</code></pre>
+
+            <div style="margin: 2.5rem 0;">
+                <h4 style="font-size: 1rem; color: var(--text-color); margin-bottom: 0.75rem;">Compliance Approval Gate (Toby's HITL Portal)</h4>
+                <img src="ScrantonOS/banter_hitl.png" alt="Toby HITL Compliance Gate Screenshot" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); display: block;">
+            </div>
 
             <h2>The Full Cast of ScrantonOS Subagents</h2>
             <p>
