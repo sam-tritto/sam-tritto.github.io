@@ -14,7 +14,7 @@ window.PROJECTS_DATA = [
     "filename": "Resume Parser.html"
   },
   {
-    "title": "Explainability Agents and the Airline Passenger Satisfaction",
+    "title": "Explainability Agents and the Airline Passenger Satisfaction Dataset",
     "slug": "explainability-agents-and-the-airline-passenger.html",
     "snippet": "Here I'll use Google's ADK Data Science Agent along with SHAP values so that we can talk to our Machine Learning model's outputs in order to answer some interesting and complex \"Why?\" questions. The first part of this project is a classification problem using the Airline Passenger Satisfaction Dataset. The second part builds an XAI Agent so that we can talk to our model's predictions. We'll ask the Agent to provide us insights, generate some really nice charts, and even do some ML of it's own!",
     "image": "Explainability Agents and the Airline Passenger/880741ccb88645ddc3d6d9c357fbb897.jpg",
