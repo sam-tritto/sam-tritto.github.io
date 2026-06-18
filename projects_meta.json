@@ -392,14 +392,6 @@
     "date": "December 2019"
   },
   {
-    "title": "How to Write a Hit Song in 2020",
-    "slug": "how-to-write-a-hit-song-in-2020.html",
-    "snippet": "Recently I revisited my first musical data project and gave it a total makeover \u2013 inside and out! Before I knew how easy it is to access musical data using the Spotify API, I had found a dataset on Kaggle that someone had made from Spotify\u2019s API and began to play around with it. The dataset is the top 50 tracks on Spotify from each year 2010 \u2013 2019. In the end I got some very surprising results that I am proud of. You can find the same dataset here, or even on my GitHub page.",
-    "image": "How to Write a Hit Song in 2020/0fa62c6ef107e26499c623bc3c41f7f4.jpg",
-    "filename": "How to Write a Hit Song in 2020.html",
-    "date": "November 2019"
-  },
-  {
     "title": "The Big Takeover Band: 12+ Years of Data",
     "slug": "the-big-takeover-band-12-years-of-data.html",
     "snippet": "The Big Takeover Band: 12+ Years of Real Tour DataI\u2019ve been playing around a lot lately with the Spotify API, but I was wondering what other kind of musical data is out there. Was there any live show data I could play around with? So I reached out to my former band mates in The Big Takeover and asked them if they had anything. Turns out the excel spreadsheet I had started 12+ years ago was still going strong, full of years worth of shows, pay, attendance, etc\u2026 And boy was it a mess (almost as messy as the band van)! For this project I wanted to see what kind of value I could create for them \u2013 if I could clean it up well enough first!",

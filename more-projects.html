@@ -37,11 +37,15 @@
             <div class="categories" id="category-filters">
                 <button class="cat-btn active" data-category="all">All Projects</button>
                 <button class="cat-btn" data-category="stats">A/B Testing & Stats</button>
-                <button class="cat-btn" data-category="ml-ai">ML & AI</button>
+                <button class="cat-btn" data-category="ml">Machine Learning</button>
+                <button class="cat-btn" data-category="ai">GenAI & Agents</button>
+                <button class="cat-btn" data-category="mlops">MLOps</button>
                 <button class="cat-btn" data-category="bayesian">Bayesian</button>
                 <button class="cat-btn" data-category="music">Music Analytics</button>
                 <button class="cat-btn" data-category="forecast">Forecasting</button>
                 <button class="cat-btn" data-category="simulation">Simulation</button>
+                <button class="cat-btn" data-category="apps-dev">Software & Apps</button>
+                <button class="cat-btn" data-category="data-eng">Data Engineering</button>
             </div>
         </div>
 
@@ -67,11 +71,17 @@
                 const lowerTitle = title.toLowerCase();
                 const tags = [];
                 
-                if (lowerTitle.includes('test') || lowerTitle.includes('anova') || lowerTitle.includes('manova') || lowerTitle.includes('correlation') || lowerTitle.includes('ab test') || lowerTitle.includes('proportions') || lowerTitle.includes('means') || lowerTitle.includes('rank')) {
+                if (lowerTitle.includes('test') || lowerTitle.includes('anova') || lowerTitle.includes('manova') || lowerTitle.includes('correlation') || lowerTitle.includes('ab test') || lowerTitle.includes('proportions') || lowerTitle.includes('means') || lowerTitle.includes('rank') || lowerTitle.includes('z-score') || lowerTitle.includes('loo')) {
                     tags.push({ id: 'stats', label: 'A/B Testing & Stats' });
                 }
-                if (lowerTitle.includes('machine learning') || lowerTitle.includes('deep learning') || lowerTitle.includes('llm') || lowerTitle.includes('ai') || lowerTitle.includes('explainability') || lowerTitle.includes('neural') || lowerTitle.includes('nlp') || lowerTitle.includes('parser') || lowerTitle.includes('agent') || lowerTitle.includes('tableau') || lowerTitle.includes('sentiment') || lowerTitle.includes('classifying')) {
-                    tags.push({ id: 'ml-ai', label: 'ML & AI' });
+                if (lowerTitle.includes('machine learning') || lowerTitle.includes('deep learning') || lowerTitle.includes('regression') || lowerTitle.includes('regressor') || lowerTitle.includes('forest') || lowerTitle.includes('knn') || lowerTitle.includes('clustering') || lowerTitle.includes('k-means') || lowerTitle.includes('classification') || lowerTitle.includes('classifying') || lowerTitle.includes('outliers') || lowerTitle.includes('anomalies')) {
+                    tags.push({ id: 'ml', label: 'Machine Learning' });
+                }
+                if (lowerTitle.includes('ai') || lowerTitle.includes('agent') || lowerTitle.includes('llm') || lowerTitle.includes('nlp') || lowerTitle.includes('sentiment') || lowerTitle.includes('explainability') || lowerTitle.includes('parser') || lowerTitle.includes('multimodal') || lowerTitle.includes('thinking')) {
+                    tags.push({ id: 'ai', label: 'GenAI & Agents' });
+                }
+                if (lowerTitle.includes('mlops') || lowerTitle.includes('gcp') || lowerTitle.includes('cloud') || lowerTitle.includes('etl')) {
+                    tags.push({ id: 'mlops', label: 'MLOps' });
                 }
                 if (lowerTitle.includes('bayesian')) {
                     tags.push({ id: 'bayesian', label: 'Bayesian' });
@@ -84,6 +94,12 @@
                 }
                 if (lowerTitle.includes('simulation') || lowerTitle.includes('sir model') || lowerTitle.includes('overbooking')) {
                     tags.push({ id: 'simulation', label: 'Simulation' });
+                }
+                if (lowerTitle.includes('phonetag') || lowerTitle.includes('scranton-os') || lowerTitle.includes('scrantonos') || lowerTitle.includes('parser') || lowerTitle.includes('app') || lowerTitle.includes('command center') || lowerTitle.includes('platform') || lowerTitle.includes('dashboard') || lowerTitle.includes('web')) {
+                    tags.push({ id: 'apps-dev', label: 'Software & Apps' });
+                }
+                if (lowerTitle.includes('bigquery') || lowerTitle.includes('gcp') || lowerTitle.includes('cloud') || lowerTitle.includes('etl') || lowerTitle.includes('mlops') || lowerTitle.includes('sql') || lowerTitle.includes('database')) {
+                    tags.push({ id: 'data-eng', label: 'Data Engineering' });
                 }
                 
                 return tags;
