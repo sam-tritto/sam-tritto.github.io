@@ -722,6 +722,17 @@ except WebSocketDisconnect:
                 <li><strong>Privacy-First Local Rendering:</strong> Data is passed entirely over the local WebSocket connection and drawn client-side. No user metrics, logs, or billing data is ever transmitted back to the CDN or third parties.</li>
             </ul>
 
+            <h2>Offline-Capable Vanilla RAG (Gabe Lewis)</h2>
+            <p>
+                To allow Gabe Lewis (our RAG Search Agent) to factually answer queries about cloud deployment policies, we implemented a lightweight, offline-capable <strong>Vanilla RAG</strong> (Retrieval-Augmented Generation) system. This setup serves as a solid foundation that can be expanded upon as needed (e.g., transitioning to a full vector database like Firestore Vector Search in the future):
+            </p>
+            <ul>
+                <li><strong>Document Corpus:</strong> A new <code>data/documents/</code> directory was created, populated with three critical GCP reference guides: <code>cloud_run_guide.txt</code>, <code>firestore_rules_guide.txt</code>, and <code>iam_best_practices.txt</code>.</li>
+                <li><strong>Search Utility (<code>tools/docs_rag.py</code>):</strong> Generates text embeddings using the Google GenAI SDK (<code>text-embedding-004</code>) and ranks document chunks using a pure Python cosine similarity search against the local vector store. In offline mode (or if the Gemini API key is missing/fails), it gracefully falls back to a TF-IDF-like word-overlap algorithm that parses the raw text documents directly.</li>
+                <li><strong>Index Builder (<code>scripts/build_rag_index.py</code>):</strong> Crawls the document corpus, splits text into ~150-word chunks, computes embeddings, and saves them to a lightweight local JSON store (<code>data/vector_index.json</code>). It is also hooked into <code>generate_synthetics.py</code> to automatically rebuild the vector index whenever synthetic data is regenerated.</li>
+                <li><strong>Application Integration:</strong> Integrated within the main orchestrator (<code>app.py</code>) under <code>CommandIntent.DOCS</code> parsing and <code>_run_docs</code>. Gabe now dynamically queries the local index, prepends the matching document context to his prompt, and answers the user's technical questions factually while maintaining his signature pedantic corporate liaison persona.</li>
+            </ul>
+
             <h2>Cloud Scaling and Persistence Modes</h2>
             <p>
                 To support local development and production deployments, ScrantonOS implements a clean database
@@ -753,9 +764,8 @@ python scripts/generate_synthetics.py</code></pre>
                 console.
             </p>
 
-            <div style="margin-top: 3rem; text-align: center;">
-                <a href="../more-projects.html" class="post-back" style="display: inline-block;">&larr; Back to
-                    Catalog</a>
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
             </div>
         </article>
     </div>
