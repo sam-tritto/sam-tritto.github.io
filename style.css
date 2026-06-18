@@ -151,21 +151,23 @@ body {
 
 .more-projects-btn {
     display: inline-block;
-    background-color: var(--primary-color);
-    color: #ffffff;
-    text-decoration: none;
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
     padding: 1rem 2.5rem;
     border-radius: 6px;
     font-size: 1.2rem;
     font-weight: 500;
     transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid var(--primary-color);
+    border: 1px solid var(--primary-color) !important;
     box-shadow: 0 4px 6px -1px rgba(48, 64, 110, 0.15);
 }
 
 .more-projects-btn:hover {
-    background-color: var(--primary-hover);
-    border-color: var(--primary-hover);
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
     transform: translateY(-2px);
     box-shadow: 0 8px 12px -2px rgba(48, 64, 110, 0.25);
 }
