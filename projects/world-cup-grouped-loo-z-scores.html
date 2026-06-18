@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grouped LOO Z-Scores: Ranking World Cup Players Like a Pro - Sam's Data Portfolio</title>
+    <meta name="description" content="A deep dive into Grouped Leave-One-Out Z-Scores applied to FIFA World Cup soccer data. Learn how z-scores solve everyday analyst problems and scale up to evaluate 1,092 players across six peer-grouping strategies.">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .math-block {
+            background: #f4f6fb;
+            border-left: 4px solid #4a6fa5;
+            border-radius: 4px;
+            padding: 1rem 1.5rem;
+            margin: 1.2rem 0;
+            font-family: 'Georgia', serif;
+            font-size: 1.05rem;
+            color: #222;
+            overflow-x: auto;
+        }
+        .inline-code {
+            background: #eef0f6;
+            border-radius: 3px;
+            padding: 0.1em 0.4em;
+            font-family: monospace;
+            font-size: 0.93em;
+            color: #333;
+        }
+        .callout {
+            background: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            border-radius: 4px;
+            padding: 0.9rem 1.2rem;
+            margin: 1.2rem 0;
+        }
+        .callout-warn {
+            background: #fff8e1;
+            border-left: 4px solid #ffa000;
+        }
+        .callout strong { display: block; margin-bottom: 0.3rem; }
+        table.data-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+            font-size: 0.92rem;
+        }
+        table.data-table th {
+            background: #2c3e6b;
+            color: #fff;
+            padding: 0.5rem 0.8rem;
+            text-align: left;
+        }
+        table.data-table td {
+            border: 1px solid #dde;
+            padding: 0.45rem 0.8rem;
+        }
+        table.data-table tr:nth-child(even) td { background: #f5f6fa; }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>Grouped LOO Z-Scores: Ranking World Cup Players Like a Pro</h1>
+        </header>
+        <div class="post-back-container">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+        </div>
+        <article class="post-content">
+
+            <h1>Grouped LOO Z-Scores for FIFA World Cup Player Analysis</h1>
+            <img src="World Cup z-Scores/thumbnail.png" alt="Soccer ball with Z-Score bell curve" class="post-image">
+
+            <p>GitHub Repo:</p>
+            <p>You can find this notebook in my GitHub Repo here: <a href="https://github.com/sam-tritto/World-Cup-z-Scores">https://github.com/sam-tritto/World-Cup-z-Scores</a></p>
+
+            <h2>Introduction: Why Z-Scores Are a Data Analyst's Secret Weapon</h2>
+
+            <p>The FIFA World Cup 2026 has kicked off, and the world is watching. Every pundit has an opinion: who's the best player, who stepped up when it mattered, who was a passenger riding a great team's coattails. But sports intuition alone can only take you so far. When you're looking at 1,092 players across 128 matches, spanning six different positions and two tournaments, you need a systematic way to separate signal from noise.</p>
+
+            <p>Enter the <strong>Z-Score</strong> — one of the most elegantly simple and widely applicable tools in the analyst's toolkit. At its heart, a z-score answers a single question: <em>How far is this value from the average, measured in units of standard deviation?</em> That deceptively simple answer unlocks a tremendous amount of analytical power. Z-scores let you compare apples to oranges, flatten skewed distributions into a common language, and surface the truly exceptional performers hiding in seas of noisy data. Whether you're a product analyst comparing conversion rates across user cohorts, a finance analyst evaluating fund returns across market cycles, or a sports scientist ranking athletes across positions — z-scores are almost always a good idea as a first move.</p>
+
+            <p>In this tutorial, we're going to build up the z-score concept from scratch, layer on <strong>peer-group standardization</strong>, and then combine it with a sophisticated <strong>Leave-One-Out (LOO) possession chain engine</strong> powered by StatsBomb open data. The result is a multi-metric composite ranking framework that can tell us not just who scored the most, but who was truly <em>indispensable</em> to their team's attacking system — and how that compares to every other player in their position. By the end, you'll have a reusable framework you can apply to any sport, any business domain, or any dataset where you need to compare entities across multiple metrics and peer groups.</p>
+
+            <h2>Part 1 — Z-Scores from First Principles</h2>
+
+            <h3>The Formula</h3>
+
+            <p>The z-score formula is:</p>
+
+            <div class="math-block">
+                Z = (x − μ) / σ
+            </div>
+
+            <p>Where:</p>
+            <ul>
+                <li><strong>x</strong> is the raw value for our observation</li>
+                <li><strong>μ</strong> (mu) is the mean of the reference population</li>
+                <li><strong>σ</strong> (sigma) is the standard deviation of that same population</li>
+            </ul>
+
+            <p>A z-score of <strong>0</strong> means "perfectly average." A z-score of <strong>+1.0</strong> means "one standard deviation above average," which is better than roughly 84% of the population. A z-score of <strong>+2.0</strong> puts you above about 97.7% of peers. Anything above +3.0 is genuinely elite — a once-in-a-generation performer by any measure.</p>
+
+            <h3>Why Not Just Use Raw Numbers?</h3>
+
+            <p>Imagine you're comparing the performance of two sales reps: Alice sold $450,000 last quarter; Bob sold $220,000. Simple — Alice wins, right? Not so fast. If Alice covers the Northeast (avg $380K/quarter, σ = $60K) and Bob covers the Mountain West (avg $180K/quarter, σ = $30K), then:</p>
+
+            <div class="math-block">
+                Z_Alice = (450,000 − 380,000) / 60,000 = +1.17
+            </div>
+            <div class="math-block">
+                Z_Bob = (220,000 − 180,000) / 30,000 = +1.33
+            </div>
+
+            <p>Bob is actually performing <em>better relative to his peers</em>, even though his raw number looks smaller. This is the core insight: raw numbers embed context that z-scores strip away, letting you make fair comparisons across very different distributions.</p>
+
+            <h3>Solving Real Analyst Problems with Z-Scores</h3>
+
+            <p>Here are everyday scenarios where z-scores shine:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr><th>Scenario</th><th>What you're comparing</th><th>What z-scores do</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>A/B test across device types</td><td>Conversion rates on mobile vs. desktop</td><td>Normalize for different baseline rates</td></tr>
+                    <tr><td>Employee performance reviews</td><td>Sales across regions with different quotas</td><td>Compare fairly across territories</td></tr>
+                    <tr><td>Financial risk</td><td>Fund returns across market cycles</td><td>Identify alpha independent of market regime</td></tr>
+                    <tr><td>Healthcare benchmarking</td><td>Hospital readmission rates across population sizes</td><td>Adjust for case mix differences</td></tr>
+                    <tr><td>Sports analytics</td><td>Goals scored by forwards vs. defenders</td><td>Compare within positional peer groups</td></tr>
+                </tbody>
+            </table>
+
+            <p>The pattern is always the same: when your raw metric is contaminated by group-level differences in baseline or scale, z-scores let you subtract out that group signal and compare the residual — the <em>individual</em> signal — directly.</p>
+
+            <h2>Part 2 — Grouped Z-Scores: When One Distribution Isn't Enough</h2>
+
+            <h3>The Apples-to-Oranges Problem in Soccer</h3>
+
+            <p>A goalkeeper who makes 8 saves in a match is extraordinary. A center forward who makes 8 saves... is playing in goal for some reason. Position determines what a "good" value looks like for almost every metric. If you compute a single global z-score for offensive influence across all 1,092 players in our dataset, strikers will dominate the leaderboard — not because they're the <em>best players</em> in the tournament, but because their job description involves touching the ball near goal. A world-class center back who contributes 0.15 xG per 90 minutes to possession chains looks terrible in a global ranking. But compared to other center backs? He might be exceptional.</p>
+
+            <p>The solution is <strong>grouped z-scores</strong>: compute the mean and standard deviation <em>within</em> a positional peer group, and standardize against that:</p>
+
+            <div class="math-block">
+                Z_i = (x_i − μ_g) / σ_g
+            </div>
+
+            <p>Where μ_g and σ_g are the mean and standard deviation of metric x within peer group g.</p>
+
+            <h3>The Six Grouping Strategies</h3>
+
+            <p>Our notebook implements six distinct grouping strategies, forming a spectrum from coarse to fine-grained peer definitions:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr><th>#</th><th>Group Key</th><th>Cohorts</th><th>Purpose</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><span class="inline-code">group_global</span></td><td>1 (all players)</td><td>Baseline — unfiltered ranking</td></tr>
+                    <tr><td>2</td><td><span class="inline-code">group_tier</span></td><td>4 (GK / DEF / MID / FWD)</td><td>Coarse positional split</td></tr>
+                    <tr><td>3</td><td><span class="inline-code">group_cohort</span></td><td>7 (Goalkeeper, Center Back, Fullback, Defensive Mid, Central Mid, Winger, Forward)</td><td>Recommended — best balance</td></tr>
+                    <tr><td>4</td><td><span class="inline-code">group_position_raw</span></td><td>18 (StatsBomb raw positions)</td><td>Maximum specificity</td></tr>
+                    <tr><td>5</td><td><span class="inline-code">group_tenure</span></td><td>2 (First WC / Returning)</td><td>Cross-tournament experience</td></tr>
+                    <tr><td>6</td><td><span class="inline-code">group_age</span></td><td>3 (Young / Prime / Veteran)</td><td>Age-adjusted peer comparison</td></tr>
+                </tbody>
+            </table>
+
+            <p>Using multiple grouping strategies simultaneously lets us ask richer questions. The 7-cohort grouping (strategy #3) is the recommended sweet spot — granular enough to separate roles meaningfully, while keeping cohort sizes large enough that the standard deviation is stable and the z-scores are well-behaved.</p>
+
+            <h3>The Small-Sample Safeguard</h3>
+
+            <p>When a cohort is very small (fewer than 10 players), its sample standard deviation becomes unreliable — a single outlier can wildly inflate or deflate it, producing extreme z-scores that don't mean much. We defend against this with a <strong>pooled sigma fallback</strong>: if any cohort falls below the minimum size threshold, we replace its σ with a size-weighted average σ across all cohorts:</p>
+
+<pre class="math-block">σ_pooled = Σ(σ_g × n_g) / Σ(n_g)</pre>
+
+            <p>This is the same logic behind pooled variance in Student's t-test. Here's the relevant Python function from the notebook:</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>def compute_grouped_scores(df, value_col, group_col, min_cohort_size=10, invert=False):
+    """
+    Compute Z-Scores within each peer group.
+    If invert=True, lower values of value_col will yield higher Z-scores.
+    """
+    z_col = f"{group_col}_{value_col.replace('_p90', '')}_zscore"
+    result = df.copy()
+    result[z_col] = np.nan
+
+    # Per-group statistics
+    gstats = (
+        df.groupby(group_col, observed=True)[value_col]
+        .agg(["mean", "std", "count"])
+        .reset_index()
+    )
+
+    # Pooled sigma for small-sample fallback
+    valid = gstats.dropna(subset=["std"])
+    pooled_std = (valid["std"] * valid["count"]).sum() / valid["count"].sum()
+
+    for _, gs in gstats.iterrows():
+        grp  = gs[group_col]
+        mu   = gs["mean"]
+        sigma = gs["std"]
+        n    = gs["count"]
+
+        # Small-cohort fallback
+        if n < min_cohort_size or pd.isna(sigma) or sigma == 0:
+            sigma = pooled_std
+
+        mask = result[group_col] == grp
+        val_slice = result.loc[mask, value_col]
+
+        z = (mu - val_slice) / sigma if invert else (val_slice - mu) / sigma
+        result.loc[mask, z_col] = z
+
+    return result</code></pre>
+
+            <p>Note the <span class="inline-code">invert=True</span> flag: for defensive metrics like <em>opponent xG conceded while on the pitch</em>, a lower value is better, so we flip the sign so that elite defenders still get high positive z-scores.</p>
+
+            <h2>Part 3 — The Data Foundation: StatsBomb Open Data</h2>
+
+            <h3>What We're Working With</h3>
+
+            <p>StatsBomb publishes free, research-grade event data for select competitions. For the 2018 and 2022 FIFA World Cups (64 matches each, 128 total), every touch, pass, shot, tackle, and interception is logged at the sub-second level. The notebook ingests this data via the <span class="inline-code">statsbombpy</span> library, extracting the columns we need and caching the result to Parquet so the API only gets hit once:</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>TOURNAMENTS = [
+    {"competition_id": 43, "season_id": 3,   "label": "WC 2018"},
+    {"competition_id": 43, "season_id": 106, "label": "WC 2022"},
+]
+
+events_df, player_minutes_df = ingest_tournament_data(TOURNAMENTS, DATA_DIR)</code></pre>
+
+            <p>The final dataset contains:</p>
+
+            <ul>
+                <li><strong>462,462</strong> individual events</li>
+                <li><strong>3,785</strong> player-match records</li>
+                <li><strong>1,092</strong> unique players</li>
+                <li><strong>27,507</strong> defensive disruptions tracked</li>
+            </ul>
+
+            <p>For each player-match, the ingestion pipeline also calculates how much <em>opponent xG they faced</em> while on the pitch (by matching shot timestamps against player stint intervals) — a key ingredient for the defensive side of our composite score.</p>
+
+            <h2>Part 4 — The LOO Engine: Measuring Indispensability</h2>
+
+            <h3>Beyond Box Scores: Possession Chain Value</h3>
+
+            <p>Traditional scouting metrics like goals, assists, and key passes reward only the last touch or two in an attacking sequence. A midfielder who plays a precise line-breaking pass to a winger who then beats a defender and picks out a striker for a tap-in gets... nothing in the box score. The striker gets the goal, the winger might get the assist. The midfielder who started it all is invisible.</p>
+
+            <p>Leave-One-Out analysis fixes this by asking: <em>how much would this team's attack have suffered if this player hadn't been on the pitch?</em> We do this at the possession chain level.</p>
+
+            <h3>How Possession Chain LOO Works</h3>
+
+            <ol>
+                <li><strong>Identify valuable chains.</strong> A possession chain is a StatsBomb <span class="inline-code">possession</span> sequence — a continuous stretch of events owned by one team. We flag every chain that ends in at least one shot, and value it as the sum of <span class="inline-code">shot_statsbomb_xg</span> across all shots in that chain.</li>
+                <li><strong>Credit every participant.</strong> Any player from the possession team who had any event in that chain (a touch, a pass, even winning the ball back) is considered a chain contributor.</li>
+                <li><strong>LOO Influence Δ.</strong> Each player's offensive influence delta is simply the sum of chain xG values across every chain they participated in — the total xG that would have been "lost" from the team's attack if that player had been removed from every chain.</li>
+            </ol>
+
+            <p>A key property: because multiple players share credit for the same chain, the sum of all LOO deltas in a team will <em>exceed</em> the team's actual xG. That's not a bug — it's the point. The sum measures <em>system dependence</em>: how many times over the team relies on its collective participants. A team where every player's LOO delta equals the team's total xG has maximum system dependence.</p>
+
+            <p>The engine also introduces a <strong>Possession Chain Value (PCV)</strong> metric that adds a small bonus for chain length:</p>
+
+            <div class="math-block">
+                PCV = chain_xg + 0.01 × event_count
+            </div>
+
+            <p>This rewards players who sustain possession sequences, even in chains that don't end in shots — a nod to the ball-retention work that often underpins elite attacking play.</p>
+
+            <h3>Defensive LOO</h3>
+
+            <p>Players who disrupt <em>opponent</em> possession chains also get credit. Interceptions, blocks, clearances, ball recoveries, and duels during opponent possession are tagged as defensive disruption events. The defensive LOO delta is the total xG value of opponent chains that the player disrupted:</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code># Net delta: offensive influence minus defensive disruptions
+result["influence_delta_net_xg"] = (
+    result["influence_delta_off_xg"] - result["influence_delta_def_xg"]
+)
+
+# Per-90 normalization for all metrics
+result["influence_delta_p90"] = (
+    result["influence_delta_off_xg"] / result["minutes_played"] * 90
+)</code></pre>
+
+            <p>All metrics are normalized <strong>per 90 minutes</strong> using actual pitch time (computed from StatsBomb lineup stint timestamps), making them comparable across players who appeared in different amounts of playing time.</p>
+
+            <h2>Part 5 — Feature Engineering: xG and xGD</h2>
+
+            <p>Before the LOO engine runs, we build team-level xG and expected goal differential (xGD) for every match:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr><th>Metric</th><th>Formula</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><span class="inline-code">team_xg</span></td><td>Σ shot_statsbomb_xg for all shots by the team</td></tr>
+                    <tr><td><span class="inline-code">opponent_xg</span></td><td>The opposing team's team_xg in the same match</td></tr>
+                    <tr><td><span class="inline-code">team_xgd</span></td><td>team_xg − opponent_xg</td></tr>
+                </tbody>
+            </table>
+
+            <p>xGD is the gold standard for measuring offensive/defensive efficiency in soccer — it correlates far more strongly with future results than actual goal differential because it strips out goalkeeper heroics and finishing luck. Across our 256 team-match records (128 matches × 2 teams), the average xGD is exactly 0.0 (by construction), with a standard deviation of 1.31 and a range from −4.15 to +4.15.</p>
+
+            <h2>Part 6 — Tournament Aggregation and Group Assignment</h2>
+
+            <p>Match-level metrics are aggregated to the tournament level: we sum raw deltas and total minutes across all of a player's matches in a tournament, then recompute per-90 from the tournament totals. This avoids the "one great game" problem — a player who was excellent in one match but poor in all others shouldn't rank above a player who was consistently good throughout a tournament.</p>
+
+            <p>Players with fewer than 90 total tournament minutes are filtered out — we need a meaningful sample to produce stable z-scores.</p>
+
+            <p>Then every player gets assigned to all six groupings simultaneously. The 7-cohort grouping uses a mapping from StatsBomb's 18 raw positions down to 7 cohorts:</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>POSITION_TO_COHORT = {
+    "Goalkeeper":           "Goalkeeper",
+    "Center Back":          "Center Back",
+    "Right Center Back":    "Center Back",
+    "Left Center Back":     "Center Back",
+    "Right Back":           "Fullback",
+    "Left Back":            "Fullback",
+    "Right Wing Back":      "Fullback",
+    "Left Wing Back":       "Fullback",
+    "Center Defensive Midfield": "Defensive Mid",
+    "Center Midfield":      "Central Mid",
+    "Right Center Midfield":"Central Mid",
+    "Left Center Midfield": "Central Mid",
+    "Center Attacking Midfield": "Central Mid",
+    "Right Attacking Midfield":  "Winger",
+    "Left Attacking Midfield":   "Winger",
+    "Right Wing":           "Winger",
+    "Left Wing":            "Winger",
+    "Center Forward":       "Forward",
+    "Secondary Striker":    "Forward",
+}</code></pre>
+
+            <p>A player's cohort is determined by their <em>tournament-level primary position</em> — the position they played the most total minutes at across all matches in the tournament. This prevents short-stint position changes from contaminating a player's peer group.</p>
+
+            <h2>Part 7 — The Composite Score: Position-Aware Weighted Z-Scores</h2>
+
+            <p>With six separate z-score series computed for each of three raw metrics (offensive LOO, defensive LOO, defensive disruptions) across six grouping strategies, the next step is combining them into a single, interpretable composite ranking.</p>
+
+            <p>We use a position-aware weighting scheme from the 7-cohort grouping:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr><th>Cohort</th><th>Offensive weight</th><th>Opponent xG Conceded weight</th><th>Disruptions weight</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Forward</td><td>0.70</td><td>0.15</td><td>0.15</td></tr>
+                    <tr><td>Winger</td><td>0.70</td><td>0.15</td><td>0.15</td></tr>
+                    <tr><td>Central Mid</td><td>0.40</td><td>0.30</td><td>0.30</td></tr>
+                    <tr><td>Defensive Mid</td><td>0.40</td><td>0.30</td><td>0.30</td></tr>
+                    <tr><td>Fullback</td><td>0.15</td><td>0.45</td><td>0.40</td></tr>
+                    <tr><td>Center Back</td><td>0.15</td><td>0.45</td><td>0.40</td></tr>
+                    <tr><td>Goalkeeper</td><td>0.00</td><td>1.00</td><td>0.00</td></tr>
+                </tbody>
+            </table>
+
+            <p>This encoding reflects positional responsibility: forwards are primarily judged on their offensive chain contribution; goalkeepers are judged entirely on whether the team concedes xG while they're between the posts; central defenders split their weight between avoiding conceded xG and active disruptions. The composite formula is:</p>
+
+            <div class="math-block">
+                Composite_Z = w_off × Z_off + w_conc × Z_conc + w_disrupt × Z_disrupt
+            </div>
+
+            <p>Three variants of the composite are computed — using the original LOO delta, the xGD LOO net delta, and the PCV LOO delta — enabling comparison across modeling philosophies.</p>
+
+            <h2>Part 8 — Concept Spotlight: Why Peer Grouping Changes Everything</h2>
+
+            <p>The notebook demonstrates this with <strong>Marcelo</strong> — Brazil's left fullback at Russia 2018, renowned for his freewheeling attacking contributions. His raw offensive influence delta per 90 minutes was 1.28 xG — that's high. But <em>how high</em> depends entirely on who you're comparing him to:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr><th>Peer Grouping Strategy</th><th>Peer Group</th><th>Offensive Z-Score</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Global (All Players)</td><td>All Players</td><td>+1.83</td></tr>
+                    <tr><td>Tier (Defenders)</td><td>DEF</td><td>+2.58</td></tr>
+                    <tr><td>Cohort (Fullbacks)</td><td>Fullback</td><td>+2.47</td></tr>
+                    <tr><td>Raw Position (Left Back)</td><td>Left Back</td><td>+2.71</td></tr>
+                </tbody>
+            </table>
+
+            <p>Globally, Marcelo looks strong at +1.83. But against fullbacks specifically, he rises to +2.47 — over two and a half standard deviations above the average fullback's offensive contribution. Against only Left Backs (his precise role), he reaches +2.71. The tighter the peer group, the clearer the signal of exceptional positional performance. Without positional grouping, Marcelo's brilliance as a fullback would be masked by the strikers who naturally accumulate more chain xG by playing closer to goal.</p>
+
+            <h2>Part 9 — Risers and Fallers: The Global vs. Cohort Ranking Shift</h2>
+
+            <p>The notebook computes explicit "riser" and "faller" rankings — players whose composite z-score changes most dramatically when switching from global to cohort standardization:</p>
+
+            <p><strong>Risers</strong> are typically defenders and deep-lying midfielders. Their raw LOO deltas are modest in absolute terms but exceptional relative to their positional peers. A center back who reads the game impeccably, disrupts opponent chains, and still contributes to ball circulation will shoot up the cohort rankings even though a global ranking would bury him behind every forward.</p>
+
+            <p><strong>Fallers</strong> are often forwards with high raw influence deltas that look unremarkable once measured against other forwards doing the same job. A striker with a 1.0 xG per 90 influence delta might be solidly average within the Forward cohort even though they rank highly globally.</p>
+
+            <p>This is the most practically useful output for scouts and analysts: a ranked list of who's genuinely over-performing their positional average, regardless of where their position sits in the raw metric hierarchy.</p>
+
+            <h2>Part 10 — Model Comparison: Three LOO Flavors</h2>
+
+            <p>The notebook compares three composite ranking variants side-by-side. Here's the top-10 Forward leaderboard across all three models:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr><th>Rank</th><th>Original LOO</th><th>Z</th><th>xGD LOO</th><th>Z</th><th>PCV LOO</th><th>Z</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>Roberto Firmino</td><td>3.57</td><td>Roberto Firmino</td><td>3.22</td><td>Marco Asensio</td><td>2.25</td></tr>
+                    <tr><td>2</td><td>Kai Havertz</td><td>3.06</td><td>Kai Havertz</td><td>2.92</td><td>Kai Havertz</td><td>1.94</td></tr>
+                    <tr><td>3</td><td>Niclas Füllkrug</td><td>2.93</td><td>Niclas Füllkrug</td><td>2.71</td><td>Roberto Firmino</td><td>1.89</td></tr>
+                    <tr><td>4</td><td>Michy Batshuayi</td><td>1.79</td><td>Michy Batshuayi</td><td>1.67</td><td>Diego da Silva Costa</td><td>1.54</td></tr>
+                    <tr><td>6</td><td>Diego da Silva Costa</td><td>1.08</td><td>Wahbi Khazri</td><td>1.01</td><td>Thomas Müller</td><td>1.36</td></tr>
+                    <tr><td>7</td><td>Lionel Messi</td><td>1.05</td><td>Lionel Messi</td><td>0.96</td><td>Gabriel Jesus</td><td>1.32</td></tr>
+                </tbody>
+            </table>
+
+            <p>Roberto Firmino and Kai Havertz top both the original and xGD models, showing remarkable consistency across methodologies — a good sign that they're capturing something real. The PCV model diverges more because it rewards possession sustainability, which surfaces different types of attacking contribution.</p>
+
+            <p>Notably, <strong>Lionel Messi</strong> ranks 7th among forwards in both the original and xGD models with a z-score around +1.0. This isn't damning — +1.0 still means he's better than 84% of tournament forwards — but it does reflect Argentina's relatively cautious style in 2018 compared to teams that pressed higher and generated more shot-ending chains involving their forwards. By 2022, Messi's numbers improved significantly, particularly in the Poland and Croatia matches (offensive z-scores of +2.15 and +1.25 respectively match-by-match).</p>
+
+            <h2>Part 11 — Player Spotlight: Messi's Z-Score Timeline</h2>
+
+            <p>The final section of the notebook tracks Messi's match-by-match z-scores across all 11 of his World Cup appearances in the dataset (4 in 2018, 7 in 2022), enabling a trend analysis of how his influence pattern shifted between tournaments:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr><th>Tournament</th><th>Opponent</th><th>Min</th><th>Offensive Z</th><th>Def Z</th><th>Disruptions Z</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>WC 2018</td><td>Iceland</td><td>95</td><td>+0.98</td><td>−0.42</td><td>−0.71</td></tr>
+                    <tr><td>WC 2018</td><td>Croatia</td><td>94</td><td>+0.31</td><td>+0.48</td><td>−0.29</td></tr>
+                    <tr><td>WC 2018</td><td>Nigeria</td><td>94</td><td>0.00</td><td>−0.38</td><td>+0.65</td></tr>
+                    <tr><td>WC 2018</td><td>France</td><td>95</td><td>+0.15</td><td>−0.01</td><td>+1.07</td></tr>
+                    <tr><td>WC 2022</td><td>Saudi Arabia</td><td>103</td><td>+1.63</td><td>−0.38</td><td>−0.54</td></tr>
+                    <tr><td>WC 2022</td><td>Mexico</td><td>96</td><td>−0.45</td><td>−0.38</td><td>−0.48</td></tr>
+                    <tr><td>WC 2022</td><td>Poland</td><td>96</td><td>+2.15</td><td>−0.38</td><td>−0.26</td></tr>
+                    <tr><td>WC 2022</td><td>Australia</td><td>97</td><td>+0.44</td><td>+0.91</td><td>−0.28</td></tr>
+                    <tr><td>WC 2022</td><td>Netherlands</td><td>174</td><td>+0.76</td><td>−0.38</td><td>−0.75</td></tr>
+                    <tr><td>WC 2022</td><td>Croatia</td><td>95</td><td>+1.25</td><td>−0.38</td><td>+0.41</td></tr>
+                    <tr><td>WC 2022</td><td>France (Final)</td><td>212</td><td>+0.64</td><td>−0.11</td><td>−0.77</td></tr>
+                </tbody>
+            </table>
+
+            <p>The trajectory is clear: Messi's offensive influence per 90 was mostly sub-average or barely above average in 2018 (his team was eliminated in the Round of 16). By 2022 he produced his two highest individual match z-scores (+2.15 vs Poland, +1.63 vs Saudi Arabia) while consistently registering above-average in the knockout rounds. The framework captures not just <em>who</em> is good, but <em>when</em> they stepped up.</p>
+
+            <h2>Key Takeaways</h2>
+
+            <ol>
+                <li><strong>Z-scores are a universal normalization tool.</strong> Any time you're comparing values across groups with different baselines or scales, standardize within the relevant peer group before comparing.</li>
+                <li><strong>Grouping strategy is a design decision, not a constant.</strong> Coarser groupings (4-tier) are more robust to small samples; finer groupings (18 raw positions) are more position-specific but need the pooled-σ safeguard.</li>
+                <li><strong>LOO analysis surfaces invisible contributors.</strong> Players who don't score or assist can still be the most indispensable player in a possession system — the LOO framework makes that visible.</li>
+                <li><strong>Per-90 normalization is essential.</strong> Raw totals reward players with more playing time. Per-90 reveals rate of contribution independent of opportunity.</li>
+                <li><strong>Multiple composite models are better than one.</strong> The agreement between the original LOO, xGD LOO, and PCV LOO models adds confidence; the disagreements highlight where methodology assumptions matter most.</li>
+                <li><strong>The framework is domain-agnostic.</strong> Replace "possession chains" with "sales cycles," "patient care episodes," or "code commits" and the grouped z-score composite pattern applies equally well.</li>
+            </ol>
+
+            <a href="more-projects.html"><p>More Projects</p></a>
+        </article>
+    </div>
+</body>
+</html>

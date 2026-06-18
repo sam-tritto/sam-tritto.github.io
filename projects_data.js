@@ -23,6 +23,14 @@ window.PROJECTS_DATA = [
     "date": "June 2026"
   },
   {
+    "title": "Grouped LOO Z-Scores: Ranking World Cup Players Like a Pro",
+    "slug": "world-cup-grouped-loo-z-scores.html",
+    "snippet": "With the World Cup 2026 underway, this tutorial applies Grouped Leave-One-Out Z-Scores to FIFA World Cup 2018 & 2022 StatsBomb data. We build from z-score fundamentals up to a full multi-metric composite ranking engine \u2014 evaluating 1,092 players across 6 peer-grouping strategies, possession chain LOO influence deltas, and position-aware weighted composites. A reusable framework for any domain where fair cross-group comparison matters.",
+    "image": "World Cup z-Scores/thumbnail.png",
+    "filename": "world-cup-grouped-loo-z-scores.html",
+    "date": "June 2026"
+  },
+  {
     "title": "2025",
     "slug": "2025.html",
     "snippet": "",
