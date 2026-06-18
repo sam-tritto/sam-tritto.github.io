@@ -149,6 +149,27 @@ body {
     transform: translateY(-1px);
 }
 
+.more-projects-btn {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    text-decoration: none;
+    padding: 1rem 2.5rem;
+    border-radius: 6px;
+    font-size: 1.2rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 4px 6px -1px rgba(48, 64, 110, 0.15);
+}
+
+.more-projects-btn:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px -2px rgba(48, 64, 110, 0.25);
+}
+
 /* Main Container */
 .main-layout {
     max-width: var(--max-width);
