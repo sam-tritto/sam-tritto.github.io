@@ -14,7 +14,6 @@
             <div class="nav-menu">
                 <a href="index.html" class="nav-link active">Home</a>
                 <a href="more-projects.html" class="nav-link">More Projects</a>
-                <a href="projects/cv.html" class="nav-link">Curriculum Vitae</a>
                 <a href="projects/certificates.html" class="nav-link">Certificates & Journey</a>
             </div>
         </div>
@@ -40,6 +39,9 @@
                     </a>
                     <a href="https://www.linkedin.com/in/sam-tritto" target="_blank" rel="noopener noreferrer" class="hero-btn">
                         <span>👔 LinkedIn</span>
+                    </a>
+                    <a href="https://www.phonetag.me" target="_blank" rel="noopener noreferrer" class="hero-btn">
+                        <span>📱 PhoneTag</span>
                     </a>
                 </div>
             </div>
@@ -75,7 +77,7 @@
             try {
                 const data = window.PROJECTS_DATA;
                 // Filter specifically for the 3 featured projects
-                const featuredSlugs = ['https://www.phonetag.me', 'resume-parser.html', 'explainability-agents-and-the-airline-passenger.html'];
+                const featuredSlugs = ['https://www.phonetag.me', 'resume-parser.html', 'scranton-os.html'];
                 projects = data.filter(p => featuredSlugs.includes(p.slug));
                 
                 // Maintain order
