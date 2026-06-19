@@ -449,6 +449,48 @@ result["influence_delta_p90"] = (
                 <figcaption style="font-size:0.85rem;color:#666;margin-top:0.5rem;">Figure 2 - Messi's offensive LOO z-score match-by-match across both World Cups. His 2018 campaign was uneven; 2022 showed a clear upward trajectory through the knockout rounds, culminating in the championship run.</figcaption>
             </figure>
 
+            <h2>Part 12 - Cumulative Player Value Evolution: Tracking the World Cup Stars</h2>
+
+            <p>To showcase individual contributions through the tournament, we evaluate individual stars in the <strong>2022 World Cup</strong>:</p>
+            <ul>
+                <li><strong>Lionel Messi (Argentina):</strong> Golden Ball winner, leading Argentina's attack.</li>
+                <li><strong>Kylian Mbappé (France):</strong> Golden Boot winner, France's primary goal scorer.</li>
+                <li><strong>Antoine Griezmann (France):</strong> The hybrid engine of France's midfield, evaluated highly by LOO metrics for his transitions and disruptions.</li>
+            </ul>
+
+            <p>The notebook generates a dual-plot analysis:</p>
+            <ol>
+                <li><strong>Lionel Messi’s Match-by-Match Breakdown (Left):</strong> Showing his raw standardized Z-scores for offensive LOO, defensive LOO, and defensive disruptions. This highlights his offensive focus and pocket of defensive work against Australia.</li>
+                <li><strong>Cumulative Z-Score Comparison (Right):</strong> The match-by-match cumulative sum of their composite Z-scores. The positive slopes and high terminal values (up to <strong>+4.0 standard deviations</strong> of value added) provide a highly intuitive representation of elite tournament performance.</li>
+            </ol>
+
+            <figure style="margin:1.5rem 0;text-align:center;">
+                <img src="World Cup z-Scores/players_evolution.png" alt="Line charts: Lionel Messi match-by-match breakdown (left) and cumulative composite z-score comparison (right) for 2022 World Cup stars" class="post-image" style="max-width:100%;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.12);">
+                <figcaption style="font-size:0.85rem;color:#666;margin-top:0.5rem;">Figure 3 - Match-by-match evolution and cumulative composite Z-score tracker for 2022 World Cup finalists, illustrating contrasting player profiles and workloads.</figcaption>
+            </figure>
+
+            <p>The updated cumulative plot beautifully visualizes the tactical narratives and contrasting player roles of the 2022 World Cup Finalists. By adding Enzo Fernández and Aurélien Tchouaméni, we now have a head-to-head comparison of not just the attacking superstars, but also the deep midfield anchors who clashed in the final:</p>
+
+            <h3>1. The Attacking Superstars: High Peak Value</h3>
+            <ul>
+                <li><strong>Lionel Messi (Light Blue — The Relentless Ascent):</strong> Messi's curve shows a nearly linear, steep climb from Group 3 onwards, ending at an astronomical $+3.93$ cumulative standard deviations. This represents his role as Argentina's absolute offensive hub; he was consistently elite in every single knockout game.</li>
+                <li><strong>Kylian Mbappé (Dark Blue — The Explosive Finisher):</strong> Mbappé's trajectory is staircase-like. He plateaus in Group 3 (where he was rested) and during the Quarter-Final against England (where he was heavily marked out of the game, bringing his cumulative contribution down to $0.0$). However, he has a massive vertical surge in the Semi-Final and the Final (driven by his historic hat-trick), finishing at $+1.61$. This is the footprint of a highly explosive player who can be quieted but has a massive, game-winning ceiling.</li>
+            </ul>
+
+            <h3>2. The Midfield Shield: Aurélien Tchouaméni (+1.51)</h3>
+            <p>Tchouaméni's red curve tells a spectacular tactical story. He starts the tournament strong, plateaus through the Quarter-Final (where he scored a screamer against England but also conceded a penalty), and then has a massive vertical leap in the Semi-Final against Morocco (jumping from $-0.13$ to $+1.49$). This vertical jump represents a masterclass in defensive disruption—Tchouaméni was France's lone shield breaking up Morocco's relentless waves of transitions. He finishes the tournament as an elite contributor at $+1.51$.</p>
+
+            <h3>3. The Young Midfield Anchor: Enzo Fernández (-0.27)</h3>
+            <p>Enzo’s bright blue curve reflects a fascinating tactical journey:</p>
+            <ul>
+                <li><strong>The Bench Phase (Group 1 & 2):</strong> He starts below $0.0$ because he was a substitute in the opening games. Despite scoring a legendary goal against Mexico, his low minutes kept his cumulative value negative.</li>
+                <li><strong>The Starter Surge (Group 3 & R16):</strong> Once Scaloni put him in the starting lineup, Enzo's curve immediately climbs, peaking at $+0.38$ against Australia.</li>
+                <li><strong>The Knockout Drag:</strong> In the later stages, his curve dips slightly, finishing at $-0.27$. In deep, high-stakes knockout games, Enzo’s role became highly conservative and structural. While he was vital to Argentina's shape, he had fewer direct offensive chains or tackle volumes compared to more active box-to-box midfielders, resulting in Z-scores that hover near average.</li>
+            </ul>
+
+            <h3>4. The Silent Orchestrator: Antoine Griezmann (+0.57)</h3>
+            <p>Griezmann's green curve remains remarkably flat and steady throughout the tournament, hovering between $+0.4$ and $+0.9$. As France's defensive workhorse and offensive playmaker, he consistently added high-floor, balanced value in every match, even without the explosive spikes of Mbappé or the sheer volume of Messi.</p>
+
             <h2>Key Takeaways</h2>
 
             <ol>
