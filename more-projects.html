@@ -189,7 +189,7 @@
                         
                         const isAsset = p.image.startsWith('assets/') || p.image.startsWith('http');
                         const imgSrc = isAsset ? p.image : `projects/${p.image}`;
-                        const imageHtml = p.image ? `<img src="${imgSrc}" alt="${p.title}" class="project-thumb" style="object-fit: contain; background-color: #f8f9fc;">` : '';
+                        const imageHtml = p.image ? `<img src="${imgSrc}" alt="${p.title}" class="project-thumb" style="object-fit: contain; background-color: #f8f9fc;" fetchpriority="high">` : '';
                         
                         return `
                             <a href="${href}"${targetAttr} class="project-card">
