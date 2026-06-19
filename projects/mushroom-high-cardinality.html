@@ -129,26 +129,80 @@
 
             <p>The secondary dataset is much more challenging. It was synthesized from 173 real species to mimic real-world complexity. It mixes metrical features (such as cap-diameter, stem-height, and stem-width) with high-cardinality categorical features (such as habitat, season, and cap-color, which has 36 unique values). It also contains vast swathes of missing data, forcing us to handle missingness as a first-class citizen rather than dropping rows.</p>
 
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Mushroom High Cardinality/chart_1.png" alt="Class Distribution of Classic and Secondary Mushroom Datasets" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 1 - Class distribution showing the shift from near-equal classes in the classic 1987 dataset to poisonous-heavy (55.5%) in the modern 2023 secondary dataset.</figcaption>
+            </figure>
+
             <h2>2. The Encoding Spectrum</h2>
             <p>Before training models, I had to decide how to encode these categorical variables. Traditional linear models cannot digest raw strings, and gradient boosters require numeric representation. The choice of encoding represents a trade-off between dimensionality, information retention, and target leakage:</p>
+
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Mushroom High Cardinality/chart_2.png" alt="Cardinality of Categorical Columns" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 2 - Feature cardinality in the Secondary Mushroom dataset. High cardinality categorical features like habitat, stem-color, and cap-color introduce massive sparsity when One-Hot Encoded.</figcaption>
+            </figure>
 
             <div class="callout">
                 <strong>One-Hot Encoding (OHE)</strong>
                 OHE creates a binary column for every unique category. For low-cardinality features, this is safe and effective. But for high-cardinality features like cap-color, it blows up the feature space. In our secondary dataset, OHE expanded our 20 input features into 128 columns. This introduces massive sparsity and memory bloat, which degrades the performance of linear models.
             </div>
 
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Mushroom High Cardinality/chart_9.png" alt="Execution Time vs Number of Unique Categories" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 3 - Training execution time escalates dyamically under OHE as category counts swell, whereas CatBoost's Ordered Target Encoding and LightGBM's native handling scale efficiently.</figcaption>
+            </figure>
+
             <div class="callout">
                 <strong>Target Encoding (TE)</strong>
                 Target Encoding replaces each category value with the mean of the target variable for that category. It keeps the feature space compact (1 column per categorical feature) but introduces a major risk of target leakage. If the encoder peeks at the target value of the row it is trying to encode, the model will overfit during training and fail on test data. Scikit-learn's target encoder uses cross-fitting to reduce this leakage, but it remains a soft defense.
             </div>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code># Naive Target Encoding Pipeline with scikit-learn
+preprocessor_te = ColumnTransformer([
+    ('num', StandardScaler(), num_cols_s),
+    ('cat', TargetEncoder(random_state=RANDOM_STATE), cat_cols_s),
+])
+
+logreg_te_pipe = Pipeline([
+    ('pre', preprocessor_te),
+    ('clf', LogisticRegression(max_iter=500, C=1.0, random_state=RANDOM_STATE))
+])
+logreg_te_pipe.fit(X_s_train, y_s_train)</code></pre>
 
             <div class="callout-warn">
                 <strong>CatBoost's Secret Weapon: Ordered Target Encoding</strong>
                 CatBoost solves the leakage problem by design. It shuffles the training dataset and, for each row, computes the target statistics using only the rows that precede it in the shuffle. This mimicking of a time-series or online learning flow prevents the model from peeking into the future, eliminating target leakage while preserving all the predictive power of high-cardinality features.
             </div>
 
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code># CatBoost data preparation and training
+# Note: CatBoost requires categorical NaNs to be filled with strings
+def prepare_catboost(X, cat_cols):
+    df = X.copy()
+    for col in cat_cols:
+        df[col] = df[col].fillna('NA').astype(str)
+    return df
+
+X_s_train_cb = prepare_catboost(X_s_train, cat_cols_s)
+X_s_test_cb  = prepare_catboost(X_s_test,  cat_cols_s)
+cat_idx_s = [X_s_train_cb.columns.get_loc(c) for c in cat_cols_s]
+
+cb_s = CatBoostClassifier(
+    iterations=500,
+    learning_rate=0.05,
+    depth=6,
+    cat_features=cat_idx_s,
+    random_state=RANDOM_STATE,
+    verbose=0
+)
+cb_s.fit(X_s_train_cb.values, y_s_train.values)</code></pre>
+
             <h2>3. Model Benchmarking</h2>
             <p>I set up a training pipeline using a train-test split (80-20) and compared a simple Dummy Baseline, Logistic Regression (with OHE and Scikit-learn's Target Encoding), LightGBM (utilizing its native histogram-based categorical split support), and CatBoost (utilizing its ordered target encoding).</p>
+
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Mushroom High Cardinality/chart_3.png" alt="Model Accuracy Comparison by Dataset" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 4 - Accuracy comparison across datasets. While the classic dataset is easily solved by all classifiers, the complex relationships and high cardinality of the secondary dataset cause standard linear classifiers to fail.</figcaption>
+            </figure>
 
             <h3>Classic Mushroom Dataset Results</h3>
             <p>The classic dataset is famously easy to classify, to the point of being nearly toy-like. Almost all non-trivial models achieve near-perfect performance:</p>
@@ -236,8 +290,18 @@
 
             <p>LightGBM and CatBoost both achieved nearly perfect scores on the secondary test set, while Logistic Regression topped out around 86.4% under OHE and dropped to 80.3% under Scikit-learn's Target Encoding. This showcases that linear models struggle to fit the complex interactions between high-cardinality categorical features, even with target encoding.</p>
 
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Mushroom High Cardinality/chart_5.png" alt="Feature Importance comparison" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 5 - Feature importance comparisons. LightGBM (split gain) and CatBoost (PredictionValuesChange) emphasize features like stem-width and cap-diameter alongside high-cardinality predictors.</figcaption>
+            </figure>
+
             <h2>4. Anatomy of the Failures: False Negative Analysis</h2>
             <p>Despite accuracy rates exceeding 99.9%, a single mistake can be fatal. I isolated the exact rows where the models failed. The findings are a cautionary tale of over-reliance on single features and missing data blind spots.</p>
+
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Mushroom High Cardinality/chart_6.png" alt="Confusion Matrices for Secondary Dataset" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 6 - Default confusion matrices on the secondary test set. Despite 99.9%+ overall accuracy, a few poisonous specimens are misclassified as edible, creating a fatal blind spot.</figcaption>
+            </figure>
 
             <h3>The Odor Trap in the Classic Dataset (Row 5237)</h3>
             <p>Both Logistic Regression and CatBoost misclassified Row 5237 as edible (a false negative), while LightGBM correctly identified it as poisonous.</p>
@@ -285,6 +349,11 @@
             </ul>
             <p>When almost all key features are missing, the models are forced to classify based on weak residual signals (like cap-diameter and season) and ultimately guessed wrong.</p>
 
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Mushroom High Cardinality/chart_7.png" alt="Probability confidence distribution" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 7 - Prediction probability confidence distributions. The misclassified false negatives fall within low-confidence valleys, suggesting a reject threshold can isolate them.</figcaption>
+            </figure>
+
             <h2>5. Production-Grade Mitigations</h2>
             <p>We cannot deploy these models to production as-is. We need safeguards to catch the rare but dangerous false negatives. I implemented and verified three strategies to address these failure modes.</p>
 
@@ -303,6 +372,15 @@ preds_or = (np.stack([preds_logreg, preds_lgb, preds_cb], axis=1).sum(axis=1) >=
             <h3>Strategy B: Missingness-Count Feature</h3>
             <p>To address the sparse row failures on the secondary dataset, I engineered a new feature, `n_missing_cats`, which counts the number of missing categorical values in a row. The absence of details (such as veil color or stem surface) is itself a strong biological signal: rare or hard-to-describe species are more likely to have missing features and are often poisonous.</p>
             <p>While adding this feature did not fully eliminate the single false negative (it went from 1 to 1 for LightGBM, and 1 to 2 for CatBoost due to shifting splits), it successfully reduced overall false positives and allowed the trees to establish explicit splits based on data sparsity.</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code># Feature engineering missingness count
+def add_missingness_feature(X, cat_cols):
+    df = X.copy()
+    df['n_missing_cats'] = df[cat_cols].isnull().sum(axis=1)
+    return df
+
+X_s_train_m  = add_missingness_feature(X_s_train, cat_cols_s)
+X_s_test_m   = add_missingness_feature(X_s_test,  cat_cols_s)</code></pre>
 
             <h3>Strategy C: Predict-With-Abstain (The Reject Option)</h3>
             <p>The most robust defense in a safety-critical application is the **Reject Option**. If the model's confidence is low, it should refuse to make a prediction and instead flag the sample for expert mycologist review. I implemented a wrapper function that abstains if the maximum predicted probability falls below a set threshold (e.g., 80%):</p>
@@ -323,6 +401,11 @@ preds_or = (np.stack([preds_logreg, preds_lgb, preds_cb], axis=1).sum(axis=1) >=
                 <li><strong>CatBoost (Secondary):</strong> Abstains on 4 rows (0.03% of test set). On the remaining rows: <strong>0 False Negatives</strong>, 0 False Positives.</li>
             </ul>
             <p>By allowing the model to say "I don't know" on just a handful of highly uncertain, data-sparse rows, we completely wiped out the dangerous false negatives without impacting performance on the remaining 99.9% of the dataset.</p>
+
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Mushroom High Cardinality/chart_8.png" alt="Confusion Matrices for the New Mitigations" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 8 - Confusion matrices with ensembling and abstention enabled. Under the OR-vote and abstention strategies, false negatives are completely eliminated, making the system safe for safety-critical deployment.</figcaption>
+            </figure>
 
             <h2>Key Takeaways</h2>
             <ol>

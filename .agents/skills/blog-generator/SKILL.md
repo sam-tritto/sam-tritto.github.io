@@ -25,6 +25,9 @@ You are a technical developer-advocate and tech blogger. Your job is to read the
    - Create a slugified HTML file name under `projects/` (e.g., `projects/my-new-project.html`).
    - Use the template structure from `templates/project-layout.html` (which links to `../style.css`).
    - The body of the article should use semantic HTML tags: `<h2>`, `<h3>`, `<p>`, `<ul>`, `<ol>`, `<li>`, `<a>`, and `<img>` (if images are available or generated).
+   - **Code Snippets & Visualizations:**
+     - Include key code snippets (e.g., model setup, pipeline steps, custom evaluation functions) within styled `<pre><code>` blocks to ground technical explanations.
+     - Extract Matplotlib or Seaborn plots from the Jupyter notebook, save them in the project assets folder, and embed them using `<figure>` and `<figcaption>` tags to clarify findings.
 
 3. **Update Metadata and Data Files:**
    Every new project must be registered in both `projects_meta.json` and `projects_data.js`.
