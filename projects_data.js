@@ -7,6 +7,14 @@ window.PROJECTS_DATA = [
     "filename": "2026.html"
   },
   {
+    "title": "Taming High Cardinality: A Cautionary Tale of Mushroom Classification and False Negatives",
+    "slug": "mushroom-high-cardinality.html",
+    "snippet": "A detailed data science tutorial exploring high-cardinality categoricals and false negative classification risk on the classic and modern UCI Mushroom datasets. I benchmark Logistic Regression, LightGBM, and CatBoost models and analyze failure cases - including the Odor Trap and sparse data blind spots - before proposing three production-grade mitigations.",
+    "image": "Mushroom High Cardinality/thumbnail.png",
+    "filename": "mushroom-high-cardinality.html",
+    "date": "June 2026"
+  },
+  {
     "title": "ScrantonOS — Multi-Agent Cloud Command Center",
     "slug": "scranton-os.html",
     "snippet": "A persistent, multi-agent orchestration engine and web interface modeled after The Office staff, designed to handle cloud operations, system diagnostics, and Human-in-the-Loop workflows. Built using the Google Antigravity SDK, FastAPI, and WebSockets, with dual-persistence modes for local development and scalable production deployments.",
