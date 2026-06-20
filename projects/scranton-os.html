@@ -548,18 +548,46 @@ def check_prod_requirements(self) -> "ScrantonConfig":
                 calculation.
             </p>
 
-            <div style="display: flex; flex-direction: column; gap: 2rem; margin: 2.5rem 0;">
+            <h3>Emergent Budget Banter: Kevin & Jan</h3>
+            <p>
+                A real-world example of this system in action occurs during a routine metrics check. Here is how the random rivalry banter plays out step-by-step:
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 2.5rem; margin: 2rem 0;">
+                <!-- Kevin's Request -->
                 <div>
-                    <h4 style="margin-top: 0; font-size: 1rem; color: var(--text-color); margin-bottom: 0.75rem;">SRE
-                        Outage Inquiry (Michael & Dwight)</h4>
-                    <img src="ScrantonOS/banter_sre.webp" alt="SRE Outage Banter Screenshot"
-                        style="width: 100%; max-width: 800px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); display: block;" loading="lazy">
+                    <h4 style="margin-top: 0; font-size: 1.1rem; color: var(--primary-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <img src="ScrantonOS/avatars/kevin.webp" alt="Kevin Malone" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                        Kevin's Budget Inquiry
+                    </h4>
+                    <p style="margin-bottom: 1rem; color: var(--text-muted);">
+                        Kevin kicks off the billing inquiry with his standard metrics query, attempting to calculate corporate spend using his simplified, food-motivated arithmetic.
+                    </p>
+                    <img src="ScrantonOS/kevin_spend.png" alt="Kevin Malone's cloud spend query" class="post-image" style="margin: 0;" loading="lazy">
                 </div>
+
+                <!-- Jan's Interruption -->
                 <div>
-                    <h4 style="margin-top: 0; font-size: 1rem; color: var(--text-color); margin-bottom: 0.75rem;">FinOps
-                        Audit Query (Michael & Oscar)</h4>
-                    <img src="ScrantonOS/banter_finops.webp" alt="FinOps Audit Banter Screenshot"
-                        style="width: 100%; max-width: 800px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); display: block;" loading="lazy">
+                    <h4 style="margin-top: 0; font-size: 1.1rem; color: var(--primary-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <img src="ScrantonOS/avatars/jan.webp" alt="Jan Levinson" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                        Jan's Stressed Intervention
+                    </h4>
+                    <p style="margin-bottom: 1rem; color: var(--text-muted);">
+                        Jan immediately shuts down Kevin's casual budgeting, delivering a sharp corporate audit warning and threatening feature freezes due to unauthorized cost spikes.
+                    </p>
+                    <img src="ScrantonOS/jan_spend.png" alt="Jan Levinson's budget warning" class="post-image" style="margin: 0;" loading="lazy">
+                </div>
+
+                <!-- Kevin's Final Response -->
+                <div>
+                    <h4 style="margin-top: 0; font-size: 1.1rem; color: var(--primary-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <img src="ScrantonOS/avatars/kevin.webp" alt="Kevin Malone" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                        Kevin's Retort
+                    </h4>
+                    <p style="margin-bottom: 1rem; color: var(--text-muted);">
+                        Kevin fires back with classic Malone logic, brushing off Jan's warnings by prioritizing his own comfort and keeping the explanation simple.
+                    </p>
+                    <img src="ScrantonOS/kevin_jan_banter.png" alt="Kevin Malone's response to Jan" class="post-image" style="margin: 0;" loading="lazy">
                 </div>
             </div>
 
@@ -608,12 +636,7 @@ def verify_approval_token(request_id: str, token: str) -> bool:
         # Validate token cryptographically in production flow...
     return {"success": True, "user": user, "role": role}</code></pre>
 
-            <div style="margin: 2.5rem 0;">
-                <h4 style="font-size: 1rem; color: var(--text-color); margin-bottom: 0.75rem;">Compliance Approval Gate
-                    (Toby's HITL Portal)</h4>
-                <img src="ScrantonOS/banter_hitl.webp" alt="Toby HITL Compliance Gate Screenshot"
-                    style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); display: block;" loading="lazy">
-            </div>
+
 
             <div class="tech-box">
                 <h3>5. Stanley's Zero-Trust Guardrails</h3>
@@ -721,6 +744,76 @@ except WebSocketDisconnect:
                 <li><strong>Kevin's Key Metrics:</strong> Asking Kevin Malone to display the dashboard triggers a dedicated metrics calculation (<code>_run_metrics</code>). He aggregates metrics across all modules, applies his proprietary "Keleven" variable to the calculations, and renders a grid of custom status cards.</li>
                 <li><strong>Privacy-First Local Rendering:</strong> Data is passed entirely over the local WebSocket connection and drawn client-side. No user metrics, logs, or billing data is ever transmitted back to the CDN or third parties.</li>
             </ul>
+
+            <h3>A Walkthrough of the ScrantonOS Dashboard</h3>
+            <p>
+                The custom dashboard interface dynamically visualizes system telemetry, cost reports, and user compliance actions in real-time. Here is a step-by-step tour:
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 2.5rem; margin: 2rem 0;">
+                <!-- Michael Scott Intro -->
+                <div>
+                    <h4 style="margin-top: 0; font-size: 1.1rem; color: var(--primary-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <img src="ScrantonOS/avatars/michael.webp" alt="Michael Scott" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                        1. Welcome to the Console (Michael Scott)
+                    </h4>
+                    <p style="margin-bottom: 1rem; color: var(--text-muted);">
+                        Michael welcomes you to ScrantonOS with a grand introduction to the Dunder Mifflin cloud command center. As the Chief Orchestrator, he is thrilled to route your queries to specialist agents while steering clear of any actual work.
+                    </p>
+                    <img src="ScrantonOS/michael_welcome.png" alt="Michael Scott introducing ScrantonOS Dashboard" class="post-image" style="margin: 0;" loading="lazy">
+                </div>
+
+                <!-- Dwight SRE -->
+                <div>
+                    <h4 style="margin-top: 0; font-size: 1.1rem; color: var(--primary-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <img src="ScrantonOS/avatars/dwight.webp" alt="Dwight Schrute" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                        2. Threat Level SRE (Dwight Schrute)
+                    </h4>
+                    <p style="margin-bottom: 1rem; color: var(--text-muted);">
+                        Dwight's dashboard monitors SRE logs, ready to defend the mainframe from any memory leaks or container outages. He keeps the alerts structured and immediate, taking system health as seriously as Threat Level Midnight.
+                    </p>
+                    <img src="ScrantonOS/dwight_threat.png" alt="Dwight SRE logs monitoring" class="post-image" style="margin: 0;" loading="lazy">
+                </div>
+
+                <!-- Stanley IAM -->
+                <div>
+                    <h4 style="margin-top: 0; font-size: 1.1rem; color: var(--primary-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <img src="ScrantonOS/avatars/stanley.webp" alt="Stanley Hudson" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                        3. Zero-Trust Access (Stanley Hudson)
+                    </h4>
+                    <p style="margin-bottom: 1rem; color: var(--text-muted);">
+                        Stanley's gatekeeper dashboard verifies user credentials and manages role permissions. He ensures compliance is strictly followed with zero extra discussion, eager to process requests and get back to his crosswords.
+                    </p>
+                    <img src="ScrantonOS/stanley_access.png" alt="Stanley IAM Access controls" class="post-image" style="margin: 0;" loading="lazy">
+                </div>
+
+                <!-- Toby HITL -->
+                <div>
+                    <h4 style="margin-top: 0; font-size: 1.1rem; color: var(--primary-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <img src="ScrantonOS/avatars/toby.webp" alt="Toby Flenderson" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                        4. Compliance Gatekeeping (Toby Flenderson)
+                    </h4>
+                    <p style="margin-bottom: 1rem; color: var(--text-muted);">
+                        Toby's compliance gate captures high-risk actions that require explicit human approval. With HMAC-signed approval tokens, he makes sure no destructive actions run without passing proper Dunder Mifflin compliance.
+                    </p>
+                    <img src="ScrantonOS/banter_hitl.webp" alt="Toby HITL Compliance Gate" class="post-image" style="margin: 0;" loading="lazy">
+                </div>
+
+                <!-- Oscar FinOps -->
+                <div>
+                    <h4 style="margin-top: 0; font-size: 1.1rem; color: var(--primary-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <img src="ScrantonOS/avatars/oscar.webp" alt="Oscar Martinez" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                        5. FinOps Cost Analysis (Oscar Martinez)
+                    </h4>
+                    <p style="margin-bottom: 1rem; color: var(--text-muted);">
+                        Oscar's billing panel serves up precise metrics detailing GPU resources and general cloud expenditures. He tracks monthly budget trajectories and flags cost anomalies, pedantically correcting any arithmetic discrepancies.
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                        <img src="ScrantonOS/oscar_spend_1.png" alt="Oscar Spend Overview Chart" class="post-image" style="margin: 0;" loading="lazy">
+                        <img src="ScrantonOS/oscar_spend_2.png" alt="Oscar Billing Details Chart" class="post-image" style="margin: 0;" loading="lazy">
+                    </div>
+                </div>
+            </div>
 
             <h2>Offline-Capable Vanilla RAG (Gabe Lewis)</h2>
             <p>
