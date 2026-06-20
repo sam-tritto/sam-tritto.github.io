@@ -383,7 +383,7 @@ X_s_train_m  = add_missingness_feature(X_s_train, cat_cols_s)
 X_s_test_m   = add_missingness_feature(X_s_test,  cat_cols_s)</code></pre>
 
             <h3>Strategy C: Predict-With-Abstain (The Reject Option)</h3>
-            <p>The most robust defense in a safety-critical application is the **Reject Option**. If the model's confidence is low, it should refuse to make a prediction and instead flag the sample for expert mycologist review. I implemented a wrapper function that abstains if the maximum predicted probability falls below a set threshold (e.g., 80%):</p>
+            <p>The most robust defense in a safety-critical application is the <strong>Reject Option</strong>. If the model's confidence is low, it should refuse to make a prediction and instead flag the sample for expert mycologist review. I implemented a wrapper function that abstains if the maximum predicted probability falls below a set threshold (e.g., 80%):</p>
 
             <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>def predict_with_abstain(model, X, threshold=0.80):
     probs = model.predict_proba(X)
