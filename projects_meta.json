@@ -7,6 +7,14 @@
     "filename": "2026.html"
   },
   {
+    "title": "The Cultural Misery Index: Music, Embeddings, and Economic Pain",
+    "slug": "music-and-behavioral-embeddings.html",
+    "snippet": "A multimodal data science pipeline that fuses Spotify streaming charts, Genius lyric embeddings (via Gemini embedding-001), and FRED macroeconomic indicators to track how American music taste shifts under economic stress. Covers dataset fusion, UMAP dimensionality reduction, temporal K-Means with Hungarian alignment, hierarchical sub-clustering, rolling correlation, and Granger causality against Okun's Misery Index.",
+    "image": "Music and Behavioral Embeddings/thumbnail.png",
+    "filename": "music-and-behavioral-embeddings.html",
+    "date": "June 2026"
+  },
+  {
     "title": "Taming High Cardinality: A Cautionary Tale of Mushroom Classification and False Negatives",
     "slug": "mushroom-high-cardinality.html",
     "snippet": "A detailed data science tutorial exploring high-cardinality categoricals and false negative classification risk on the classic and modern UCI Mushroom datasets. I benchmark Logistic Regression, LightGBM, and CatBoost models and analyze failure cases - including the Odor Trap and sparse data blind spots - before proposing three production-grade mitigations.",

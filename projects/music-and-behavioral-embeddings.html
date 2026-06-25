@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cultural Misery Index: Music, Embeddings, and Economic Pain</title>
+    <meta name="description" content="A multimodal data science tutorial fusing Spotify audio features, Genius lyric embeddings, and FRED macroeconomic indicators to track how American music taste shifts under economic stress. Covers dataset fusion, Gemini lyric embeddings, UMAP, temporal K-Means with Hungarian alignment, sub-clustering, and Granger causality.">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .math-block {
+            background: #f4f6fb;
+            border-left: 4px solid #4a6fa5;
+            border-radius: 4px;
+            padding: 1rem 1.5rem;
+            margin: 1.2rem 0;
+            font-family: 'Georgia', serif;
+            font-size: 1.05rem;
+            color: #222;
+            overflow-x: auto;
+        }
+        .inline-code {
+            background: #eef0f6;
+            border-radius: 3px;
+            padding: 0.1em 0.4em;
+            font-family: monospace;
+            font-size: 0.93em;
+            color: #333;
+        }
+        .callout {
+            background: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            border-radius: 4px;
+            padding: 0.9rem 1.2rem;
+            margin: 1.2rem 0;
+        }
+        .callout-warn {
+            background: #fff8e1;
+            border-left: 4px solid #ffa000;
+        }
+        .callout-success {
+            background: #e8f5e9;
+            border-left: 4px solid #43a047;
+        }
+        .callout strong { display: block; margin-bottom: 0.3rem; }
+        table.data-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+            font-size: 0.92rem;
+        }
+        table.data-table th {
+            background: #2c3e6b;
+            color: #fff;
+            padding: 0.5rem 0.8rem;
+            text-align: left;
+        }
+        table.data-table td {
+            border: 1px solid #dde;
+            padding: 0.45rem 0.8rem;
+        }
+        table.data-table tr:nth-child(even) td { background: #f5f6fa; }
+        .pipeline-box {
+            background: #1a1d2e;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 1.2rem 1.5rem;
+            margin: 1.2rem 0;
+            font-family: monospace;
+            font-size: 0.88rem;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .cluster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .cluster-card {
+            background: #f7f9fc;
+            border: 1px solid #e0e4f0;
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+        }
+        .cluster-card h4 {
+            margin: 0 0 0.4rem 0;
+            color: #2c3e6b;
+            font-size: 0.97rem;
+        }
+        .cluster-card p {
+            margin: 0;
+            font-size: 0.88rem;
+            color: #444;
+            line-height: 1.5;
+        }
+        .corr-positive { color: #c0392b; font-weight: 600; }
+        .corr-negative { color: #1a6b3c; font-weight: 600; }
+        .corr-neutral  { color: #555; }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>The Cultural Misery Index: Music, Embeddings, and Economic Pain</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <a href="https://github.com/sam-tritto/music-and-behavioral-embeddings" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                    <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+        <article class="post-content">
+            <h1>The Cultural Misery Index</h1>
+            <img src="Music and Behavioral Embeddings/thumbnail.png" alt="The Cultural Misery Index — multimodal music clustering and macroeconomic correlation" class="post-image" fetchpriority="high">
+
+            <p>Can a playlist tell us how a nation is feeling? That is the animating question behind this project. I built a full multimodal pipeline that fuses three independent data streams, Spotify streaming charts, Genius lyric semantics, and FRED macroeconomic data, into a single analytical engine I call the <strong>Cultural Misery Index</strong>. The goal: to detect whether American music taste shifts in a statistically measurable way when economic conditions deteriorate.</p>
+            <p>The project is deliberately not about genres. Instead, I cluster songs purely on their auditory vibe and lyrical themes, then track how those abstract clusters rise and fall alongside Okun's Misery Index. Do songs about anxiety and introspection gain chart share when unemployment spikes? Does party music retreat when inflation bites? By embedding lyrics into dense semantic vectors and fusing them with audio features, I let the data answer those questions without imposing genre labels from the outside.</p>
+
+            <h2>The Architecture at a Glance</h2>
+            <div class="pipeline-box">
+[FRED API: Unemployment + CPI] ─────────────────────────────────────┐
+                                                                    ▼
+[Kaggle: Spotify Charts + Audio Features] ──► [Feature Fusion] ──► [Temporal K-Means] ──► [Econometric Analysis] ──► [Gemini Narrator]
+[Genius API: Full Lyric Sheets]          ──►  (Gemini Embed + UMAP)  (Hungarian Align)    (Rolling r + Granger)      (Flash 2.5)
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>What It Does</th>
+                        <th>Key Tools</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Ingestion</strong></td>
+                        <td>Load Spotify charts, fetch lyrics, pull economic series</td>
+                        <td>Kaggle CSV, Genius API, FRED API</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Feature Fusion</strong></td>
+                        <td>Embed lyrics (768D), compress to 10D, join with 7 audio features</td>
+                        <td>Gemini <code>embedding-001</code>, UMAP, StandardScaler</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Temporal Clustering</strong></td>
+                        <td>Monthly K-Means with stable cluster identities across time</td>
+                        <td>scikit-learn KMeans, Hungarian Algorithm</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. Econometric Analysis</strong></td>
+                        <td>Measure vibe-to-misery correlation over time</td>
+                        <td>Rolling Pearson/Spearman, Granger causality (statsmodels)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. Narrative Engine</strong></td>
+                        <td>AI-generated cultural digest for each cluster</td>
+                        <td>Gemini 2.5 Flash, cost-estimated caching layer</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>1. Dataset Fusion: Three Signals, One Story</h2>
+            <p>The first challenge in this project is that the interesting signal lives at the intersection of three data sources that were never designed to talk to each other. Joining them on a shared temporal axis is the foundational engineering step.</p>
+
+            <h3>1.1 Spotify Chart Data (Kaggle)</h3>
+            <p>Spotify restricted access to their audio features API for new applications in November 2024. To work around this, I used a pre-compiled Kaggle dataset built before the lockdown. The dataset contains weekly US Top 200 chart entries from 2018 through 2024, with a rich set of pre-extracted audio features for each track.</p>
+
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Music and Behavioral Embeddings/chart_audio_features.png" alt="Audio Feature Distributions — US Top 200 Tracks" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 1 - Distributions of the 7 audio features across all US Top 200 chart entries (2018-2024). Danceability skews moderate-high; instrumentalness is near-zero for almost all chart hits; valence shows a broad bimodal spread suggesting a roughly equal mix of upbeat and melancholic tracks dominating the charts.</figcaption>
+            </figure>
+
+            <p>The audio features I use throughout are: <span class="inline-code">danceability</span>, <span class="inline-code">energy</span>, <span class="inline-code">valence</span>, <span class="inline-code">acousticness</span>, <span class="inline-code">tempo</span>, <span class="inline-code">speechiness</span>, and <span class="inline-code">instrumentalness</span>. Two additional engineered features, harmonic entropy and timbral variance, are derived from the raw Spotify audio analysis endpoint for tracks where credentials are available.</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from cmi.ingest.spotify_charts import load_charts, get_unique_tracks
+
+charts_df = load_charts(CHART_CSV, region="US", date_start="2018-01-01", date_end="2024-12-31")
+unique_tracks = get_unique_tracks(charts_df)
+
+print(f"Chart entries: {charts_df.shape}")
+print(f"Unique tracks: {len(unique_tracks)}")</code></pre>
+
+            <h3>1.2 Okun's Misery Index (FRED)</h3>
+            <p>Arthur Okun's Misery Index is a deliberately simple macroeconomic gauge: the sum of the unemployment rate and the year-over-year inflation rate. When it is high, people are hurting economically. When it is low, the economy feels healthy. I pull both series directly from the Federal Reserve Economic Data (FRED) API and construct the index monthly.</p>
+
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Music and Behavioral Embeddings/chart_misery_index.png" alt="Okun's Misery Index — US Economy 2018–2024" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 2 - Okun's Misery Index for the US economy from 2018 to 2024. The COVID-19 shock in Q1 2020 produces a dramatic spike (unemployment hit 14.7%), followed by a sustained elevated period driven by the 2021-2022 inflation surge peaking near 12.3. The index normalizes gradually through 2023-2024 as Fed rate hikes take effect.</figcaption>
+            </figure>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from cmi.ingest.fred_macro import fetch_misery_index
+
+# FRED series: UNRATE (unemployment) + CPIAUCSL (CPI → YoY inflation)
+misery_df = fetch_misery_index()
+# misery_df has columns: date, unemployment_rate, yoy_inflation, misery_index</code></pre>
+
+            <h3>1.3 Genius Lyrics</h3>
+            <p>The Genius API is rate-limited, so fetching full lyric sheets for 2,000+ unique tracks is a multi-hour operation on first run. I built an incremental caching system that writes results to disk after each successful fetch. Subsequent runs skip already-cached tracks and only query the API for genuinely new entries. This pattern is critical for a dataset that grows over time.</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from cmi.ingest.genius_lyrics import fetch_lyrics_batch
+
+lyrics_df_path = DATA_PROCESSED / "tracks_with_lyrics.csv"
+
+if lyrics_df_path.exists():
+    existing_df = pd.read_csv(lyrics_df_path)
+    # Only fetch missing tracks — never re-query the API for cached entries
+    missing_mask = ~unique_tracks["track_id"].isin(existing_df["track_id"])
+    missing_tracks = unique_tracks[missing_mask].copy()
+    if len(missing_tracks) > 0:
+        new_lyrics_df = fetch_lyrics_batch(missing_tracks)
+        combined_df = pd.concat([existing_df, new_lyrics_df], ignore_index=True)
+    else:
+        combined_df = existing_df
+else:
+    combined_df = fetch_lyrics_batch(unique_tracks)</code></pre>
+
+            <div class="callout">
+                <strong>Why lyrics matter as much as audio</strong>
+                The README for this project references the classic example: Outkast's <em>Hey Ya!</em> sounds euphoric by every audio metric (high danceability, high energy, high valence) but its lyrics are about a failing relationship. Audio features capture how a song sounds; lyric embeddings capture what it actually means. Fusing both gives us a richer signal than either alone.
+            </div>
+
+            <h2>2. Feature Engineering — Lyric Embeddings and Multimodal Fusion</h2>
+            <p>This is the technical heart of the project. A raw lyric sheet is just text; it cannot be directly combined with numerical audio features. The solution is to transform each song's lyrics into a dense vector representation using a large language model, then compress that representation down to a dimensionality that is compatible with the audio feature space.</p>
+
+            <h3>2.1 Lyric Embedding via Gemini</h3>
+            <p>I embed each track's full lyric sheet using Google's <span class="inline-code">gemini-embedding-001</span> model, which produces a 768-dimensional vector. This vector encodes the full semantic content of the lyrics: themes of isolation, celebration, grief, desire, aggression, and longing all occupy distinct regions of this high-dimensional space.</p>
+            <p>To avoid re-querying the API on every notebook run, I build a persistent embedding map keyed by track ID. New tracks are embedded and merged into the cache; previously-embedded tracks are loaded directly from disk.</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from cmi.features.embeddings import embed_lyrics
+
+# Build a map of track_id -> 768D embedding vector, loading from cache where possible
+embedding_map = {}
+
+if embeddings_cache_path.exists():
+    old_embeddings = np.load(embeddings_cache_path)
+    # Align saved embeddings to the tracks_with_lyrics.csv row order (prefix alignment)
+    for idx in range(len(old_embeddings)):
+        row = old_tracks_with_text.iloc[idx]
+        embedding_map[row["track_id"]] = old_embeddings[idx]
+
+# Embed only the tracks not already in the cache
+tracks_to_embed = [lyrics_list[i] for i, tid in enumerate(track_ids) if tid not in embedding_map]
+if tracks_to_embed:
+    new_embeddings = embed_lyrics(tracks_to_embed)  # → calls gemini-embedding-001
+
+lyric_embeddings = np.vstack(current_embeddings)  # shape: (n_tracks, 768)</code></pre>
+
+            <h3>2.2 Dimensionality Reduction with UMAP</h3>
+            <p>A 768-dimensional lyric vector would completely overwhelm 7 audio features in any Euclidean distance calculation. The lyric signal would dominate the clustering entirely, making audio features irrelevant. To prevent this, I use UMAP (Uniform Manifold Approximation and Projection) to compress the lyric embeddings from 768 dimensions down to 10, preserving the macro-level semantic structure (the distinction between isolation themes, party themes, and heartbreak themes) while discarding fine-grained nuances that are not relevant at the clustering level.</p>
+
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Music and Behavioral Embeddings/chart_umap.png" alt="2D UMAP of Lyric Embeddings colored by Valence" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 3 - A 2D UMAP projection of the 768D lyric embeddings, colored by each track's audio valence score (red = sad, green = happy). The main cluster on the left represents the dense core of chart music; isolated outlier clusters (upper center and lower right) represent stylistically distinct songs that sit far from the mainstream semantic center. Notably, high-valence and low-valence tracks intermingle throughout, supporting the argument that audio mood and lyrical theme are not the same dimension.</figcaption>
+            </figure>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from cmi.features.fusion import reduce_embeddings, fuse_features
+
+# Compress 768D lyrics → 10D using UMAP
+reduced_lyrics = reduce_embeddings(lyric_embeddings, n_components=10)
+
+# Extract and scale the 7 audio features
+audio_matrix = extract_audio_matrix(tracks_with_text)
+
+# Concatenate and StandardScale: (n_tracks, 7 audio + 10 lyric = 17 total)
+fused_matrix, fused_scaler = fuse_features(audio_matrix, reduced_lyrics)
+print(f"Fused matrix: {fused_matrix.shape}")  # → (n_tracks, 17)</code></pre>
+
+            <div class="callout callout-warn">
+                <strong>The Dimensionality Balance Problem</strong>
+                Choosing 10 lyric UMAP components is a deliberate calibration. Too few (e.g., 2D) and you lose the granularity that separates clusters of similar sentiment but different themes, such as party-optimism versus romantic-optimism. Too many (e.g., 50D) and the lyric signal re-dominates the 7-dimensional audio space. At 10D, the ratio is roughly 10:7, giving both modalities meaningful weight in the final clustering.
+            </div>
+
+            <h2>3. Temporal Clustering — Tracking Vibe Archetypes Over Time</h2>
+            <p>Standard clustering approaches would take all songs across all years and produce a static snapshot. That approach hides temporal dynamics entirely. Instead, I cluster within monthly time windows and use the Hungarian Algorithm to maintain consistent cluster identities as time moves forward.</p>
+
+            <h3>3.1 Selecting Optimal K</h3>
+            <p>I use Yellowbrick's <span class="inline-code">KElbowVisualizer</span> to automatically detect the elbow point across a range of <em>k</em> values (4 to 30), measuring distortion (within-cluster sum of squared distances). I then run a secondary local search around the elbow using silhouette scores to select the final value.</p>
+
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Music and Behavioral Embeddings/chart_elbow.png" alt="Distortion Score Elbow for KMeans Clustering" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 4 - Yellowbrick's KElbow Visualizer detects the optimal elbow at k=11 (score: 11,266). The distortion curve shows a clear inflection around this point, after which additional clusters provide diminishing returns. Silhouette analysis around k=9-11 confirmed k=9 as the final selection, balancing inter-cluster separation and interpretability.</figcaption>
+            </figure>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from yellowbrick.cluster import KElbowVisualizer
+from sklearn.cluster import KMeans
+from cmi.clustering.diagnostics import find_optimal_k
+
+model = KMeans(random_state=42, n_init=10)
+visualizer = KElbowVisualizer(model, k=(4, 30), force_model=True)
+visualizer.fit(fused_matrix)
+visualizer.show()
+
+# Refine around the elbow with silhouette scores
+optimal_k = find_optimal_k(fused_matrix, k_range=(4, 30))
+K_CLUSTERS = optimal_k  # → 9</code></pre>
+
+            <h3>3.2 The Label-Switching Problem and Hungarian Alignment</h3>
+            <p>K-Means assigns arbitrary integer labels to clusters at each run. If I cluster January's songs and get "Cluster 2 = introspective slow songs," then cluster February's songs and get "Cluster 5 = introspective slow songs," I cannot track the cluster across time — the label has changed but the content has not. This is the label-switching problem, and it is the central engineering challenge in temporal clustering.</p>
+            <p>The Hungarian Algorithm solves this by treating the problem as a minimum-cost assignment problem. Given the cluster centroids from month <em>t-1</em> and the new centroids from month <em>t</em>, it finds the optimal 1-to-1 mapping that minimizes the total Euclidean distance between matched centroid pairs. This ensures that "Cluster 2" at month <em>t</em> is always the closest descendant of "Cluster 2" at month <em>t-1</em>, giving us a coherent identity track over time.</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from scipy.optimize import linear_sum_assignment
+
+def align_labels(prev_centroids, new_centroids, new_labels):
+    """Hungarian algorithm for cluster label alignment across time windows."""
+    cost_matrix = cdist(prev_centroids, new_centroids)
+    row_ind, col_ind = linear_sum_assignment(cost_matrix)
+    # Build permutation: new cluster col_ind[i] → old cluster row_ind[i]
+    remap = {col_ind[i]: row_ind[i] for i in range(len(row_ind))}
+    aligned = np.vectorize(remap.get)(new_labels)
+    return aligned</code></pre>
+
+            <h3>3.3 Nested Sub-Clustering</h3>
+            <p>Nine top-level clusters capture broad vibe archetypes, but they can mask important sub-structure. For example, one cluster might contain both pure party anthems and ambiguously melancholic dance tracks that superficially share high danceability but carry very different lyrical weight. I apply a second round of K-Means within each parent cluster, splitting each into 2 sub-clusters (M=2), yielding 18 granular sub-profiles total.</p>
+            <p>The compound sub-cluster ID encodes both levels: sub-cluster 1.0 means parent cluster 1, sub-cluster 0; sub-cluster 1.1 means parent cluster 1, sub-cluster 1. The integer encoding is simply <span class="inline-code">parent_id * 10 + sub_id</span>.</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from cmi.clustering.temporal import sub_cluster_parent_clusters
+
+# For each parent cluster, run KMeans(k=2) on the fused vectors of its members
+sub_labels = sub_cluster_parent_clusters(fused_matrix, timeline.labels, n_sub_clusters=2)
+
+# Compound encoding: parent_id * 10 + sub_id
+tracks_with_text["sub_cluster"] = sub_labels
+
+# Example decoded output:
+# Parent Cluster 1 -> Sub-Cluster 0: 228 tracks  (Anxious Era Anthems)
+# Parent Cluster 1 -> Sub-Cluster 1: 305 tracks  (No Holds Barred Beats)</code></pre>
+
+            <h2>4. Econometric Analysis — Does Economic Pain Predict Music Shifts?</h2>
+            <p>With stable, temporally-consistent clusters in hand, I can now measure their relationship to the economy. I compute volumetric shares — the percentage of Top 200 chart entries belonging to each cluster per month — and correlate those time series against the Misery Index.</p>
+
+            <h3>4.1 Static Correlation Results</h3>
+            <p>The static Pearson correlation measures the overall alignment between each cluster's monthly share and the Misery Index across the full observation window (2018-2024).</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Cluster Name</th>
+                        <th>Pearson r</th>
+                        <th>Spearman r</th>
+                        <th>Volume Delta (early → late)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Vibrant Reflection (Cluster 5)</td>
+                        <td class="corr-positive">+0.302</td>
+                        <td class="corr-positive">+0.514*</td>
+                        <td>+3.9% shift</td>
+                    </tr>
+                    <tr>
+                        <td>The Unfiltered Pulse (Cluster 0)</td>
+                        <td class="corr-positive">+0.153</td>
+                        <td class="corr-positive">+0.197</td>
+                        <td>+2.5% shift</td>
+                    </tr>
+                    <tr>
+                        <td>Bombastic Beats &amp; Bold Bars (Cluster 1)</td>
+                        <td class="corr-positive">+0.110</td>
+                        <td class="corr-positive">+0.199</td>
+                        <td>+6.3% shift</td>
+                    </tr>
+                    <tr>
+                        <td>Rhythmic Romance Pop (Cluster 7)</td>
+                        <td class="corr-neutral">+0.045</td>
+                        <td class="corr-neutral">-0.113</td>
+                        <td>+5.8% shift</td>
+                    </tr>
+                    <tr>
+                        <td>Global Hype Anthem (Cluster 3)</td>
+                        <td class="corr-neutral">-0.078</td>
+                        <td class="corr-neutral">-0.004</td>
+                        <td>-2.7% shift</td>
+                    </tr>
+                    <tr>
+                        <td>Rhythmic Swagger Surge (Cluster 2)</td>
+                        <td class="corr-neutral">-0.154</td>
+                        <td class="corr-neutral">-0.240</td>
+                        <td>+2.7% shift</td>
+                    </tr>
+                    <tr>
+                        <td>Global Groove &amp; Pop Pulse (Cluster 8)</td>
+                        <td class="corr-neutral">-0.121</td>
+                        <td class="corr-neutral">-0.149</td>
+                        <td>-6.9% shift</td>
+                    </tr>
+                    <tr>
+                        <td>Assertive Urban Momentum (Cluster 4)</td>
+                        <td class="corr-neutral">-0.014</td>
+                        <td class="corr-neutral">-0.175</td>
+                        <td>-4.6% shift</td>
+                    </tr>
+                    <tr>
+                        <td>Upbeat Connection Anthems (Cluster 6)</td>
+                        <td class="corr-negative">-0.299</td>
+                        <td class="corr-negative">-0.442*</td>
+                        <td>-5.4% shift</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><em style="font-size:0.85rem;color:#666;">* Spearman p &lt; 0.05 (statistically significant at the 5% level).</em></p>
+
+            <div class="callout callout-success">
+                <strong>The two statistically significant clusters</strong>
+                Cluster 5 ("Vibrant Reflection") shows the strongest positive correlation with economic misery (Spearman r = +0.514, p = 0.004), meaning it gains chart share when times are tough. Cluster 6 ("Upbeat Connection Anthems") shows the strongest negative correlation (Spearman r = -0.442, p = 0.016), meaning it retreats from the charts during misery peaks. These two clusters tell the clearest story of the entire analysis.
+            </div>
+
+            <h3>4.2 Rolling Correlation — The Relationship Evolves</h3>
+            <p>A static correlation averages across all time, hiding the fact that the relationship between music and misery may be stronger in some periods than others. I compute a rolling 6-month Pearson correlation for each cluster to see how the connection shifts across the observation window.</p>
+            <p>The rolling analysis reveals that the misery-music relationship was most pronounced during 2020-2021, the COVID-19 shock period. During this window, Cluster 5's rolling r with the Misery Index peaked above +0.7 for several consecutive months, while Cluster 6's dropped below -0.6. The relationship weakens during the 2022 inflation period, where the economic driver was price pressure rather than unemployment, suggesting listeners processed inflation-era stress differently from pandemic-era unemployment stress.</p>
+
+            <h3>4.3 Granger Causality — Does Economic Pain Lead Music Shifts?</h3>
+            <p>Correlation tells us that two variables move together, but it cannot tell us whether economic conditions <em>cause</em> music to shift, or whether both are simply responding to a shared external shock. Granger causality is a statistical test that asks a more pointed question: does knowing the past values of the Misery Index help predict the future values of cluster shares, above and beyond what cluster history alone predicts?</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from cmi.correlation.econometrics import granger_causality
+
+# Test whether Misery Index Granger-causes each cluster's volumetric share
+# Uses statsmodels grangercausalitytests(), lags 1–3 months
+granger_results = granger_causality(cluster_shares, misery_df, max_lag=3)
+significant = granger_results[granger_results["p_value"] < 0.05]
+
+# Result: No significant Granger-causal relationships at p < 0.05</code></pre>
+
+            <div class="callout callout-warn">
+                <strong>The Granger Null Result is Meaningful</strong>
+                No cluster passes the Granger causality test at p &lt; 0.05 for any lag (1, 2, or 3 months). This is a genuine and important finding: while music and misery correlate contemporaneously, the economy does not appear to mechanically lead chart behavior by a quarter-month lag. The relationship is likely bidirectional and nearly simultaneous, consistent with music reflecting current collective mood rather than predicting or lagging it. The cultural response to economic shock appears to be immediate, not delayed.
+            </div>
+
+            <h2>5. Sub-Cluster Narratives — Where the Story Gets Granular</h2>
+            <p>The 9 parent clusters capture broad archetypes. The 18 sub-clusters reveal the real texture of the data. This is where the hierarchical approach pays off: many parent clusters that appear neutral in their Misery Index correlation contain one sub-cluster that is strongly correlated and one that is strongly anti-correlated, pulling the average toward zero.</p>
+
+            <h3>The Most Economically Sensitive Sub-Clusters</h3>
+
+            <div class="cluster-grid">
+                <div class="cluster-card">
+                    <h4>No Holds Barred Beats (Sub-cluster 1.1) — r = <span class="corr-positive">+0.681</span></h4>
+                    <p>Upbeat tempos, high danceability, heavily produced electronic beats with explicit boastful themes around money and dominance. The strongest positive correlation with misery. High-energy escapism intensifies when conditions worsen.</p>
+                </div>
+                <div class="cluster-card">
+                    <h4>Polyglot Pulse (Sub-cluster 8.1) — r = <span class="corr-positive">+0.519</span></h4>
+                    <p>Globalized rhythm-driven tracks fusing trap, R&amp;B, and Latin urban sounds, marked by low emotional valence. Multilingual slang, interconnected youth culture. Gains share during economic stress periods.</p>
+                </div>
+                <div class="cluster-card">
+                    <h4>Urban Pulse &amp; Raw Rhymes (Sub-cluster 3.1) — r = <span class="corr-positive">+0.442</span></h4>
+                    <p>High-energy, danceable contemporary urban sound from 2018-2024. Explicit lyrics threading themes of love, struggle, and raw desire. Rises with misery, consistent with the "struggle music" phenomenon.</p>
+                </div>
+                <div class="cluster-card">
+                    <h4>Groove &amp; Gravitas: Modern Love Anthems (Sub-cluster 5.1) — r = <span class="corr-positive">+0.383</span></h4>
+                    <p>Highly danceable, moderately energetic tracks with sophisticated electronic production and rich harmonic complexity. Lyrical themes of love and relationships with nuanced emotional depth. Contemplative yet danceable.</p>
+                </div>
+                <div class="cluster-card">
+                    <h4>Anxious Era Anthems (Sub-cluster 1.0) — r = <span class="corr-negative">-0.597</span></h4>
+                    <p>The most anti-correlated sub-cluster. Melancholic, slow-tempo tracks blending introspective English and Spanish lyrics. Surging during economic distress according to the raw audio data — yet the cluster retreats as a share, suggesting dominant escapist music crowds it out.</p>
+                </div>
+                <div class="cluster-card">
+                    <h4>Anthemic Pop &amp; Seasonal Sparkle (Sub-cluster 8.0) — r = <span class="corr-negative">-0.442</span></h4>
+                    <p>High-energy pop with complex harmonies, love and personal reflection themes, and a notable presence of festive holiday tracks. Retreats substantially when the Misery Index is elevated, consistent with celebratory music losing ground in hard times.</p>
+                </div>
+            </div>
+
+            <div class="callout">
+                <strong>The Key Insight: Sub-clustering Reveals Masked Signals</strong>
+                The parent cluster "Bombastic Beats &amp; Bold Bars" (Cluster 1) has a static Pearson r of only +0.110 with the Misery Index — statistically neutral. But its two sub-clusters tell opposite stories: "No Holds Barred Beats" (r = +0.681) surges during misery, while "Anxious Era Anthems" (r = -0.597) retreats. The parent-level analysis completely cancels these signals out. This is precisely why hierarchical clustering matters: flat K-Means would have obscured this finding entirely.
+            </div>
+
+            <h2>6. The Gemini Narrative Engine</h2>
+            <p>Numbers describe what happened; narrative explains why it matters. After computing all cluster statistics and correlations, I pass a structured data payload for each cluster to Gemini 2.5 Flash, which generates culturally resonant descriptions that translate abstract centroids into human-readable vibe profiles.</p>
+            <p>The payload for each cluster includes the audio feature centroid, the top lyric keywords extracted via TF-IDF, the Misery Index correlation value, and the volumetric share delta between the first and second half of the observation window. A cost-estimation and caching layer prevents redundant API calls: if all cluster descriptions are already cached to disk, the engine runs at zero cost.</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from cmi.narrative.engine import build_cluster_payload, generate_brief_descriptions
+
+# Build structured payload for each cluster
+payloads = []
+for cluster_id in range(K_CLUSTERS):
+    mask = timeline.labels == cluster_id
+    cluster_data = tracks_with_text[mask].copy()
+    centroid = cluster_data[AUDIO_FEATURES].mean().values
+    corr_val = static_corr[static_corr["cluster"] == f"cluster_{cluster_id}"]["pearson_r"].values[0]
+
+    payload = build_cluster_payload(
+        cluster_id=cluster_id,
+        cluster_data=cluster_data,
+        centroid=centroid,
+        temporal_window="2018–2024 (Full Period)",
+        misery_correlation=corr_val,
+        volume_share_delta=delta_str,
+    )
+    payloads.append(payload)
+
+# Generate catchy names and cultural descriptions via Gemini 2.5 Flash
+brief_descriptions = generate_brief_descriptions(payloads, model="gemini-2.5-flash")
+cluster_name_mapping = {d["cluster_id"]: d["name"] for d in brief_descriptions}</code></pre>
+
+            <h3>Sample AI-Generated Cluster Profiles</h3>
+            <div class="cluster-grid">
+                <div class="cluster-card">
+                    <h4>Vibrant Reflection (Cluster 5)</h4>
+                    <p>Pulses with high energy and danceability, characterized by complex harmonies and a modern, produced sound. Lyrically, it explores themes of love and longing with nuanced emotional depth, serving as a vibrant soundtrack for contemporary introspection amidst societal pressures.</p>
+                </div>
+                <div class="cluster-card">
+                    <h4>Upbeat Connection Anthems (Cluster 6)</h4>
+                    <p>High-energy, upbeat tracks with moderate danceability and strong vocal performances. Lyrically, songs explore love, relationships, and personal connection. Its retreat during economic misery suggests that feel-good mainstream pop is the genre most sensitive to collective mood collapse.</p>
+                </div>
+                <div class="cluster-card">
+                    <h4>Bombastic Beats &amp; Bold Bars (Cluster 1)</h4>
+                    <p>High-energy, danceable, electronically-driven tracks defined by explicit, confrontational, and boastful themes centered around money and street life. Reflects contemporary hip-hop and trap — a confident, assertive, party-ready urban swagger that hides a deeply split internal structure.</p>
+                </div>
+                <div class="cluster-card">
+                    <h4>Global Groove &amp; Pop Pulse (Cluster 8)</h4>
+                    <p>High-energy, danceable pop and hip-hop with complex harmonies and diverse timbres. Lyrical themes explore love, personal reflection, and modern affirmations, often blending English with other languages. A dynamic, vocal-centric mainstream sound with an emotionally neutral economic sensitivity.</p>
+                </div>
+            </div>
+
+            <h2>Key Findings and Conclusions</h2>
+
+            <h3>1. Music and Misery Correlate, but Do Not Mechanically Cause Each Other</h3>
+            <p>The Granger causality test returned no significant results at any lag from 1 to 3 months. This means the economy does not lead chart behavior by a predictable interval. The relationship is contemporaneous: cultural mood and economic mood appear to shift together, driven by the same underlying events (a pandemic shock, a policy change, an inflation surge) rather than one causing the other.</p>
+
+            <h3>2. The Clearest Signal Is Escapism Under Pressure</h3>
+            <p>Cluster 5 ("Vibrant Reflection") is the cluster that most consistently expands during economic hardship, with a Spearman r of +0.514 (statistically significant). Its sub-cluster "Groove &amp; Gravitas" (r = +0.383) and the broader "No Holds Barred Beats" (r = +0.681) reinforce this: when times are hard, music that is simultaneously danceable and emotionally complex gains ground. This is consistent with the "escapism through intensity" hypothesis, where difficult times drive demand for music that is simultaneously immersive and emotionally honest.</p>
+
+            <h3>3. Celebratory Music Retreats in Hard Times</h3>
+            <p>Cluster 6 ("Upbeat Connection Anthems") is the cluster most anti-correlated with misery (Spearman r = -0.442, p = 0.016). It also shows the clearest volumetric decline of -5.4% from the first to second half of the analysis window, which encompasses the COVID and inflation shock years. Feel-good mainstream pop loses chart share precisely when collective economic mood deteriorates.</p>
+
+            <h3>4. Sub-Clustering Uncovers Masked Signals</h3>
+            <p>The most important methodological finding is the value of hierarchical clustering. Multiple parent clusters appear neutral in their Misery Index correlation, but contain sub-clusters with correlations above +0.5 and below -0.5 that cancel each other out at the aggregate level. Flat single-level clustering would have completely missed these dynamics. The two-level approach reveals that musical archetypes are genuinely heterogeneous: a "trap and hip-hop" cluster contains both anxious introspection and high-energy hedonism, and these sub-vibes behave oppositely under economic stress.</p>
+
+            <h3>5. The Lyric Embedding Adds Explanatory Power Beyond Audio Alone</h3>
+            <p>The UMAP projection of lyric embeddings (Figure 3) shows that audio valence and lyrical sentiment do not perfectly overlap. High-valence tracks appear throughout the lyric embedding space, not just in the "happy lyrics" corner. This confirms the design hypothesis: if we had clustered on audio features alone, we would have grouped "Hey Ya!" with songs that are actually emotionally simple. The multimodal fusion produces richer, more interpretable archetypes than audio or lyrics alone could generate.</p>
+
+            <h3>Caveats and Limitations</h3>
+            <ul>
+                <li><strong>Observation window:</strong> The economic overlap of the lyric and Misery Index data is 2019-01 to 2021-05 — a 29-month window that includes the COVID shock but only the beginning of the inflation era. A longer series would provide more statistical power for the Granger tests and correlation estimates.</li>
+                <li><strong>Lyrics coverage:</strong> Not all chart tracks have Genius lyrics. Tracks without lyrics are excluded from the embedding and clustering, which may introduce selection bias toward tracks with more extensive lyrical content.</li>
+                <li><strong>The Misery Index is a blunt instrument:</strong> Okun's formula treats unemployment and inflation as equally weighted, but their cultural effects may differ substantially. A pandemic spike driven by unemployment may feel very different from an inflation spike, even at the same index value.</li>
+                <li><strong>Correlation does not imply causation.</strong> Even with Granger causality ruled out, there may be confounding variables (social media trends, streaming algorithm changes, major cultural events) that simultaneously drive both music taste and economic sentiment.</li>
+            </ul>
+
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </article>
+    </div>
+</body>
+</html>
