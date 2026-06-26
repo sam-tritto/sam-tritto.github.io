@@ -101,7 +101,7 @@
 <body>
     <div class="post-container">
         <header class="post-header-area">
-            <h1>The Cultural Misery Index: Music, Embeddings, and Economic Pain</h1>
+            <h1>Music and Mood Trends - How Do Billboard Hits and Economic Indicators Relate?</h1>
         </header>
         <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
             <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
@@ -280,7 +280,7 @@ print(f"Fused matrix: {fused_matrix.shape}")  # → (n_tracks, 17)</code></pre>
             <p>Standard clustering approaches would take all songs across all years and produce a static snapshot. That approach hides temporal dynamics entirely. Instead, I cluster within monthly time windows and use the Hungarian Algorithm to maintain consistent cluster identities as time moves forward.</p>
 
             <h3>3.1 Selecting Optimal K — a Semi-Automated Approach</h3>
-            <p>Choosing the number of clusters is notoriously the most subjective step in any K-Means workflow. The classic technique is the "elbow method": plot distortion as a function of <em>k</em> and look for the bend in the curve where adding more clusters stops paying off. Sounds scientific. In practice, data scientists stare at the plot and quietly disagree about whether that bend is an elbow, a knee, a gentle shoulder, or just wishful thinking on a Tuesday afternoon.</p>
+            <p>Choosing the number of clusters is notoriously the most subjective step in any K-Means workflow. The classic technique is the "elbow method": plot distortion as a function of <em>k</em> and look for the bend in the curve where adding more clusters stops paying off. Sounds scientific. In practice, data scientists stare at the plot and quietly disagree about whether that bend is an elbow, a knee, a gentle shoulder... who knows??</p>
             <p>To take some of the guesswork out of it, this pipeline uses a two-step, semi-automated selection approach. Step one: Yellowbrick's <span class="inline-code">KElbowVisualizer</span> runs K-Means across a range of <em>k</em> values (4 to 30) and algorithmically detects the sharpest inflection point using a kneedle-style angle computation. This gives us a data-driven candidate rather than a hand-waved one. Step two: a secondary local search runs silhouette scoring over a narrow band around that candidate (±2 values), selecting the final <em>k</em> that maximizes inter-cluster separation while keeping the clusters interpretable. Two passes, two different signals, one number you can actually defend.</p>
 
             <figure style="margin: 1.5rem 0; text-align: center;">
