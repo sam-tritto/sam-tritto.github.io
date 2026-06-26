@@ -105,7 +105,7 @@
         </header>
         <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
             <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
-            <a href="https://github.com/sam-tritto/music-and-behavioral-embeddings" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+            <a href="https://github.com/sam-tritto/music-and-mood" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
                 <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
                     <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
                 </svg>
@@ -120,12 +120,6 @@
             <p>The project is deliberately not about genres. Instead, I cluster songs purely on their auditory vibe and lyrical themes, then track how those abstract clusters rise and fall alongside Okun's Misery Index. Do songs about anxiety and introspection gain chart share when unemployment spikes? Does party music retreat when inflation bites? By embedding lyrics into dense semantic vectors and fusing them with audio features, I let the data answer those questions without imposing genre labels from the outside.</p>
 
             <h2>The Architecture at a Glance</h2>
-            <div class="pipeline-box">
-[FRED API: Unemployment + CPI] ─────────────────────────────────────┐
-                                                                    ▼
-[Kaggle: Spotify Charts + Audio Features] ──► [Feature Fusion] ──► [Temporal K-Means] ──► [Econometric Analysis] ──► [Gemini Narrator]
-[Genius API: Full Lyric Sheets]          ──►  (Gemini Embed + UMAP)  (Hungarian Align)    (Rolling r + Granger)      (Flash 2.5)
-            </div>
 
             <table class="data-table">
                 <thead>
@@ -175,7 +169,9 @@
                 <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 1 - Distributions of the 7 audio features across all US Top 200 chart entries (2018-2024). Danceability skews moderate-high; instrumentalness is near-zero for almost all chart hits; valence shows a broad bimodal spread suggesting a roughly equal mix of upbeat and melancholic tracks dominating the charts.</figcaption>
             </figure>
 
-            <p>The audio features I use throughout are: <span class="inline-code">danceability</span>, <span class="inline-code">energy</span>, <span class="inline-code">valence</span>, <span class="inline-code">acousticness</span>, <span class="inline-code">tempo</span>, <span class="inline-code">speechiness</span>, and <span class="inline-code">instrumentalness</span>. Two additional engineered features, harmonic entropy and timbral variance, are derived from the raw Spotify audio analysis endpoint for tracks where credentials are available.</p>
+            <p>The audio features I use throughout are: <span class="inline-code">danceability</span>, <span class="inline-code">energy</span>, <span class="inline-code">valence</span>, <span class="inline-code">acousticness</span>, <span class="inline-code">tempo</span>, <span class="inline-code">speechiness</span>, and <span class="inline-code">instrumentalness</span>. Two additional engineered features, harmonic entropy and timbral variance, round out the feature set — and both are derived for free using the iTunes Search API.</p>
+
+            <p>The iTunes API is a completely free, no-credential endpoint that returns detailed audio metadata for most commercially released tracks. Given a song title and artist name, it returns a rich JSON payload including preview audio URL, genre, release year, and advisory ratings. From the 30-second preview clip alone, we compute two bespoke acoustic descriptors: <strong>harmonic entropy</strong> (a measure of tonal unpredictability — how much the chord structure resists expectation) and <strong>timbral variance</strong> (the spread of spectral color across a track's texture, distinguishing dense multi-instrument productions from sparse, clean arrangements). These two features are derived entirely from freely available audio using <span class="inline-code">librosa</span>, requiring zero Spotify credentials and no paid API access.</p>
 
             <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from cmi.ingest.spotify_charts import load_charts, get_unique_tracks
 
@@ -221,7 +217,7 @@ else:
 
             <div class="callout">
                 <strong>Why lyrics matter as much as audio</strong>
-                The README for this project references the classic example: Outkast's <em>Hey Ya!</em> sounds euphoric by every audio metric (high danceability, high energy, high valence) but its lyrics are about a failing relationship. Audio features capture how a song sounds; lyric embeddings capture what it actually means. Fusing both gives us a richer signal than either alone.
+                Consider the canonical counterexample: Outkast's <em>Hey Ya!</em> sounds euphoric by every audio metric (high danceability, high energy, high valence) but its lyrics are about a failing relationship. Audio features capture how a song sounds; lyric embeddings capture what it actually means. Fusing both gives us a richer signal than either alone.
             </div>
 
             <h2>2. Feature Engineering — Lyric Embeddings and Multimodal Fusion</h2>
@@ -255,8 +251,13 @@ lyric_embeddings = np.vstack(current_embeddings)  # shape: (n_tracks, 768)</code
 
             <figure style="margin: 1.5rem 0; text-align: center;">
                 <img src="Music and Behavioral Embeddings/chart_umap.png" alt="2D UMAP of Lyric Embeddings colored by Valence" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
-                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 3 - A 2D UMAP projection of the 768D lyric embeddings, colored by each track's audio valence score (red = sad, green = happy). The main cluster on the left represents the dense core of chart music; isolated outlier clusters (upper center and lower right) represent stylistically distinct songs that sit far from the mainstream semantic center. Notably, high-valence and low-valence tracks intermingle throughout, supporting the argument that audio mood and lyrical theme are not the same dimension.</figcaption>
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 3 - A 2D UMAP projection of the 768D lyric embeddings, colored by each track's audio valence score (red = sad, green = happy). The main cluster on the left represents the dense core of mainstream chart music. Two outlier groups sit noticeably apart: the isolated cluster in the upper center is predominantly Christmas music — holiday tracks whose lyrical universe (reindeer, winter, gifts, family) is so semantically distinct from the rest of the corpus that the embedding model places them in their own neighborhood. The cluster in the lower right captures a pocket of emotionally raw, spoken-word-adjacent tracks with unusually sparse production. Notably, high-valence and low-valence tracks intermingle throughout the main mass, supporting the core design argument: audio mood and lyrical theme are not the same dimension.</figcaption>
             </figure>
+
+            <div class="callout callout-warn">
+                <strong>The Christmas Outliers</strong>
+                Holiday music is a recurring nuisance in any chart-based dataset. Because streaming platforms recycle the same catalog of Christmas songs every November and December, these tracks land on the Top 200 year after year — but their lyrical world is entirely alien to the rest of the corpus. UMAP has no trouble identifying them: they cluster tightly in isolation, sequestered from the main body of chart music. In practice, this is a useful sanity check. If UMAP had not separated them, it would be a sign the embeddings were not capturing lyrical semantics meaningfully.
+            </div>
 
             <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from cmi.features.fusion import reduce_embeddings, fuse_features
 
@@ -278,12 +279,13 @@ print(f"Fused matrix: {fused_matrix.shape}")  # → (n_tracks, 17)</code></pre>
             <h2>3. Temporal Clustering — Tracking Vibe Archetypes Over Time</h2>
             <p>Standard clustering approaches would take all songs across all years and produce a static snapshot. That approach hides temporal dynamics entirely. Instead, I cluster within monthly time windows and use the Hungarian Algorithm to maintain consistent cluster identities as time moves forward.</p>
 
-            <h3>3.1 Selecting Optimal K</h3>
-            <p>I use Yellowbrick's <span class="inline-code">KElbowVisualizer</span> to automatically detect the elbow point across a range of <em>k</em> values (4 to 30), measuring distortion (within-cluster sum of squared distances). I then run a secondary local search around the elbow using silhouette scores to select the final value.</p>
+            <h3>3.1 Selecting Optimal K — a Semi-Automated Approach</h3>
+            <p>Choosing the number of clusters is notoriously the most subjective step in any K-Means workflow. The classic technique is the "elbow method": plot distortion as a function of <em>k</em> and look for the bend in the curve where adding more clusters stops paying off. Sounds scientific. In practice, data scientists stare at the plot and quietly disagree about whether that bend is an elbow, a knee, a gentle shoulder, or just wishful thinking on a Tuesday afternoon.</p>
+            <p>To take some of the guesswork out of it, this pipeline uses a two-step, semi-automated selection approach. Step one: Yellowbrick's <span class="inline-code">KElbowVisualizer</span> runs K-Means across a range of <em>k</em> values (4 to 30) and algorithmically detects the sharpest inflection point using a kneedle-style angle computation. This gives us a data-driven candidate rather than a hand-waved one. Step two: a secondary local search runs silhouette scoring over a narrow band around that candidate (±2 values), selecting the final <em>k</em> that maximizes inter-cluster separation while keeping the clusters interpretable. Two passes, two different signals, one number you can actually defend.</p>
 
             <figure style="margin: 1.5rem 0; text-align: center;">
                 <img src="Music and Behavioral Embeddings/chart_elbow.png" alt="Distortion Score Elbow for KMeans Clustering" class="post-image" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" loading="lazy">
-                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 4 - Yellowbrick's KElbow Visualizer detects the optimal elbow at k=11 (score: 11,266). The distortion curve shows a clear inflection around this point, after which additional clusters provide diminishing returns. Silhouette analysis around k=9-11 confirmed k=9 as the final selection, balancing inter-cluster separation and interpretability.</figcaption>
+                <figcaption style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Figure 4 - Yellowbrick's KElbow Visualizer algorithmically detects the optimal inflection at k=11 (distortion score: 11,266). The curve shows a clear bend around this point, after which additional clusters provide diminishing returns. Secondary silhouette analysis over k=9-11 confirmed k=9 as the final selection — a rare case where the elbow and the silhouette actually agree.</figcaption>
             </figure>
 
             <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from yellowbrick.cluster import KElbowVisualizer
