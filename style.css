@@ -445,6 +445,33 @@ body {
     gap: 0.75rem;
 }
 
+.skills-footer-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0 0.75rem;
+    margin-bottom: -0.25rem;
+}
+
+.skills-footer-name-header {
+    flex: 0 0 250px;
+}
+
+.skills-footer-stars-header {
+    flex: 0 0 120px;
+    font-size: 0.85rem;
+    font-weight: 300;
+    opacity: 0.7;
+    color: #ffffff;
+    font-family: var(--font-sans);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.skills-footer-desc-header {
+    flex: 1;
+}
+
 .skills-footer-row {
     display: flex;
     align-items: center;
@@ -498,6 +525,9 @@ body {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    .skills-footer-header {
+        display: none;
+    }
     .nav-container {
         flex-direction: column;
         gap: 1rem;
