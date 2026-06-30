@@ -7,6 +7,14 @@
     "filename": "2026.html"
   },
   {
+    "title": "The 20-Hour Benefit Cliff: Bayesian Causal Inference on Hawaii's Labor Market Distortions",
+    "slug": "hawaii-benefit-cliff.html",
+    "snippet": "A Bayesian causal inference study analyzing how the Hawaii Prepaid Health Care Act of 1974 distorts part-time labor schedules. Using CPS worker microdata, I compare Bayesian Bunching (Poisson regression) against a Bayesian Distributional Synthetic Control model to measure corporate bunching at 19 hours and isolate the policy's causal impact from rounding behaviors.",
+    "image": "Hawaii Benefit Cliff/thumbnail.png",
+    "filename": "hawaii-benefit-cliff.html",
+    "date": "June 2026"
+  },
+  {
     "title": "Causal Inference on Sparse Counts: A Poisson Difference-in-Differences Regression Tutorial",
     "slug": "hotel-cancellations-wildfires-did.html",
     "snippet": "A comprehensive econometrics tutorial demonstrating the power of Poisson Difference-in-Differences (Poisson DiD) and Wooldridge's Extended Two-Way Fixed Effects (ETWFE). Using the Portugal 2017 mega-wildfires as a natural experiment on the Hotel Booking Demand dataset, I show why linear OLS fails on sparse counts and how Poisson DiD avoids the log(Y + epsilon) landmine. We model overall booking demand and address denominator effects in cancellation behavior.",

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The 20-Hour Benefit Cliff: Bayesian Causal Inference on Hawaii's Labor Market Distortions - Sam's Data Portfolio</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        pre {
+            background: #f4f5f7;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid #e5e7eb;
+        }
+        code {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.9em;
+            background: #f4f5f7;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+        }
+        pre code {
+            padding: 0;
+            background: none;
+            font-size: 0.95em;
+        }
+        figcaption {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-style: italic;
+        }
+        figure {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .equation {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 1.15rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid #10b981;
+        }
+        .flex-container {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .flex-figure {
+            flex: 1;
+            min-width: 320px;
+            max-width: 48%;
+            margin: 0;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>The 20-Hour Benefit Cliff: Bayesian Causal Inference on Hawaii's Labor Market Distortions</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <a href="https://github.com/sam-tritto/Hawaii-Benefit-Cliff" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                    <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+        <article class="post-content">
+            <p>Labor regulations with binary thresholds often create unintended economic incentives. In Hawaii, a unique and long-standing law provides a textbook case: the <strong>Prepaid Health Care Act of 1974</strong>. It mandates that employers must provide comprehensive healthcare coverage to any employee who works <strong>20 hours or more per week</strong>. Because providing health insurance represents a substantial fixed cost per worker, this law creates a sharp compliance cost curve, commonly referred to as a <strong>benefit cliff</strong>. To avoid triggering this mandate, employers may intentionally cap part-time shifts at exactly 19 hours. This behavioral response is known as labor bunching.</p>
+
+            <p>I built a Bayesian causal inference pipeline to estimate how much Hawaii's labor hour distribution bunches at 19 hours compared to a counterfactual distribution. I evaluated two different estimators implemented in <code>PyMC</code> to construct this baseline: a traditional Poisson polynomial bunching regression and a Distributional Synthetic Control model. This tutorial focuses on the unique statistical challenges of this economic setup, specifically how self-reported survey rounding behaviors (the "survey heap effect") can cause standard bunching estimators to fail, and how Distributional Synthetic Control resolves this issue to isolate the true causal impact.</p>
+
+            <h2>The Data Source and Preprocessing Pipeline</h2>
+            <p>To analyze this policy effect, I pooled worker-level microdata from the National Bureau of Economic Research (NBER) <strong>Current Population Survey (CPS) Monthly Basic Files</strong> spanning 2021 to 2023. The CPS is a monthly household survey conducted by the U.S. Census Bureau and the Bureau of Labor Statistics. The dataset contains detailed records of weekly hours worked, geographic region, month-in-sample, class of worker, and industry classifications.</p>
+
+            <p>Because the NBER data servers utilize CDNs that block command-line script downloads, I structured a local ingestion script to pool the monthly raw CSV-formatted zip archives. I restricted the sample to a panel of tourism-dependent and high-cost-of-living states: Hawaii (Treatment) and four control states (California, Nevada, Florida, Alaska) that do not share the 20-hour healthcare mandate. The preprocessing pipeline filters the microdata to ensure structural comparability across the units:</p>
+            <ul>
+                <li><strong>Private Sector Focus</strong>: Filtered to include only private sector workers (excluding self-employed and public sector employees) to isolate corporate shift-scheduling behavior.</li>
+                <li><strong>Month-in-Sample (MIS) 1 restriction</strong>: Kept only workers in their first month of the survey to eliminate longitudinal sample overlap and ensure independent observations.</li>
+                <li><strong>Part-Time Range</strong>: Restricted the sample to workers reporting between 10 and 30 hours per week to focus on the policy-distorted part-time region.</li>
+            </ul>
+            <p>After filtering, the final pooled dataset contains <strong>26,306 individual worker records</strong> across the five states.</p>
+
+            <figure>
+                <img src="Hawaii Benefit Cliff/raw_distributions.png" alt="Raw Distributions of Hours Worked" style="max-width: 100%; height: auto;">
+                <figcaption>Figure 1: Proportion of workforce by weekly hours worked. Hawaii exhibits a massive, unique spike at exactly 19 hours and a deep valley immediately afterward, while control states show a smooth progression around the 20-hour mark.</figcaption>
+            </figure>
+
+            <h2>The Specific Causal Challenge: The Survey Heap Effect</h2>
+            <p>In self-reported labor surveys, respondents exhibit a strong cognitive bias toward rounding their working hours to multiples of five (10, 15, 20, 25, 30 hours). In the CPS data, this creates massive spikes at 15, 20, and 25 hours, even in states without any labor threshold regulations. This is known as the <strong>survey heap effect</strong>.</p>
+            <p>This rounding behavior poses a severe threat to causal identification:</p>
+            <ol>
+                <li><strong>Bunching Failure</strong>: Standard polynomial bunching models fit a smooth curve to the treated state's running variable (hours worked), omitting the region near the threshold (hours 18 to 23). Because the model expects a smooth progression, it expects a high counterfactual count at 19 hours due to the adjacent spike at 20. When it compares the actual count at 19 hours to this inflated curve, it under-predicts the baseline and can falsely conclude there is a labor <em>deficit</em> at 19 hours, completely missing the policy bunching.</li>
+                <li><strong>Synthetic Control Solution</strong>: Distributional Synthetic Control constructs the counterfactual as a weighted average of donor states. Because CA, NV, FL, and AK share the exact same cognitive rounding biases, their distributions also contain natural heaps at 15 and 20 hours. By fitting the weights on hours outside the policy-affected window, the synthetic counterfactual naturally expects low counts at 19 and a massive heap at 20, cleanly isolating the true policy-induced bunching in Hawaii.</li>
+            </ol>
+
+            <h2>Modeling Choices and PyMC Implementation</h2>
+
+            <h3>1. Bayesian Bunching (Poisson Regression)</h3>
+            <p>The standard bunching estimator models the worker counts at each hour interval using a Poisson likelihood. The expected log-count is modeled as a flexible polynomial of the running variable (hours worked):</p>
+            
+            <div class="equation">
+                log(&lambda;<sub>h</sub>) = &sum;<sub>k=0</sub><sup>K</sup> &beta;<sub>k</sub> h<sup>k</sup>
+            </div>
+            
+            <p>To avoid numerical overflow during MCMC sampling when calculating high-order polynomial powers, I mean-centered and scaled the hours variable. I specified regularizing Normal priors on the coefficients to prevent overfitting, and ran the PyMC sampler excluding the distorted range [18, 23]:</p>
+
+<pre><code class="language-python">def fit_bayesian_bunching(hours_counts, exclude_range=(18, 23), poly_degree=5):
+    h = hours_counts.index.values.astype(float)
+    y = hours_counts.values
+    
+    # Define mask for non-excluded region
+    mask = (h &lt; exclude_range[0]) | (h &gt; exclude_range[1])
+    
+    # Scale running variable to prevent numerical overflow in polynomial powers
+    h_scaled = (h - h.mean()) / h.std()
+    X = np.column_stack([h_scaled**k for k in range(poly_degree + 1)])
+    
+    X_fit = X[mask]
+    y_fit = y[mask]
+    
+    with pm.Model() as bunching_model:
+        # Priors for polynomial coefficients (tight priors on higher terms)
+        beta = pm.Normal("beta", mu=0, sigma=10, shape=poly_degree + 1)
+        
+        # Expected counts (log link)
+        log_mu = pm.math.dot(X_fit, beta)
+        mu = pm.math.exp(log_mu)
+        
+        # Likelihood
+        pm.Poisson("obs", mu=mu, observed=y_fit)
+        
+        # MCMC Sampling
+        idata = pm.sample(draws=1000, tune=1000, target_accept=0.95, random_seed=42)
+        
+    beta_samples = az.extract(idata, var_names="beta").values.T
+    lambda_pred = np.exp(np.dot(X, beta_samples.T))
+    return idata, lambda_pred</code></pre>
+
+            <figure>
+                <img src="Hawaii Benefit Cliff/bunching_results.png" alt="Bayesian Bunching Results" style="max-width: 100%; height: auto;">
+                <figcaption>Figure 2: Bayesian Bunching counterfactual. The smooth polynomial curve completely fails to account for the natural rounding heap at 20 hours, over-predicting the counterfactual at 19 hours and under-predicting the actual baseline.</figcaption>
+            </figure>
+
+            <h3>2. Bayesian Distributional Synthetic Control</h3>
+            <p>Distributional Synthetic Control models Hawaii's counterfactual distribution as a weighted combination of the donor states' distributions:</p>
+
+            <div class="equation">
+                Y<sub>HI, h</sub> &approx; &sum;<sub>d</sub> w<sub>d</sub> Y<sub>d, h</sub>
+            </div>
+
+            <p>The weights must be non-negative and sum to 1. To enforce these constraints natively without resorting to ad-hoc normalization, I modeled the weight vector in PyMC using a <strong>Dirichlet prior</strong>. The model is fit by excluding the policy-affected window [15, 24]:</p>
+
+<pre><code class="language-python">def fit_bayesian_synthetic_control(hi_dist, donor_dists, exclude_range=(15, 24)):
+    hours = hi_dist.index.values
+    y_hi = hi_dist.values
+    X_donors = donor_dists.values  # Shape: (len(hours), n_donors)
+    n_donors = X_donors.shape[1]
+    
+    # Mask to exclude the policy-affected range
+    mask = (hours &lt; exclude_range[0]) | (hours &gt; exclude_range[1])
+    y_hi_fit = y_hi[mask]
+    X_donors_fit = X_donors[mask]
+    
+    with pm.Model() as sc_model:
+        # Dirichlet prior naturally guarantees that weights are non-negative and sum to 1
+        w = pm.Dirichlet("w", a=np.ones(n_donors))
+        
+        # Expected value in the non-excluded region
+        mu = pm.math.dot(X_donors_fit, w)
+        
+        # Likelihood noise parameter
+        sigma = pm.HalfNormal("sigma", sigma=0.05)
+        
+        # Likelihood
+        pm.Normal("obs", mu=mu, sigma=sigma, observed=y_hi_fit)
+        
+        # MCMC Sampling
+        idata = pm.sample(draws=1000, tune=1000, target_accept=0.95, random_seed=42)
+        
+    w_samples = az.extract(idata, var_names="w").values.T
+    synthetic_hi_pred = np.dot(X_donors, w_samples.T)
+    return idata, synthetic_hi_pred</code></pre>
+
+            <figure>
+                <img src="Hawaii Benefit Cliff/synthetic_control_results.png" alt="Bayesian Synthetic Control Results" style="max-width: 100%; height: auto;">
+                <figcaption>Figure 3: Bayesian Synthetic Control counterfactual. By utilizing donor states with identical rounding habits, the model correctly expects a peak at 20 hours and a low baseline at 19 hours, isolating the true causal effect.</figcaption>
+            </figure>
+
+            <div class="flex-container">
+                <figure class="flex-figure">
+                    <img src="Hawaii Benefit Cliff/donor_weights.png" alt="Donor Weights Distribution" style="max-width: 100%; height: auto;">
+                    <figcaption>Figure 4: Posterior weights assigned to each donor state. The model constructs Synthetic Hawaii primarily from California and Nevada, reflecting similar tourism-dependent structures.</figcaption>
+                </figure>
+                <figure class="flex-figure">
+                    <img src="Hawaii Benefit Cliff/causal_treatment_effects.png" alt="Causal Treatment Effects" style="max-width: 100%; height: auto;">
+                    <figcaption>Figure 5: Net causal treatment effect (Hawaii Actual minus Synthetic Hawaii). Bars indicate the difference in percentage points, showing an excess of workers at 19 hours and a matching deficit from 20 to 23 hours.</figcaption>
+                </figure>
+            </div>
+
+            <h2>Quantitative Causal Impact Results</h2>
+            <p>Comparing the actual Hawaii distribution against the posterior predictive distributions of our Synthetic Hawaii baseline yields the following causal estimates:</p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Hours Worked</th>
+                        <th>Hawaii Actual Proportion</th>
+                        <th>Synthetic Hawaii Baseline</th>
+                        <th>Causal Impact (Difference)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>19 Hours (Bunching Spike)</strong></td>
+                        <td>1.91%</td>
+                        <td>0.18% (95% CI: 0.10% – 0.24%)</td>
+                        <td>+1.73% (95% CI: +1.67% – +1.81%)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>20–23 Hours (Mandate Deficit)</strong></td>
+                        <td>25.80%</td>
+                        <td>29.87% (95% CI: 28.88% – 30.97%)</td>
+                        <td>-4.07% (95% CI: -5.17% – -3.08%)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>The results show a massive <strong>10.6x relative excess</strong> of workers scheduled for exactly 19 hours per week in Hawaii compared to the synthetic baseline. This is accompanied by a <strong>4.07% labor deficit</strong> in the 20 to 23 hours range. This empirical evidence suggests that employers are systematically capping part-time work schedules at exactly 19 hours to avoid paying mandatory employee healthcare premiums.</p>
+
+            <h2>Policy Implications & Lessons Learned</h2>
+            <p>This causal analysis highlights a key lesson for public policy design. While the Prepaid Health Care Act successfully provides health insurance to full-time employees, the rigid binary threshold at 20 hours creates severe labor market distortions. Employers respond to the steep compliance cost curve by limiting shifts, which restricts the earning potential and hours of part-time workers who might otherwise choose to work 20-23 hours.</p>
+            <p>To eliminate this scheduling distortion, policymakers should design graduated subsidies or prorated employer contribution requirements. By smoothing the compliance cost curve, employers can schedule labor based on consumer demand rather than regulatory thresholds, allowing part-time employees to work their preferred schedules.</p>
+        </article>
+    </div>
+</body>
+</html>
