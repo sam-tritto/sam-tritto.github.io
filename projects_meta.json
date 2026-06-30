@@ -7,6 +7,14 @@
     "filename": "2026.html"
   },
   {
+    "title": "Polar Plunge Index - Hierarchical Bayesian Marketing Mix Modeling (MMM)",
+    "slug": "polar-plunge-mmm.html",
+    "snippet": "An analytical case study applying Hierarchical Bayesian Marketing Mix Modeling (MMM) with PyMC-Marketing to understand travel demand. I model how winter weather shocks (Northeast freeze events) interact with search interest and promotional activity across multiple warm-weather destinations, leveraging partial pooling to regularize data-sparse markets.",
+    "image": "Polar Plunge/raw_data_hierarchical.webp",
+    "filename": "polar-plunge-mmm.html",
+    "date": "June 2026"
+  },
+  {
     "title": "Music and Mood Trends - How Do Billboard Hits and Economic Indicators Relate?",
     "slug": "music-and-behavioral-embeddings.html",
     "snippet": "A multimodal data science pipeline that fuses Spotify streaming charts, Genius lyric embeddings (via Gemini embedding-001), and FRED macroeconomic indicators to track how American music taste shifts under economic stress. Covers dataset fusion, UMAP dimensionality reduction, temporal K-Means with Hungarian alignment, hierarchical sub-clustering, rolling correlation, and Granger causality against Okun's Misery Index.",

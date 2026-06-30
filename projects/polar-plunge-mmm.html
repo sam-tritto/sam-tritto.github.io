@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polar Plunge Index: Hierarchical MMM - Sam's Data Portfolio</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        pre {
+            background: #f4f5f7;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid #e5e7eb;
+        }
+        code {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.9em;
+            background: #f4f5f7;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+        }
+        pre code {
+            padding: 0;
+            background: none;
+            font-size: 0.95em;
+        }
+        figcaption {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-style: italic;
+        }
+        figure {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .equation {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 1.15rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid #30406e;
+        }
+        .flex-container {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .flex-figure {
+            flex: 1;
+            min-width: 320px;
+            max-width: 48%;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>Polar Plunge Index: Hierarchical MMM</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <a href="https://github.com/sam-tritto/Polar-Plunge" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                    <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+        <div class="post-content">
+            <p>Every winter, a familiar migration happens. As freezing arctic air sweeps across the Northeast United States, travel searches spike for warm beach destinations. For travel brands, this weather-driven demand is a major opportunity. However, measuring the exact impact of weather shocks alongside national marketing campaigns is notoriously difficult.</p>
+
+            <p>To solve this, I designed and implemented the <strong>Polar Plunge Index (PPI)</strong>. This project uses a <strong>Hierarchical Bayesian Marketing Mix Model (MMM)</strong> to analyze weather shocks (Northeast freeze events) and national marketing channels across five distinct travel destinations: Hawaii, Florida, Puerto Rico, Costa Rica, and Cancun. By using a hierarchical structure, the model shares statistical strength (partial pooling) across these markets, regularizing data-sparse locations with global trends while preserving destination-specific differences.</p>
+
+            <figure>
+                <img src="Polar Plunge/raw_data_hierarchical.webp" alt="Polar Plunge Index Raw Data Overview" class="post-image">
+                <figcaption>Figure 1: Multi-panel EDA showing the Northeast Freeze Index, national Google Trends search channels, and visitor arrival indexes across all five destinations.</figcaption>
+            </figure>
+
+            <h2>Core Concepts for Beginners</h2>
+            <p>If you are new to Marketing Mix Modeling or Bayesian statistics, here are the key concepts and libraries I used to build the pipeline:</p>
+            <ul>
+                <li><strong>Marketing Mix Modeling (MMM):</strong> A statistical technique used to estimate the impact of various marketing inputs and external factors (like weather) on a target KPI (such as visitor arrivals).</li>
+                <li><strong>PyMC & PyMC-Marketing:</strong> PyMC is a Python library for probabilistic programming, allowing you to write Bayesian models using intuitive syntax. I used the <code>pymc_marketing.mmm.multidimensional</code> module to construct a multi-output model that handles multiple destinations simultaneously.</li>
+                <li><strong>Geometric Adstock:</strong> Marketing and search demand have memory. If someone searches for a flight today, they might not arrive until weeks later. Adstock carryover models this lagged effect by decaying the search input over time using a parameter <code>&alpha;</code>.</li>
+                <li><strong>Logistic Saturation:</strong> Marketing channels exhibit diminishing marginal returns. Twice the search interest does not equal twice the arrivals. I used a logistic function to model this non-linear saturation effect.</li>
+                <li><strong>Bayesian Hierarchical Modeling:</strong> Instead of building five independent models (which overfits data-scarce markets) or one pooled model (which ignores destination differences), hierarchical modeling estimates parameters that are bound together by a shared global distribution. This is called <em>partial pooling</em>.</li>
+            </ul>
+
+            <h2>Data Collection & Processing Pipeline</h2>
+            <p>I built a custom pipeline in <code>src/data_fetcher.py</code> to retrieve and combine real-world data:</p>
+            <ol>
+                <li><strong>Northeast Freeze Index:</strong> I fetched daily temperature data from NOAA CDO stations (NYC Central Park, Boston Logan, Philadelphia International, and Chicago O'Hare). I calculated the Freeze Index as the sum of degrees below 25&deg;F across these stations.</li>
+                <li><strong>Search Proxies:</strong> I queried Google Trends for two primary keyword groups: <em>Promo Search Index</em> (deals and booking searches) and <em>Inspiration Search Index</em> (best winter vacations and warm travel searches).</li>
+                <li><strong>Visitor Arrivals:</strong> I collected visitor arrivals data for the destinations, including official visitor counts from the Hawaii DBEDT portal, interpolated to a weekly frequency to match the Google Trends data.</li>
+            </ol>
+
+            <h2>Model Architecture & Prior Specifications</h2>
+            <p>The model structure is specified probabilistically. The relationship between marketing channels, weather shocks, and travel arrivals is defined using hierarchical priors. This allows destination-specific coefficients to shrink toward a global mean:</p>
+
+            <div class="equation">
+                &mu;<sub>channel</sub> ~ HalfNormal(&sigma; = 1)<br>
+                &beta;<sub>dest, channel</sub> ~ Normal(&mu;<sub>channel</sub>, &sigma;<sub>channel</sub>)
+            </div>
+
+            <div class="equation">
+                &mu;<sub>&gamma;</sub> ~ Normal(0, 1)<br>
+                &gamma;<sub>dest</sub> ~ Normal(&mu;<sub>&gamma;</sub>, &sigma;<sub>&gamma;</sub>)
+            </div>
+
+            <p>Where:</p>
+            <ul>
+                <li><strong>&beta;<sub>dest, channel</sub></strong> is the coefficient representing the impact of a search channel (Promo or Inspiration) on a destination's arrivals.</li>
+                <li><strong>&gamma;<sub>dest</sub></strong> is the weather-shock sensitivity coefficient, representing the impact of the Northeast Freeze Index on arrivals.</li>
+            </ul>
+
+            <p>I initialized and configured this hierarchical model with the following PyMC-Marketing code:</p>
+            <pre><code>from pymc_marketing.mmm import GeometricAdstock, LogisticSaturation
+from pymc_marketing.mmm.multidimensional import MMM
+
+mmm = MMM(
+    date_column=DATE_COL,
+    channel_columns=CHANNEL_COLS,
+    control_columns=CONTROL_COLS,
+    adstock=GeometricAdstock(l_max=8),
+    saturation=LogisticSaturation(),
+    yearly_seasonality=2,
+    dims=(GROUP_COL,),
+    target_column=TARGET_COL,
+)</code></pre>
+
+            <p>I then fitted the model using Markov Chain Monte Carlo (MCMC) NUTS sampling:</p>
+            <pre><code>mmm.fit(
+    X=df[[DATE_COL, GROUP_COL] + CHANNEL_COLS + CONTROL_COLS],
+    y=y,
+    draws=1000,
+    chains=4,
+    target_accept=0.95,
+    random_seed=42,
+    progressbar=True,
+)</code></pre>
+
+            <h2>1. Exploratory Data Analysis</h2>
+            <p>I started by examining the relationship between the Northeast Freeze Index and arrivals. The scatter plots in Figure 2 show a positive correlation between freeze events and arrivals across several destinations, with Florida showing the most immediate relationship.</p>
+
+            <figure>
+                <img src="Polar Plunge/freeze_vs_arrivals.webp" alt="Northeast Freeze Index vs. Arrivals" class="post-image">
+                <figcaption>Figure 2: Scatter plots comparing the Northeast Freeze Index against arrivals, overlaid with simple OLS trend lines.</figcaption>
+            </figure>
+
+            <h2>2. Partial Pooling & Shrinkage Analysis</h2>
+            <p>A key advantage of Hierarchical Bayesian modeling is shrinkage. For destinations with sparse or noisy data (like Costa Rica), the model relies on the global prior and pulls the destination coefficient toward the global mean. For destinations with rich data (like Hawaii and Florida), the model trusts the local data and allows the coefficient to deviate from the global mean.</p>
+
+            <figure>
+                <img src="Polar Plunge/pooling_shrinkage.webp" alt="Partial Pooling Shrinkage" class="post-image">
+                <figcaption>Figure 3: Forest plot demonstrating partial pooling shrinkage. The Northeast Freeze Index coefficient (&gamma;) for data-scarce destinations is pulled toward the global mean (shaded area).</figcaption>
+            </figure>
+
+            <h2>3. Adstock Decay & Planning Horizons</h2>
+            <p>The model reveals distinct planning behaviors across destinations. Hawaii has the slowest decay rate (highest <code>&alpha;</code>), indicating that winter weather search interest has a long-lasting effect - up to 8 weeks - before translating into actual arrivals. Florida, on the other hand, exhibits a much faster decay rate, indicating a shorter planning horizon where weather shocks lead to near-immediate departures.</p>
+
+            <div class="flex-container">
+                <figure class="flex-figure">
+                    <img src="Polar Plunge/adstock_velocity_inspiration.webp" alt="Adstock Decay Inspiration" class="post-image">
+                    <figcaption>Figure 4a: Adstock decay weights for Inspiration search interest. Hawaii shows a significantly longer memory curve than Florida.</figcaption>
+                </figure>
+                <figure class="flex-figure">
+                    <img src="Polar Plunge/adstock_velocity_promo.webp" alt="Adstock Decay Promo" class="post-image">
+                    <figcaption>Figure 4b: Adstock decay weights for Promo search interest. Decay is generally faster, indicating that promotions prompt quicker booking actions.</figcaption>
+                </figure>
+            </div>
+
+            <h2>4. Saturation & Diminishing Returns</h2>
+            <p>Understanding where a channel saturates is vital for budget allocation. In Figure 5, the model maps the saturation frontiers. Costa Rica reaches saturation quickly on Promo searches, indicating that additional promotional efforts have diminishing returns, while Hawaii remains far from its saturation point, suggesting it could benefit from more promo-driven marketing.</p>
+
+            <div class="flex-container">
+                <figure class="flex-figure">
+                    <img src="Polar Plunge/saturation_frontier_promo.webp" alt="Saturation Frontier Promo" class="post-image">
+                    <figcaption>Figure 5a: Saturation curves for Promo searches across destinations. Shows the frontier of diminishing marginal returns.</figcaption>
+                </figure>
+                <figure class="flex-figure">
+                    <img src="Polar Plunge/saturation_frontier_inspiration.webp" alt="Saturation Frontier Inspiration" class="post-image">
+                    <figcaption>Figure 5b: Saturation curves for Inspiration searches, reflecting the different thresholds of advertising effectiveness.</figcaption>
+                </figure>
+            </div>
+
+            <h2>5. Channel ROI Summary</h2>
+            <p>Finally, I generated the ROI Summary. This plot shows the incremental arrivals generated per unit of search demand. Inspiration search interest yields a much higher ROI for long-distance destinations like Hawaii, whereas Promo search interest performs better for short-haul destinations like Florida and Cancun.</p>
+
+            <figure>
+                <img src="Polar Plunge/roi_summary.webp" alt="Channel ROI Summary" class="post-image">
+                <figcaption>Figure 6: Channel ROI summary comparing the posterior median return-on-investment with 90% credible intervals.</figcaption>
+            </figure>
+
+            <h2>Realistic Conclusion</h2>
+            <p>The hierarchical model successfully quantifies the interaction between winter weather shocks and warm-weather travel. The results show that a Northeast freeze is not a uniform driver of travel; it is moderated by destination-specific planning horizons and search sensitivities. </p>
+            
+            <p>Hawaii requires a sustained, early-winter presence in the Inspiration channel because its planning horizon is long. Florida, by contrast, behaves as an immediate-response destination; marketing teams should monitor NOAA forecasts in real time and trigger short-term Promo campaigns immediately when a freeze event is predicted in major Northeast hubs like New York City or Boston. This dynamic allocation represents a major improvement over static seasonal budgets.</p>
+
+            <h2>Next Steps & Future Enhancements</h2>
+            <p>To take this project further, I plan to implement several enhancements:</p>
+            <ol>
+                <li><strong>Incorporate Actual Media Spend:</strong> Replace Google Trends search volume proxies with actual dollar spend data across channels (e.g., paid search, social, programmatic) to compute true financial ROI.</li>
+                <li><strong>Add Flight Capacity Data:</strong> Integrate weekly seat capacity data for direct routes from Northeast airports. Travel demand is often capped by flight availability, and adding this variable will prevent the model from misallocating weather effects during supply bottlenecks.</li>
+                <li><strong>Time-Varying Coefficients:</strong> Allow the weather shock sensitivity parameter (&gamma;<sub>dest</sub>) to vary over time to capture changing consumer responses to climate anomalies and changing winter weather patterns.</li>
+            </ol>
+
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
