@@ -7,6 +7,14 @@ window.PROJECTS_DATA = [
     "filename": "2026.html"
   },
   {
+    "title": "Causal Inference on Sparse Counts: A Poisson Difference-in-Differences Regression Tutorial",
+    "slug": "hotel-cancellations-wildfires-did.html",
+    "snippet": "A comprehensive econometrics tutorial demonstrating the power of Poisson Difference-in-Differences (Poisson DiD) and Wooldridge's Extended Two-Way Fixed Effects (ETWFE). Using the Portugal 2017 mega-wildfires as a natural experiment on the Hotel Booking Demand dataset, I show why linear OLS fails on sparse counts and how Poisson DiD avoids the log(Y + epsilon) landmine. We model overall booking demand and address denominator effects in cancellation behavior.",
+    "image": "Hotel Cancellations/demand_trends.png",
+    "filename": "hotel-cancellations-wildfires-did.html",
+    "date": "June 2026"
+  },
+  {
     "title": "Polar Plunge Index - Hierarchical Bayesian Marketing Mix Modeling (MMM)",
     "slug": "polar-plunge-mmm.html",
     "snippet": "An analytical case study applying Hierarchical Bayesian Marketing Mix Modeling (MMM) with PyMC-Marketing to understand travel demand. I model how winter weather shocks (Northeast freeze events) interact with search interest and promotional activity across multiple warm-weather destinations, leveraging partial pooling to regularize data-sparse markets.",

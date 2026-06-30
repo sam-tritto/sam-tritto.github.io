@@ -37,6 +37,7 @@
             <div class="categories" id="category-filters">
                 <button class="cat-btn active" data-category="all">All Projects</button>
                 <button class="cat-btn" data-category="stats">A/B Testing & Stats</button>
+                <button class="cat-btn" data-category="causal">Causal Inference</button>
                 <button class="cat-btn" data-category="ml">Machine Learning</button>
                 <button class="cat-btn" data-category="ai">GenAI & Agents</button>
                 <button class="cat-btn" data-category="mlops">MLOps</button>
@@ -73,6 +74,9 @@
                 
                 if (lowerTitle.includes('test') || lowerTitle.includes('anova') || lowerTitle.includes('manova') || lowerTitle.includes('correlation') || lowerTitle.includes('ab test') || lowerTitle.includes('proportions') || lowerTitle.includes('means') || lowerTitle.includes('rank') || lowerTitle.includes('z-score') || lowerTitle.includes('loo')) {
                     tags.push({ id: 'stats', label: 'A/B Testing & Stats' });
+                }
+                if (lowerTitle.includes('causal') || lowerTitle.includes('did') || lowerTitle.includes('difference-in-differences') || lowerTitle.includes('difference in differences') || lowerTitle.includes('synthetic control')) {
+                    tags.push({ id: 'causal', label: 'Causal Inference' });
                 }
                 if (lowerTitle.includes('machine learning') || lowerTitle.includes('deep learning') || lowerTitle.includes('regression') || lowerTitle.includes('regressor') || lowerTitle.includes('forest') || lowerTitle.includes('knn') || lowerTitle.includes('clustering') || lowerTitle.includes('k-means') || lowerTitle.includes('classification') || lowerTitle.includes('classifying') || lowerTitle.includes('outliers') || lowerTitle.includes('anomalies')) {
                     tags.push({ id: 'ml', label: 'Machine Learning' });

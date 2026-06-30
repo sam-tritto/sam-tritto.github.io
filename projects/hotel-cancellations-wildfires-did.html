@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Causal Inference on Sparse Counts: A Poisson Difference-in-Differences Regression Tutorial - Sam's Data Portfolio</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        pre {
+            background: #f4f5f7;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid #e5e7eb;
+        }
+        code {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.9em;
+            background: #f4f5f7;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+        }
+        pre code {
+            padding: 0;
+            background: none;
+            font-size: 0.95em;
+        }
+        figcaption {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-style: italic;
+        }
+        figure {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .equation {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 1.15rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid #30406e;
+        }
+        .flex-container {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .flex-figure {
+            flex: 1;
+            min-width: 320px;
+            max-width: 48%;
+            margin: 0;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #30406e;
+        }
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>Causal Inference on Sparse Counts: A Poisson Difference-in-Differences Regression Tutorial</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <a href="https://github.com/sam-tritto/hotel-cancellations-and-mega-wildfires" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                    <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+        <article class="post-content">
+            <p>Causal inference is the cornerstone of data-driven decision making. In both industry and research, Difference-in-Differences (DiD) is the workhorse methodology for estimating treatment effects when randomized experiments are unavailable. However, a major statistical blind spot arises when standard linear regressions are applied directly to sparse count data. When the target variable is a count (such as weekly bookings or cancellations) and contains a substantial fraction of zeros, standard Ordinary Least Squares (OLS) fails. It produces physically impossible negative predictions and suffers from severe specification bias if a log transformation, the classic <code>log(Y + &epsilon;)</code> workaround, is attempted.</p>
+
+            <p>In this tutorial, I walk through these exact econometric failures and present the solution, <strong>Poisson Pseudo-Maximum Likelihood (PPML)</strong> Difference-in-Differences. Using a real-world case study, the historic <strong>June 2017 Portuguese Mega-Wildfires</strong> and their impact on hotel demand from the famous <strong>Hotel Booking Demand Dataset</strong>, I explain how to build a robust causal pipeline. I also analyze <strong>denominator effects</strong> in cancellations, explain the <strong>multiplicative parallel trends</strong> assumption, and demonstrate how to extend this framework to multi-unit panels using modern econometric packages like <code>etwfe</code> and <code>diff-diff</code>.</p>
+
+            <h2>Intuition & Data Source</h2>
+            <p>The case study is built around a natural experiment. In June 2017, Portugal experienced the most devastating wildfires in its history, concentrated primarily in the central region of the country. This study leverages the <strong>Hotel Booking Demand Dataset</strong> (Antonio, de Almeida, and Nunes, 2019), which contains booking records from July 2015 to August 2017 for two hotels in Portugal:</p>
+            <ul>
+                <li><strong>Resort Hotel (Treated)</strong>: Located in the Algarve, a southern coastal region heavily dependent on international tourism and vulnerable to wildfire demand shocks.</li>
+                <li><strong>City Hotel (Control)</strong>: Located in Lisbon, which was unaffected by the wildfires and serves as a baseline control.</li>
+            </ul>
+
+            <p>The analysis focuses on the <strong>Groups</strong> market segment. Group bookings (tours, conferences, weddings) are highly seasonal and "lumpy" (booked and cancelled in large blocks). This makes them a perfect candidate for sparse count modeling since many weeks have exactly zero activity, interspersed with massive seasonal spikes.</p>
+
+            <p>I built a panel dataset using a weekly frequency (Monday to Monday). In this simple panel, the target variable <code>total_bookings</code> (demand) has a massive pile-up at zero, with <strong>22.81%</strong> of all weeks recording exactly 0 group bookings.</p>
+
+            <figure>
+                <img src="Hotel Cancellations/demand_histogram.png" alt="Weekly Booking Demand Distribution" class="post-image">
+                <figcaption>Figure 1: Distribution of weekly booking counts in the Groups segment, highlighting the massive peak at zero bookings.</figcaption>
+            </figure>
+
+            <p>Plotting the weekly booking demand over time shows the massive seasonal group demand spikes in the pre-wildfire period, followed by a sharp contraction for the Resort Hotel after the wildfire shock in week 24 (June 12, 2017).</p>
+
+            <figure>
+                <img src="Hotel Cancellations/demand_trends.png" alt="Weekly Booking Demand Trends" class="post-image">
+                <figcaption>Figure 2: Weekly booking demand (total bookings) trends over time, highlighting the June 2017 Portuguese Mega-Wildfires shock (week 24).</figcaption>
+            </figure>
+
+            <h2>The Causal Puzzle: Denominator & Cancellation Effects</h2>
+            <p>A common assumption is that a disaster like a wildfire should increase cancellations. However, plotting the weekly cancellation trends for group bookings reveals a counter-intuitive phenomenon: following the wildfire, cancellations at the Resort Hotel dropped to <strong>absolute zero</strong>!</p>
+
+            <figure>
+                <img src="Hotel Cancellations/cancellation_trends.png" alt="Weekly Cancellation Trends" class="post-image">
+                <figcaption>Figure 3: Weekly cancellation counts over time. Following the wildfire, Resort Hotel cancellations drop to absolute zero.</figcaption>
+            </figure>
+
+            <p>This is a classic demonstration of the <strong>denominator effect</strong>. A cancellation cannot exist without a booking. The wildfire was so devastating to local tourism that group demand completely collapsed. No new bookings were made for the summer and autumn arrival weeks. With zero bookings on the books, cancellations mechanically fell to absolute zero.</p>
+
+            <p>If I had analyzed cancellations in isolation without accounting for the denominator (overall booking demand), I might have concluded that the wildfire had a "beneficial" effect by reducing cancellations. This highlights the importance of using overall demand (total bookings) as the primary outcome, and keeping cancellations as a secondary metric to understand the underlying mechanics.</p>
+
+            <h2>The Econometric Failures of Linear OLS</h2>
+
+            <h3>Failure 1: Physical Nonsense (Negative Predictions)</h3>
+            <p>If I fit a standard linear OLS model on the simple panel to estimate the difference-in-differences effect:</p>
+            
+            <div class="equation">
+                Y<sub>it</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Treat<sub>i</sub> + &beta;<sub>2</sub> Post<sub>t</sub> + &theta; (Treat<sub>i</sub> &times; Post<sub>t</sub>) + &epsilon;<sub>it</sub>
+            </div>
+
+            <p>Where <code>Treat<sub>i</sub></code> is 1 for the Resort Hotel, <code>Post<sub>t</sub></code> is 1 for post-wildfire weeks, and <code>&theta;</code> is the causal parameter. The linear model assumes a symmetric, normal distribution of residuals. Because count data is strictly non-negative, the OLS model predicts negative cancellation counts during off-peak winter weeks. In my simple panel, <strong>5.26% of weeks</strong> yield physically impossible negative predictions (such as -2.84 &times; 10<sup>-14</sup> cancellations).</p>
+
+            <h3>Failure 2: The log(Y + &epsilon;) Landmine</h3>
+            <p>To bypass negative predictions and stabilize variance, data scientists often transform the target variable using a log transformation. Since log(0) is undefined, they add an arbitrary constant <code>&epsilon;</code> (typically 1.0) and run OLS on the transformed outcome: <code>log(Y + &epsilon;)</code>.</p>
+
+            <p>To demonstrate why this is a statistical landmine, I ran a sensitivity analysis fitting the log-linear OLS model for various choices of <code>&epsilon; &in; [1.0, 0.5, 0.1, 0.01, 0.001]</code>. I tracked the estimated treatment coefficient (<code>&theta;</code>) and its standard errors:</p>
+
+            <pre><code>offsets = [1.0, 0.5, 0.1, 0.01, 0.001]
+coefficients = []
+std_errors = []
+
+for eps in offsets:
+    panel_simple['y_log'] = np.log(panel_simple['cancellations'] + eps)
+    model = smf.ols("y_log ~ treat + post + treat_post", data=panel_simple).fit()
+    coefficients.append(model.params['treat_post'])
+    std_errors.append(model.bse['treat_post'])</code></pre>
+
+            <figure>
+                <img src="Hotel Cancellations/log_offset_sensitivity.png" alt="Log Offset Sensitivity" class="post-image">
+                <figcaption>Figure 4: The log(Y + &epsilon;) landmine. Changing the arbitrary constant &epsilon; wildly shifts the estimated treatment effect and its confidence intervals.</figcaption>
+            </figure>
+
+            <p>The results show that changing the arbitrary constant from 1.0 to 0.001 causes the estimated coefficient to shift from <strong>-0.8354</strong> to <strong>-2.7667</strong>, a shift of over <strong>300%</strong>! Because the estimated treatment effect is highly sensitive to an arbitrary tuning choice, log-linear OLS on sparse counts is statistically invalid.</p>
+
+            <h2>The Poisson DiD Solution</h2>
+            <p>Poisson regression models the conditional mean as an exponential function using a log link:</p>
+
+            <div class="equation">
+                E[Y<sub>it</sub> | Treat<sub>i</sub>, Post<sub>t</sub>] = exp(&alpha; + &beta;<sub>1</sub> Treat<sub>i</sub> + &beta;<sub>2</sub> Post<sub>t</sub> + &theta; (Treat<sub>i</sub> &times; Post<sub>t</sub>))
+            </div>
+
+            <p>By modeling the counts natively, predictions remain strictly positive, and it handles zeros perfectly without requiring arbitrary transformations. Under the Poisson model, the parallel trends assumption shifts from a linear scale (constant absolute difference) to a <strong>multiplicative scale</strong> (constant percentage growth rate in the counterfactual). The treatment effect is interpreted using the <strong>Incidence Rate Ratio (IRR)</strong>, calculated as <code>exp(&theta;)</code>. The percentage change is <code>(exp(&theta;) - 1) &times; 100</code>.</p>
+
+            <p>I fitted the model using statsmodels' Generalized Linear Model (GLM) with a Poisson family. Importantly, I specified <code>cov_type='HC0'</code> to calculate robust standard errors. Under the Poisson Pseudo-Maximum Likelihood (PPML) framework, using robust standard errors ensures that the coefficient estimates remain consistent even if the data does not follow a strict Poisson distribution (for example, in the presence of overdispersion):</p>
+
+            <pre><code>import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+# Fit Poisson DiD for Demand (total_bookings) using PPML
+demand_model = smf.glm(
+    "total_bookings ~ treat + post + treat_post", 
+    data=panel_simple, 
+    family=sm.families.Poisson()
+).fit(cov_type='HC0')
+
+# Fit Poisson DiD for Cancellations (cancellations)
+cancellation_model = smf.glm(
+    "cancellations ~ treat + post + treat_post", 
+    data=panel_simple, 
+    family=sm.families.Poisson()
+).fit(cov_type='HC0')</code></pre>
+
+            <p>Let's interpret the causal parameters estimated by the Poisson models:</p>
+            <ul>
+                <li><strong>Demand Model (total_bookings)</strong>: The causal coefficient <code>&theta;</code> is <strong>-2.4290</strong> (p = 0.004). The IRR is <code>exp(-2.4290) = 0.0881</code>. This means the wildfire shock caused a statistically significant <strong>91.19% reduction</strong> in the rate of group bookings.</li>
+                <li><strong>Cancellation Model (cancellations)</strong>: The causal coefficient <code>&theta;</code> is <strong>-25.0145</strong> (p = 0.000). The IRR is <code>exp(-25.0145) = 0.0000</code>, reflecting a complete <strong>100% reduction</strong> in weekly cancellations, illustrating the denominator collapse.</li>
+            </ul>
+
+            <figure>
+                <img src="Hotel Cancellations/model_comparison.png" alt="Model Comparison Plot" class="post-image">
+                <figcaption>Figure 5: Model prediction comparison. The Poisson model's exponential link ensures that predictions remain strictly positive and capture the zero floor, while OLS dips below zero.</figcaption>
+            </figure>
+
+            <h2>Advanced Causal Inference: Extended Two-Way Fixed Effects</h2>
+            <p>In modern applied econometrics, researchers frequently work with multi-unit panels (multiple cities, countries, or hotels) and staggered treatment times. In these settings, traditional Two-Way Fixed Effects (TWFE) models are biased if treatment effects are heterogeneous over time or across units.</p>
+
+            <p>To resolve this, Jeffrey Wooldridge (2021, 2023) developed the <strong>Extended Two-Way Fixed Effects (ETWFE)</strong> estimator. This is a nonlinear saturated DiD model that handles heterogeneous treatment effects across units and cohorts without introducing the biases of traditional TWFE. I implemented ETWFE on a multi-unit weekly panel (Online TA segment for top 5 countries) using overall demand (total_bookings) as the outcome variable:</p>
+
+            <pre><code>from etwfe import etwfe
+
+# Fit Wooldridge's saturated Poisson DiD model for demand
+etwfe_model = etwfe(
+    fml="total_bookings ~ 0",            # Outcome variable (no extra covariates)
+    tvar="week_idx",                   # Time variable
+    gvar="first_treated_week",         # Treatment cohort (when first treated)
+    ivar="unit_id",                    # Unit Fixed Effect ID
+    family="poisson",                  # Runs Poisson DiD
+    data=panel_multi,
+    vcov="iid"                         # Set covariance type
+)
+
+print(etwfe_model.emfx().round(4))</code></pre>
+
+            <p>The aggregated treatment effect (emfx) from the saturated Poisson model yields a statistically significant drop of <strong>-9.2331 bookings per week</strong> (standard error 5.1383, p = 0.072), validating the demand contraction in a multi-unit setting.</p>
+
+            <h2>Pre-Trend Diagnostics with diff-diff</h2>
+            <p>The identifying assumption of Difference-in-Differences is that the treated and control groups share parallel trends in the pre-treatment period. I formally tested this assumption on the pre-treatment period (before week 102) using the <code>diff-diff</code> library:</p>
+
+            <pre><code>import diff_diff as dd
+
+pre_periods = list(panel_simple[panel_simple['week_idx'] < 102]['week_idx'].unique())
+trends_res = dd.check_parallel_trends(
+    data=panel_simple,
+    outcome='cancellations',
+    time='week_idx',
+    treatment_group='treat',
+    pre_periods=pre_periods
+)
+
+print(f"Difference in Slopes: {trends_res['trend_difference']:.4f} (p-value: {trends_res['p_value']:.4e})")
+print(f"Parallel Trends Plausible? {trends_res['parallel_trends_plausible']}")</code></pre>
+
+            <p>The test confirms that the difference in pre-treatment trends is statistically insignificant (slope difference = 0.1862, p = 0.4764), verifying that the parallel trends assumption is plausible.</p>
+
+            <h2>Model Comparison & Key Takeaways</h2>
+            <p>Below is a summary of the weekly group booking demand causal estimates across the three models:</p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Model Specification</th>
+                        <th>Outcome Variable</th>
+                        <th>Causal Parameter (&theta;)</th>
+                        <th>Std. Error</th>
+                        <th>P-Value</th>
+                        <th>Causal Interpretation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Standard OLS DiD</strong></td>
+                        <td><code>total_bookings</code></td>
+                        <td>+10.5000</td>
+                        <td>33.090</td>
+                        <td>0.751</td>
+                        <td>+10.5 bookings/week change (statistically insignificant)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Poisson DiD (PPML)</strong></td>
+                        <td><code>total_bookings</code></td>
+                        <td>-2.4290</td>
+                        <td>0.839</td>
+                        <td>0.004</td>
+                        <td>-91.19% change in rate of bookings (statistically significant)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. ETWFE Poisson DiD</strong></td>
+                        <td><code>total_bookings</code></td>
+                        <td>-9.2331</td>
+                        <td>5.138</td>
+                        <td>0.072</td>
+                        <td>-9.23 bookings/week change (statistically significant at 10% level)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <figure>
+                <img src="Hotel Cancellations/forest_comparison.png" alt="Causal Estimates Forest Plot" class="post-image">
+                <figcaption>Figure 6: Forest plot comparing the treatment effect estimates and 95% Confidence Intervals for OLS DiD, Poisson DiD, and ETWFE Poisson models.</figcaption>
+            </figure>
+
+            <p>This comparison highlights the core takeaways of the analysis:</p>
+            <ol>
+                <li><strong>OLS fails on sparse count data</strong>: The linear model's assumption of normal, symmetric residuals leads to physically impossible negative predictions during off-peak periods, and fails to identify the treatment effect (estimating a positive, noisy, and insignificant coefficient of +10.5).</li>
+                <li><strong>The log(Y + &epsilon;) transformation is a statistical landmine</strong>: Attempting to bypass OLS issues using a log transformation with an arbitrary offset is highly volatile. Changing the offset shifts the estimated treatment effect by over 300%, rendering it invalid.</li>
+                <li><strong>Poisson DiD (PPML) is robust</strong>: By natively modeling the exponential link and utilizing robust standard errors (HC0), Poisson DiD accommodates the zeros, yields a statistically significant 91.19% drop in booking demand, and remains consistent under overdispersion.</li>
+                <li><strong>Accounting for denominator effects is critical</strong>: Post-treatment cancellations fell to absolute zero because demand collapsed entirely. Looking at cancellations in isolation would lead to the incorrect conclusion that the wildfire was beneficial.</li>
+                <li><strong>Adopt modern panel estimators</strong>: Saturated cohort-time interaction estimators like Wooldridge's ETWFE protect the analysis from heterogeneous treatment biases in multi-unit panels, backing out a robust treatment effect of -9.23 bookings per week.</li>
+            </ol>
+
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </article>
+    </div>
+</body>
+</html>
