@@ -104,6 +104,22 @@ body {
 .hero-container {
     max-width: var(--max-width);
     margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.hero-text {
+    flex: 1;
+    min-width: 300px;
+    padding-right: 2rem;
+}
+
+.hero-image-container {
+    flex: 0 0 auto;
+    text-align: center;
+    margin-top: 1rem;
 }
 
 .hero-title {
@@ -537,6 +553,14 @@ body {
     }
     .hero-bio {
         font-size: 1rem;
+    }
+    .hero-text {
+        padding-right: 0;
+    }
+    .hero-image-container {
+        flex: 1 1 auto;
+        width: 100%;
+        margin-top: 1.5rem;
     }
     .project-list {
         grid-template-columns: 1fr;
