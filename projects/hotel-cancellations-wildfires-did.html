@@ -145,7 +145,9 @@
                 Y<sub>it</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Treat<sub>i</sub> + &beta;<sub>2</sub> Post<sub>t</sub> + &theta; (Treat<sub>i</sub> &times; Post<sub>t</sub>) + &epsilon;<sub>it</sub>
             </div>
 
-            <p>Where <code>Treat<sub>i</sub></code> is 1 for the Resort Hotel, <code>Post<sub>t</sub></code> is 1 for post-wildfire weeks, and <code>&theta;</code> is the causal parameter. The linear model assumes a symmetric, normal distribution of residuals. Because count data is strictly non-negative, the OLS model predicts negative cancellation counts during off-peak winter weeks. In my simple panel, <strong>5.26% of weeks</strong> yield physically impossible negative predictions (such as -2.84 &times; 10<sup>-14</sup> cancellations).</p>
+            <p>Where <code>Treat<sub>i</sub></code> is 1 for the Resort Hotel, <code>Post<sub>t</sub></code> is 1 for post-wildfire weeks, and <code>&theta;</code> is the causal parameter. The linear model assumes a symmetric, normal distribution of residuals. Because count data is strictly non-negative, the OLS model predicts negative cancellation counts during off-peak winter weeks. In my simple panel, <strong>5.26% of weeks</strong> yield physically impossible negative predictions (such as &minus;2.84 &times; 10<sup>&minus;14</sup> cancellations).</p>
+
+            <p><strong>Note on Float Precision:</strong> Analytically, the OLS predictions for cancellations in these cohorts are exactly 0.000 (matching the cohort sample mean of zero). However, due to floating-point representation limits, statsmodels yields a tiny negative value (&minus;2.84 &times; 10<sup>&minus;14</sup>) which evaluates as a negative prediction, demonstrating how numerical precision limits interact with models that are not naturally bounded at zero.</p>
 
             <h3>Failure 2: The log(Y + &epsilon;) Landmine</h3>
             <p>To bypass negative predictions and stabilize variance, data scientists often transform the target variable using a log transformation. Since log(0) is undefined, they add an arbitrary constant <code>&epsilon;</code> (typically 1.0) and run OLS on the transformed outcome: <code>log(Y + &epsilon;)</code>.</p>
@@ -200,13 +202,39 @@ cancellation_model = smf.glm(
             <p>Let's interpret the causal parameters estimated by the Poisson models:</p>
             <ul>
                 <li><strong>Demand Model (total_bookings)</strong>: The causal coefficient <code>&theta;</code> is <strong>-2.4290</strong> (p = 0.004). The IRR is <code>exp(-2.4290) = 0.0881</code>. This means the wildfire shock caused a statistically significant <strong>91.19% reduction</strong> in the rate of group bookings.</li>
-                <li><strong>Cancellation Model (cancellations)</strong>: The causal coefficient <code>&theta;</code> is <strong>-25.0145</strong> (p = 0.000). The IRR is <code>exp(-25.0145) = 0.0000</code>, reflecting a complete <strong>100% reduction</strong> in weekly cancellations, illustrating the denominator collapse.</li>
+                <li><strong>Cancellation Model (cancellations)</strong>: The causal coefficient <code>&theta;</code> is <strong>-25.0145</strong> (p = 0.000). The IRR is <code>exp(-25.0145) = 0.0000</code>, reflecting a complete <strong>100% reduction</strong> in weekly cancellations, illustrating the denominator collapse.
+                    <p style="margin-top: 0.5rem; font-size: 0.95rem; color: #555; line-height: 1.4;"><strong>Note on Perfect Separation:</strong> Because the Resort Hotel had exactly zero cancellations in the post-treatment period, the cancellation model suffers from quasi-complete separation. This causes the maximum likelihood estimator to drive the coefficient toward negative infinity. The resulting coefficient (&minus;25.0145) and standard error (0.437) are numerical artifacts of the optimizer's convergence threshold rather than stable physical parameters.</p>
+                </li>
             </ul>
 
             <figure>
                 <img src="Hotel Cancellations/model_comparison.png" alt="Model Comparison Plot" class="post-image">
                 <figcaption>Figure 5: Model prediction comparison. The Poisson model's exponential link ensures that predictions remain strictly positive and capture the zero floor, while OLS dips below zero.</figcaption>
             </figure>
+
+            <h2>Linear vs. Multiplicative Parallel Trends: Explaining the Sign Reversal</h2>
+            <p>One of the most striking econometric findings in this analysis is that standard OLS DiD and Poisson DiD estimate <strong>completely opposite signs</strong> for the treatment effect on weekly booking demand:</p>
+            <ul>
+                <li><strong>OLS DiD:</strong> Estimates a positive treatment effect of <strong>+10.5000</strong> bookings per week.</li>
+                <li><strong>Poisson DiD:</strong> Estimates a negative treatment effect of <strong>&minus;2.4290</strong> (a 91.19% reduction in booking rate).</li>
+            </ul>
+            <p>How can two estimators run on the exact same dataset yield opposite conclusions? The answer lies in the difference between linear and multiplicative scales when baseline demand differs. Consider the raw weekly booking averages for the pre- and post-treatment periods:</p>
+            <ul>
+                <li><strong>City Hotel (Control):</strong> Pre-treatment average was 129.42 bookings/week, dropping to 64.50 bookings/week in the post-treatment period (an absolute drop of <strong>64.92 bookings/week</strong>, or a 50.16% relative decline).</li>
+                <li><strong>Resort Hotel (Treated):</strong> Pre-treatment average was 56.92 bookings/week, dropping to 2.50 bookings/week post-treatment (an absolute drop of <strong>54.42 bookings/week</strong>, or a 95.61% relative decline).</li>
+            </ul>
+            <p>Because OLS is a linear model, it operates on a linear parallel trends assumption (constant absolute differences). It compares the absolute changes: <code>(&minus;54.42) &minus; (&minus;64.92) = +10.50</code>. Since the control group had a larger absolute drop (64.92) than the treated group (54.42) due to its much higher baseline, OLS interprets this as a relative <em>increase</em> of +10.50 bookings for the treated group, even though the Resort Hotel was almost completely wiped out by the wildfire shock!</p>
+            <p>Poisson DiD, on the other hand, models a multiplicative parallel trends assumption (constant percentage changes). It compares the relative ratios of change:
+                <br>
+                <code style="display: block; margin: 1rem 0; padding: 0.75rem; background: #f4f5f7; border-left: 4px solid #2a9d8f; border-radius: 4px; font-family: monospace;">
+                    Ratio of Ratios = (Post-Treated / Pre-Treated) / (Post-Control / Pre-Control) <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (2.50 / 56.92) / (64.50 / 129.42) <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 0.04392 / 0.49838 <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&approx; 0.0881
+                </code>
+                Taking the natural logarithm of this multiplicative ratio: <code>ln(0.0881) &approx; &minus;2.4290</code>. This is the exact coefficient estimated by Poisson DiD!
+            </p>
+            <p>This illustrates the danger of using linear OLS on data with vast baseline differences: it can lead to complete sign reversal and misleading policy conclusions because it fails to capture the multiplicative nature of the underlying physical process.</p>
 
             <h2>Advanced Causal Inference: Extended Two-Way Fixed Effects</h2>
             <p>In modern applied econometrics, researchers frequently work with multi-unit panels (multiple cities, countries, or hotels) and staggered treatment times. In these settings, traditional Two-Way Fixed Effects (TWFE) models are biased if treatment effects are heterogeneous over time or across units.</p>
@@ -228,7 +256,9 @@ etwfe_model = etwfe(
 
 print(etwfe_model.emfx().round(4))</code></pre>
 
-            <p>The aggregated treatment effect (emfx) from the saturated Poisson model yields a statistically significant drop of <strong>-9.2331 bookings per week</strong> (standard error 5.1383, p = 0.072), validating the demand contraction in a multi-unit setting.</p>
+            <p><strong>Never-Treated Control Cohort Specification:</strong> When setting up staggered panel models in Python's <code>etwfe</code> library, a critical implementation detail is specifying the cohort index (<code>gvar</code>) of the never-treated control group. The library identifies the control cohort by checking if the cohort index is greater than the maximum time index (here, <code>max(week_idx) = 113</code>). If the never-treated control cohort is coded as <code>0</code>, the library treats the treated cohort (week 102) as the control group and the never-treated group as the treated cohort, reversing the treatment indicator. Correcting this index to <code>9999</code> ensures the model is correctly specified.</p>
+
+            <p>The aggregated treatment effect (average marginal effect, or AME) from the saturated Poisson model yields a statistically insignificant change of <strong>&minus;0.8597 bookings per week</strong> (standard error 0.795, p = 0.280). This indicates that when pooling across the top five countries in the multi-unit panel, the overall wildfire shock on the Online TA segment is not statistically distinguishable from zero. This showcases how incorrect cohort coding can yield falsely significant results (the reversed indicator had yielded &minus;9.2331 bookings per week, p = 0.072).</p>
 
             <h2>Pre-Trend Diagnostics with diff-diff</h2>
             <p>The identifying assumption of Difference-in-Differences is that the treated and control groups share parallel trends in the pre-treatment period. I formally tested this assumption on the pre-treatment period (before week 102) using the <code>diff-diff</code> library:</p>
@@ -283,10 +313,10 @@ print(f"Parallel Trends Plausible? {trends_res['parallel_trends_plausible']}")</
                     <tr>
                         <td><strong>3. ETWFE Poisson DiD</strong></td>
                         <td><code>total_bookings</code></td>
-                        <td>-9.2331</td>
-                        <td>5.138</td>
-                        <td>0.072</td>
-                        <td>-9.23 bookings/week change (statistically significant at 10% level)</td>
+                        <td>&minus;0.8597</td>
+                        <td>0.795</td>
+                        <td>0.280</td>
+                        <td>&minus;0.86 bookings/week change (statistically insignificant)</td>
                     </tr>
                 </tbody>
             </table>
@@ -302,7 +332,7 @@ print(f"Parallel Trends Plausible? {trends_res['parallel_trends_plausible']}")</
                 <li><strong>The log(Y + &epsilon;) transformation is a statistical landmine</strong>: Attempting to bypass OLS issues using a log transformation with an arbitrary offset is highly volatile. Changing the offset shifts the estimated treatment effect by over 300%, rendering it invalid.</li>
                 <li><strong>Poisson DiD (PPML) is robust</strong>: By natively modeling the exponential link and utilizing robust standard errors (HC0), Poisson DiD accommodates the zeros, yields a statistically significant 91.19% drop in booking demand, and remains consistent under overdispersion.</li>
                 <li><strong>Accounting for denominator effects is critical</strong>: Post-treatment cancellations fell to absolute zero because demand collapsed entirely. Looking at cancellations in isolation would lead to the incorrect conclusion that the wildfire was beneficial.</li>
-                <li><strong>Adopt modern panel estimators</strong>: Saturated cohort-time interaction estimators like Wooldridge's ETWFE protect the analysis from heterogeneous treatment biases in multi-unit panels, backing out a robust treatment effect of -9.23 bookings per week.</li>
+                <li><strong>Adopt modern panel estimators</strong>: Saturated cohort-time interaction estimators like Wooldridge's ETWFE protect the analysis from heterogeneous treatment biases in multi-unit panels, backing out a robust average marginal effect of &minus;0.86 bookings per week, which is statistically insignificant in this multi-unit sample.</li>
             </ol>
 
             <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
