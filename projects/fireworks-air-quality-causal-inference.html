@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Causal Inference on Atmospheric Confounding: A Synthetic DiD & Event Study Tutorial on July 4th Fireworks and Air Quality - Sam's Data Portfolio</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        pre {
+            background: #f4f5f7;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid #e5e7eb;
+        }
+        code {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.9em;
+            background: #f4f5f7;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+        }
+        pre code {
+            padding: 0;
+            background: none;
+            font-size: 0.95em;
+        }
+        figcaption {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-style: italic;
+        }
+        figure {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .equation {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 1.15rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid #30406e;
+        }
+        .flex-container {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .flex-figure {
+            flex: 1;
+            min-width: 320px;
+            max-width: 48%;
+            margin: 0;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #30406e;
+        }
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>Causal Inference on Atmospheric Confounding: A Synthetic DiD & Event Study Tutorial on July 4th Fireworks and Air Quality</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <a href="https://github.com/sam-tritto/fireworks-and-air-quality" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                    <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+        <article class="post-content">
+            <p>Can we measure the exact PM2.5 air pollution spike caused by backyard fireworks on July 4th? The short answer is yes, but doing so requires navigating a complex web of environmental confounding, treatment spillovers, and panel collinearity. In this tutorial, I build a complete causal inference pipeline to isolate this effect using EPA monitoring data and hourly weather metrics. I compare two econometric strategies, <strong>Synthetic Difference-in-Differences (SDID)</strong> and a <strong>Two-Way Fixed Effects (TWFE) Event Study</strong>, to illustrate how they solve different statistical vulnerabilities in environmental panels.</p>
+
+            <h2>The Core Challenge: Atmospheric Confounding</h2>
+            <p>Air quality measurements do not behave linearly. Weather variables like wind speed, wind direction, temperature, relative humidity, and precipitation have exponential and interactive effects on fine particulate matter (PM2.5). Dead-calm air traps firework smoke near the ground, while high humidity locks particulates in place. If I run a simple regression without controlling for these atmospheric characteristics, the estimated treatment effect will be severely biased.</p>
+
+            <p>To capture wind dynamics properly, circular wind direction (0 to 360 degrees) and wind speed must be decomposed into linear U (East-West) and V (North-South) vector components. A simple degree measurement is discontinuous (360 degrees is adjacent to 0 degrees), which violates linear model assumptions. Decomposing these components ensures that the regression controls for air movement vectors correctly.</p>
+
+            <h2>Study Design & Data Acquisition</h2>
+            <p>My analysis focuses on a specific geographical area prone to thermal inversions and atmospheric stagnation: <strong>Richmond, Virginia</strong>. During hot summer evenings, Richmond frequently experiences stagnation events where warm air traps cooler air and pollutants near the ground, making it an ideal environment to study fireworks smoke retention.</p>
+
+            <p>I collected data for a tight study window from <strong>June 29 to July 8</strong> across multiple years (2023 to 2025). The data comes from two primary sources:</p>
+            <ul>
+                <li><strong>Hourly PM2.5</strong>: EPA Air Quality System (AQS) API. I gathered data preferentially from continuous continuous hourly monitors (parameter 88502), falling back to regulatory FRM/FEM monitors (parameter 88101) where necessary.</li>
+                <li><strong>Hourly Weather</strong>: Open-Meteo ERA5 Historical Archive API. Using the coordinates of each monitoring station, I queried temperature, relative humidity, wind speed, wind direction, surface pressure, and precipitation. Open-Meteo provides a consistent, gap-free grid based on global reanalysis models.</li>
+            </ul>
+
+            <p>A specific challenge of EPA data is the <strong>Quality Assurance (QA) lag</strong>; regulatory checks delay final data certification by 3 to 6 months. To make this pipeline reproducible year-round, I implemented an automatic fallback in the data loader. If the AQS API returns empty arrays for the target year (such as July 2025 before certification is complete), the script automatically retrieves the pre-generated bulk ZIP files cached on the project repository.</p>
+
+            <figure>
+                <img src="Fireworks Air Quality/raw_pm25.png" alt="Raw PM2.5 Hourly Time Series" class="post-image">
+                <figcaption>Figure 1: Raw PM2.5 concentrations across Richmond and donor cities, showing the distinct baseline patterns and the sharp holiday spikes.</figcaption>
+            </figure>
+
+            <h2>Method 1: Synthetic Difference-in-Differences (SDID)</h2>
+            <p>Synthetic Difference-in-Differences (Arkhangelsky et al., 2021) is a modern estimator that builds on classic Synthetic Control by adding a constant unit shift and a time weight. It solves for unit weights &omega;<sub>i</sub> in the pre-treatment window (June 29 to July 3) to construct a counterfactual "Synthetic Richmond" that matches the real city's baseline trajectory.</p>
+
+            <p>The donor pool of control cities consists of nearby metropolitan areas: Charlottesville, VA; Virginia Beach, VA; Raleigh, NC; and Baltimore, MD. However, environmental panels of national holidays present a severe threat: a violation of the <strong>Stable Unit Treatment Value Assumption (SUTVA)</strong>.</p>
+
+            <h3>The SUTVA Violation & Treatment Contamination</h3>
+            <p>SUTVA assumes that the treatment status of one unit does not affect the outcomes of other units, and that control units do not receive treatment. On the evening of July 4th, every major city in the donor pool sets off its own fireworks. Virginia Beach, Raleigh, and Baltimore all experience massive PM2.5 spikes. Because our control units are contaminated by their own treatments, the Synthetic Richmond counterfactual spikes as well. When we subtract this counterfactual from the real Richmond, the treatment effect is biased downward to a noisy <strong>2.39 &micro;g/m&sup3;</strong> (Specification 1).</p>
+
+            <p>To mitigate this, I introduced a rural background control station: <strong>Rockingham County, VA</strong>, located in the Shenandoah Valley, where fireworks density is extremely low. When rural controls are available, the SDID algorithm automatically shifts <strong>52.92%</strong> of the control weight to Rockingham, VA, with Raleigh, NC receiving 28.00%, and Virginia Beach, VA receiving 19.08% (Specification 2). By relying heavily on an uncontaminated rural background, the Synthetic Richmond counterfactual remains flat, and the estimated Average Treatment Effect on the Treated (ATT) increases to a statistically significant <strong>7.59 &micro;g/m&sup3;</strong>. If I restrict the control pool entirely to the rural control, the estimated ATT rises to <strong>8.95 &micro;g/m&sup3;</strong> (Specification 3).</p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Specification</th>
+                        <th>Control Pool Composition</th>
+                        <th>Estimated ATT</th>
+                        <th>Causal Interpretation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Spec 1: Urban Controls Only</strong></td>
+                        <td>Charlottesville, Virginia Beach, Raleigh, Baltimore</td>
+                        <td>+2.39 &micro;g/m&sup3;</td>
+                        <td>Downward bias due to SUTVA spillovers (control cities set off fireworks)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Spec 2: All Cities (Primary)</strong></td>
+                        <td>Urban Donors + Rural Rockingham, VA</td>
+                        <td>+7.59 &micro;g/m&sup3;</td>
+                        <td>Unbiased causal spike (SDID assigns 53% weight to rural baseline)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Spec 3: Rural Control Only</strong></td>
+                        <td>Rockingham, VA Only</td>
+                        <td>+8.95 &micro;g/m&sup3;</td>
+                        <td>Clean comparison against pure background atmospheric baseline</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <figure>
+                <img src="Fireworks Air Quality/sdid_divergence.png" alt="Synthetic DiD Divergence Plot" class="post-image">
+                <figcaption>Figure 2: Synthetic DiD divergence plot. At 9:00 PM on July 4th, the real Richmond PM2.5 levels spike rapidly while the synthetic counterfactual stays flat.</figcaption>
+            </figure>
+
+            <h2>Method 2: Two-Way Fixed Effects & Event Study</h2>
+            <p>As an alternative approach, I implemented a panel regression with <strong>Two-Way Fixed Effects (TWFE)</strong>. TWFE controls for time-invariant city characteristics using city fixed effects, and regional temporal shocks using time fixed effects, while directly adjusting for weather covariates:</p>
+
+            <div class="equation">
+                PM2.5<sub>it</sub> = &alpha;<sub>i</sub> + &delta;<sub>t</sub> + &beta; (Treated<sub>it</sub>) + &gamma; X<sub>it</sub> + &epsilon;<sub>it</sub>
+            </div>
+
+            <p>Where <code>&alpha;<sub>i</sub></code> represents city fixed effects, <code>&delta;<sub>t</sub></code> represents time (hourly datetime) fixed effects, and <code>X<sub>it</sub></code> is the vector of weather controls (temperature, relative humidity, wind vectors, and precipitation).</p>
+
+            <h3>The Multicollinearity Trap</h3>
+            <p>A common error in setting up this regression is using a time-only treatment dummy (for example, setting the indicator to 1 for all cities during the fireworks window). Because the time fixed effects <code>&delta;<sub>t</sub></code> are estimated at the hourly level, a time-only treatment indicator is perfectly collinear with the time fixed effects. The software will drop the treatment variable, rendering the model useless.</p>
+
+            <p>The correction is to define the treatment indicator as the interaction of the unit and the time window. The indicator is set to 1 only for Richmond, VA during the active fireworks window (July 4th at 9 PM through July 5th at 2 AM):</p>
+
+            <pre><code class="language-python"># Correct treatment indicator: Richmond VA only during the fireworks window
+panel["is_treated"] = ((panel["city"] == "Richmond_VA") &amp; panel["is_fireworks_window"]).astype(int)</code></pre>
+
+            <h3>Event Study Specification</h3>
+            <p>To inspect pre-treatment trends and map the hourly dynamics of the smoke plume, I expanded the single treatment coefficient into an Event Study. I defined dummy variables for each hour relative to the launch window (July 4th at 9 PM), spanning from 12 hours before to 12 hours after the event. I omitted the hour immediately prior to launch (8 PM, relative hour -1) to serve as the baseline reference period. I estimated this specification using statsmodels with HC3 robust standard errors to correct for heteroskedasticity in hourly pollution readings:</p>
+
+            <pre><code class="language-python"># Calculate relative hours from the event
+TREATMENT_START = pd.Timestamp("2025-07-04 21:00")
+panel["rel_hour"] = (panel["datetime_local"] - TREATMENT_START).dt.total_seconds() / 3600
+
+# Filter to event window [-12, +12] hours
+es_df = panel[(panel["rel_hour"] &gt;= -12) &amp; (panel["rel_hour"] &lt;= 12)].copy()
+
+# Create dummy columns for leads and lags (excluding reference hour -1)
+es_cols = []
+for h in range(-12, 13):
+    if h == -1:
+        continue
+    col = f"es_t_minus_{abs(h)}" if h &lt; -1 else f"es_t_plus_{h}"
+    es_df[col] = ((es_df["city"] == "Richmond_VA") &amp; (es_df["rel_hour"] == h)).astype(int)
+    es_cols.append(col)
+
+# Fit OLS model with weather controls, city fixed effects, and time fixed effects
+formula = "pm25 ~ " + " + ".join(es_cols) + " + temp + rhum + wind_u + wind_v + prcp + C(city) + C(datetime_local)"
+es_model = smf.ols(formula, data=es_df).fit(cov_type="HC3")</code></pre>
+
+            <figure>
+                <img src="Fireworks Air Quality/event_study_coefs.png" alt="Event Study Coefficients" class="post-image">
+                <figcaption>Figure 3: Event study coefficient plot. The pre-period coefficients are statistical zeroes, validating the parallel trends assumption. PM2.5 spikes immediately at launch and decays gradually.</figcaption>
+            </figure>
+
+            <p>The event study coefficients validate the parallel trends assumption: all lead coefficients (hours -12 to -2) are statistically indistinguishable from zero. At hour 0 (9 PM), the treatment effect spikes immediately to +12.3 &micro;g/m&sup3;, peaking at hour +2 (11 PM) at +22.8 &micro;g/m&sup3; before beginning a gradual decline as the smoke disperses.</p>
+
+            <h2>Act III: The Environmental Hangover (Decay Curve)</h2>
+            <p>How long does the firework smoke linger in Richmond's geographic basin? I extracted the hourly causal gap (the pointwise difference between the real Richmond PM2.5 and the synthetic counterfactual) to trace the dispersion phase. I calculated the decay half-life by finding the first hour post-peak where the causal gap fell below half of its maximum value.</p>
+
+            <pre><code class="language-python">def compute_attenuation_half_life(gap: pd.Series, treatment_start: pd.Timestamp) -> float:
+    # Filter to post-treatment window
+    post_gap = gap[gap.index &gt;= treatment_start].dropna()
+    if post_gap.empty or post_gap.max() &lt;= 0:
+        return float("nan")
+
+    peak_val = post_gap.max()
+    half_val = peak_val / 2.0
+    
+    # Locate coordinates after the peak
+    peak_time = post_gap.idxmax()
+    post_peak = post_gap[post_gap.index &gt; peak_time]
+    below_half = post_peak[post_peak &lt;= half_val]
+    
+    if below_half.empty:
+        return float("nan")
+        
+    decay_time = below_half.index[0]
+    hours = (decay_time - peak_time).total_seconds() / 3600
+    return round(hours, 2)</code></pre>
+
+            <p>In July 2025, the PM2.5 gap peaked at 24.8 &micro;g/m&sup3; at 11:00 PM on July 4th. The gap fell to 12.1 &micro;g/m&sup3; (below the 50% threshold) at 3:00 AM on July 5th. This yields an estimated <strong>decay half-life of 4.00 hours</strong>, mapping the precise speed of local atmospheric recovery.</p>
+
+            <h2>Placebo & Robustness Checks</h2>
+            <p>To confirm that these results are not driven by random noise, I ran two placebo tests:</p>
+            <ol>
+                <li><strong>Fake Treatment Date (Temporal Placebo)</strong>: I shifted the treatment window to a week prior (June 27th at 9 PM). The estimated ATT dropped to near-zero and was statistically insignificant, proving that the model is not picking up general weekend or summer baseline patterns.</li>
+                <li><strong>Permutation Checks (Fake Treated Units)</strong>: I ran the SDID algorithm iteratively, treating each control city one-by-one as the fake treated unit on July 4th. The resulting distribution of placebo effects was compared against the observed Richmond effect. Richmond's ATT sits in the extreme tail of this distribution, confirming the statistical validity of the primary findings.</li>
+            </ol>
+
+            <div class="flex-container">
+                <figure class="flex-figure">
+                    <img src="Fireworks Air Quality/placebo_multiyear.png" alt="Multi-year Placebo Check" class="post-image">
+                    <figcaption>Figure 4: Placebo check across multiple years, verifying that the fireworks spike is consistently captured on July 4th relative to other years.</figcaption>
+                </figure>
+                <figure class="flex-figure">
+                    <img src="Fireworks Air Quality/placebo_fake_date.png" alt="Fake Date Placebo Check" class="post-image">
+                    <figcaption>Figure 5: Temporal placebo check using a fake treatment date, showing no statistically significant divergence in PM2.5 levels.</figcaption>
+                </figure>
+            </div>
+
+            <h2>Summary of Causal Insights</h2>
+            <p>This project highlights the importance of matching research designs to the physical realities of environmental data:</p>
+            <ul>
+                <li><strong>Na&iuml;ve control selections lead to severe bias</strong>. In regional environmental events, spillovers (such as neighboring cities setting off their own fireworks) will violate SUTVA. Using urban controls in close proximity will severely bias the estimated treatment effect downward.</li>
+                <li><strong>Rural controls provide a clean baseline</strong>. Incorporating a rural control unit unaffected by the local holiday allows Synthetic DiD to build a counterfactual that reflects regional weather shocks without the holiday spillovers.</li>
+                <li><strong>Linear regressions must control for weather vector dynamics</strong>. Wind speed and direction must be decomposed into linear vectors (U and V) to ensure that the panel model controls for wind patterns correctly.</li>
+            </ul>
+
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </article>
+    </div>
+</body>
+</html>
