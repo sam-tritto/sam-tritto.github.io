@@ -176,8 +176,13 @@
             </table>
 
             <figure>
+                <img src="Fireworks Air Quality/sdid_donor_weights.png" alt="SDID Donor Weights for Synthetic Richmond" class="post-image">
+                <figcaption>Figure 3: SDID donor weights assigned to each control city under Specification 2. The optimization algorithm assigns 52.92% of the control weight to rural Rockingham, VA, to construct the counterfactual baseline and bypass treatment spillovers.</figcaption>
+            </figure>
+
+            <figure>
                 <img src="Fireworks Air Quality/sdid_divergence.png" alt="Synthetic DiD Divergence Plot" class="post-image">
-                <figcaption>Figure 3: Synthetic DiD divergence plot. At 9:00 PM on July 4th, the real Richmond PM2.5 levels spike rapidly while the synthetic counterfactual stays flat.</figcaption>
+                <figcaption>Figure 4: Synthetic DiD divergence plot. At 9:00 PM on July 4th, the real Richmond PM2.5 levels spike rapidly while the synthetic counterfactual stays flat.</figcaption>
             </figure>
 
             <h2>Method 2: Two-Way Fixed Effects & Event Study</h2>
@@ -222,7 +227,7 @@ es_model = smf.ols(formula, data=es_df).fit(cov_type="HC3")</code></pre>
 
             <figure>
                 <img src="Fireworks Air Quality/event_study_coefs.png" alt="Event Study Coefficients" class="post-image">
-                <figcaption>Figure 4: Event study coefficient plot. The pre-period coefficients are statistical zeroes, validating the parallel trends assumption. PM2.5 spikes immediately at launch and decays gradually.</figcaption>
+                <figcaption>Figure 5: Event study coefficient plot. The pre-period coefficients are statistical zeroes, validating the parallel trends assumption. PM2.5 spikes immediately at launch and decays gradually.</figcaption>
             </figure>
 
             <p>The event study coefficients validate the parallel trends assumption: all lead coefficients (hours -12 to -2) are statistically indistinguishable from zero. At hour 0 (9 PM), the treatment effect spikes immediately to +12.3 &micro;g/m&sup3;, peaking at hour +2 (11 PM) at +22.8 &micro;g/m&sup3; before beginning a gradual decline as the smoke disperses.</p>
@@ -251,7 +256,12 @@ es_model = smf.ols(formula, data=es_df).fit(cov_type="HC3")</code></pre>
     hours = (decay_time - peak_time).total_seconds() / 3600
     return round(hours, 2)</code></pre>
 
-            <p>In July 2025, the PM2.5 gap peaked at 24.8 &micro;g/m&sup3; at 11:00 PM on July 4th. The gap fell to 12.1 &micro;g/m&sup3; (below the 50% threshold) at 3:00 AM on July 5th. This yields an estimated <strong>decay half-life of 4.00 hours</strong>, mapping the precise speed of local atmospheric recovery.</p>
+            <p>In July 2025, the PM2.5 gap peaked at 17.9 &micro;g/m&sup3; at 11:00 PM on July 4th. The gap fell to 8.0 &micro;g/m&sup3; (below the 50% threshold of 8.94 &micro;g/m&sup3;) at 2:00 AM on July 5th. This yields an estimated <strong>decay half-life of 3.00 hours</strong>, mapping the precise speed of local atmospheric recovery.</p>
+
+            <figure>
+                <img src="Fireworks Air Quality/decay_curve.png" alt="Environmental Hangover Decay Curve" class="post-image">
+                <figcaption>Figure 6: Causal gap decay curve post-peak. Tracking the pointwise difference between real and synthetic Richmond PM2.5 reveals an environmental hangover with a half-life of 3.0 hours.</figcaption>
+            </figure>
 
             <h2>Placebo & Robustness Checks</h2>
             <p>To confirm that these results are not driven by random noise, I ran two placebo tests:</p>
@@ -263,11 +273,11 @@ es_model = smf.ols(formula, data=es_df).fit(cov_type="HC3")</code></pre>
             <div class="flex-container">
                 <figure class="flex-figure">
                     <img src="Fireworks Air Quality/placebo_multiyear.png" alt="Multi-year Placebo Check" class="post-image">
-                    <figcaption>Figure 5: Placebo check across multiple years, verifying that the fireworks spike is consistently captured on July 4th relative to other years.</figcaption>
+                    <figcaption>Figure 7: Placebo check across multiple years, verifying that the fireworks spike is consistently captured on July 4th relative to other years.</figcaption>
                 </figure>
                 <figure class="flex-figure">
                     <img src="Fireworks Air Quality/placebo_fake_date.png" alt="Fake Date Placebo Check" class="post-image">
-                    <figcaption>Figure 6: Temporal placebo check using a fake treatment date, showing no statistically significant divergence in PM2.5 levels.</figcaption>
+                    <figcaption>Figure 8: Temporal placebo check using a fake treatment date, showing no statistically significant divergence in PM2.5 levels.</figcaption>
                 </figure>
             </div>
 
@@ -282,9 +292,9 @@ es_model = smf.ols(formula, data=es_df).fit(cov_type="HC3")</code></pre>
             <h2>Conclusion: The Holiday Hangover in Numbers</h2>
             <p>By applying rigorous causal estimators to Richmond's environmental panel data, I isolated the precise atmospheric impact of July 4th fireworks. Here is the high-level summary of the findings:</p>
             <ul>
-                <li><strong>The Fireworks Pollution Spike</strong>: During the holiday window, fireworks in Richmond polluted the air at peak hours by over <strong>3 times the normal baseline</strong>, with absolute PM2.5 levels reaching 24.8 &micro;g/m&sup3; compared to a pre-holiday median baseline of 7.77 &micro;g/m&sup3;.</li>
+                <li><strong>The Fireworks Pollution Spike</strong>: During the holiday window, fireworks in Richmond polluted the air at peak hours by over <strong>5 times the normal baseline</strong>, with absolute PM2.5 levels reaching <strong>41.9 &micro;g/m&sup3;</strong> compared to a pre-holiday median baseline of 7.7 &micro;g/m&sup3;.</li>
                 <li><strong>Average Treatment Effect</strong>: Across the entire treatment window, the average causal effect of the fireworks was an increase of <strong>7.59 &micro;g/m&sup3;</strong> of PM2.5, nearly doubling the background baseline.</li>
-                <li><strong>Plume Duration</strong>: The fireworks smoke lingers with a <strong>decay half-life of 4.00 hours</strong> post-peak. It takes approximately <strong>8 to 12 hours</strong> for Richmond's air quality to return completely to its normal background baseline.</li>
+                <li><strong>Plume Duration</strong>: The fireworks smoke lingers with a <strong>decay half-life of 3.00 hours</strong> post-peak. It takes approximately <strong>8 to 12 hours</strong> for Richmond's air quality to return completely to its normal background baseline.</li>
                 <li><strong>Public Health Implications</strong>: Fine particulate matter (PM2.5) is small enough to enter the lungs and bloodstream, posing significant cardiovascular and respiratory risks. Spikes of this magnitude temporarily push the air quality index (AQI) from a clean "Good" category (below 9 &micro;g/m&sup3;) into "Moderate" and "Unhealthy for Sensitive Groups" levels, demonstrating the tangible public health impact of neighborhood pyrotechnics in stagnation-prone geographic pockets.</li>
             </ul>
 
