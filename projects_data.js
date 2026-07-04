@@ -10,7 +10,7 @@ window.PROJECTS_DATA = [
     "title": "Causal Inference on Atmospheric Confounding: A Synthetic DiD & Event Study Tutorial on July 4th Fireworks and Air Quality",
     "slug": "fireworks-air-quality-causal-inference.html",
     "snippet": "An advanced causal inference tutorial measuring the PM2.5 spikes caused by backyard fireworks on July 4th. Contrasting Synthetic Difference-in-Differences (SDID) and Two-Way Fixed Effects (TWFE) regressions, I examine SUTVA violations due to urban treatment contamination, address multicollinearity in time fixed effects, and calculate the environmental decay curve of fireworks smoke.",
-    "image": "Fireworks Air Quality/sdid_divergence.png",
+    "image": "Fireworks Air Quality/thumbnail.png",
     "filename": "fireworks-air-quality-causal-inference.html",
     "date": "July 2026"
   },
