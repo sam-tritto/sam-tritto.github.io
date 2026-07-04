@@ -116,9 +116,23 @@
             <p>A specific challenge of EPA data is the <strong>Quality Assurance (QA) lag</strong>; regulatory checks delay final data certification by 3 to 6 months. To make this pipeline reproducible year-round, I implemented an automatic fallback in the data loader. If the AQS API returns empty arrays for the target year (such as July 2025 before certification is complete), the script automatically retrieves the pre-generated bulk ZIP files cached on the project repository.</p>
 
             <figure>
-                <img src="Fireworks Air Quality/raw_pm25.png" alt="Raw PM2.5 Hourly Time Series" class="post-image">
-                <figcaption>Figure 1: Raw PM2.5 concentrations across Richmond and donor cities, showing the distinct baseline patterns and the sharp holiday spikes.</figcaption>
+                <img src="Fireworks Air Quality/station_map.png" alt="Mid-Atlantic PM2.5 Monitoring Network Map" class="post-image">
+                <figcaption>Figure 1: Map of the Mid-Atlantic study cities and the PM2.5 monitoring network, showing the treated city (Richmond, VA), urban donors, and the rural donor (Rockingham, VA) that serves as the uncontaminated baseline.</figcaption>
             </figure>
+
+            <figure>
+                <img src="Fireworks Air Quality/raw_pm25.png" alt="Raw PM2.5 Hourly Time Series" class="post-image">
+                <figcaption>Figure 2: Raw PM2.5 concentrations across Richmond and donor cities, showing the distinct baseline patterns and the sharp holiday spikes.</figcaption>
+            </figure>
+
+            <h2>Understanding the Causal Toolbox: A Plain-English Breakdown</h2>
+            <p>For readers who are new to econometrics, here is the basic intuition behind the causal inference tools I use in this study:</p>
+            <ul>
+                <li><strong>Causal Inference vs. Simple Correlation</strong>: In data science, correlation is not causation. If I simply look at Richmond's PM2.5 levels on July 4th, I will see a massive spike. But how do I know that this spike was caused by fireworks rather than a sudden shift in wind patterns or a drop in regional industrial activity? To prove causation, I must estimate the <strong>counterfactual</strong>, a statistical estimate of what Richmond's air quality would have looked like if no fireworks had been launched.</li>
+                <li><strong>The Counterfactual ("What If?")</strong>: The fundamental challenge of causal inference is that we can never observe the same city under two different conditions at the exact same moment. We can only see the treated city (with fireworks). To solve this, we construct an untreated clone using control cities that did not launch fireworks.</li>
+                <li><strong>Synthetic Difference-in-Differences (SDID)</strong>: Instead of comparing Richmond to a single control city like Raleigh (which might have different baseline weather), SDID takes a weighted blend of multiple cities to construct a customized "Synthetic Richmond". The Difference-in-Differences step then measures how much the real Richmond's PM2.5 levels deviated from this synthetic clone during the holiday, subtracting any general regional weather effects.</li>
+                <li><strong>Two-Way Fixed Effects (TWFE)</strong>: Think of TWFE as a statistical sieve. It filters out two main sources of noise: permanent differences between cities (city fixed effects, such as Richmond's unique geography) and normal daily patterns (time fixed effects, such as the natural cooling of the air at midnight). This allows the model to isolate the specific holiday smoke signal from normal daily fluctuations.</li>
+            </ul>
 
             <h2>Method 1: Synthetic Difference-in-Differences (SDID)</h2>
             <p>Synthetic Difference-in-Differences (Arkhangelsky et al., 2021) is a modern estimator that builds on classic Synthetic Control by adding a constant unit shift and a time weight. It solves for unit weights &omega;<sub>i</sub> in the pre-treatment window (June 29 to July 3) to construct a counterfactual "Synthetic Richmond" that matches the real city's baseline trajectory.</p>
@@ -163,7 +177,7 @@
 
             <figure>
                 <img src="Fireworks Air Quality/sdid_divergence.png" alt="Synthetic DiD Divergence Plot" class="post-image">
-                <figcaption>Figure 2: Synthetic DiD divergence plot. At 9:00 PM on July 4th, the real Richmond PM2.5 levels spike rapidly while the synthetic counterfactual stays flat.</figcaption>
+                <figcaption>Figure 3: Synthetic DiD divergence plot. At 9:00 PM on July 4th, the real Richmond PM2.5 levels spike rapidly while the synthetic counterfactual stays flat.</figcaption>
             </figure>
 
             <h2>Method 2: Two-Way Fixed Effects & Event Study</h2>
@@ -208,7 +222,7 @@ es_model = smf.ols(formula, data=es_df).fit(cov_type="HC3")</code></pre>
 
             <figure>
                 <img src="Fireworks Air Quality/event_study_coefs.png" alt="Event Study Coefficients" class="post-image">
-                <figcaption>Figure 3: Event study coefficient plot. The pre-period coefficients are statistical zeroes, validating the parallel trends assumption. PM2.5 spikes immediately at launch and decays gradually.</figcaption>
+                <figcaption>Figure 4: Event study coefficient plot. The pre-period coefficients are statistical zeroes, validating the parallel trends assumption. PM2.5 spikes immediately at launch and decays gradually.</figcaption>
             </figure>
 
             <p>The event study coefficients validate the parallel trends assumption: all lead coefficients (hours -12 to -2) are statistically indistinguishable from zero. At hour 0 (9 PM), the treatment effect spikes immediately to +12.3 &micro;g/m&sup3;, peaking at hour +2 (11 PM) at +22.8 &micro;g/m&sup3; before beginning a gradual decline as the smoke disperses.</p>
@@ -249,11 +263,11 @@ es_model = smf.ols(formula, data=es_df).fit(cov_type="HC3")</code></pre>
             <div class="flex-container">
                 <figure class="flex-figure">
                     <img src="Fireworks Air Quality/placebo_multiyear.png" alt="Multi-year Placebo Check" class="post-image">
-                    <figcaption>Figure 4: Placebo check across multiple years, verifying that the fireworks spike is consistently captured on July 4th relative to other years.</figcaption>
+                    <figcaption>Figure 5: Placebo check across multiple years, verifying that the fireworks spike is consistently captured on July 4th relative to other years.</figcaption>
                 </figure>
                 <figure class="flex-figure">
                     <img src="Fireworks Air Quality/placebo_fake_date.png" alt="Fake Date Placebo Check" class="post-image">
-                    <figcaption>Figure 5: Temporal placebo check using a fake treatment date, showing no statistically significant divergence in PM2.5 levels.</figcaption>
+                    <figcaption>Figure 6: Temporal placebo check using a fake treatment date, showing no statistically significant divergence in PM2.5 levels.</figcaption>
                 </figure>
             </div>
 
@@ -263,6 +277,15 @@ es_model = smf.ols(formula, data=es_df).fit(cov_type="HC3")</code></pre>
                 <li><strong>Na&iuml;ve control selections lead to severe bias</strong>. In regional environmental events, spillovers (such as neighboring cities setting off their own fireworks) will violate SUTVA. Using urban controls in close proximity will severely bias the estimated treatment effect downward.</li>
                 <li><strong>Rural controls provide a clean baseline</strong>. Incorporating a rural control unit unaffected by the local holiday allows Synthetic DiD to build a counterfactual that reflects regional weather shocks without the holiday spillovers.</li>
                 <li><strong>Linear regressions must control for weather vector dynamics</strong>. Wind speed and direction must be decomposed into linear vectors (U and V) to ensure that the panel model controls for wind patterns correctly.</li>
+            </ul>
+
+            <h2>Conclusion: The Holiday Hangover in Numbers</h2>
+            <p>By applying rigorous causal estimators to Richmond's environmental panel data, I isolated the precise atmospheric impact of July 4th fireworks. Here is the high-level summary of the findings:</p>
+            <ul>
+                <li><strong>The Fireworks Pollution Spike</strong>: During the holiday window, fireworks in Richmond polluted the air at peak hours by over <strong>3 times the normal baseline</strong>, with absolute PM2.5 levels reaching 24.8 &micro;g/m&sup3; compared to a pre-holiday median baseline of 7.77 &micro;g/m&sup3;.</li>
+                <li><strong>Average Treatment Effect</strong>: Across the entire treatment window, the average causal effect of the fireworks was an increase of <strong>7.59 &micro;g/m&sup3;</strong> of PM2.5, nearly doubling the background baseline.</li>
+                <li><strong>Plume Duration</strong>: The fireworks smoke lingers with a <strong>decay half-life of 4.00 hours</strong> post-peak. It takes approximately <strong>8 to 12 hours</strong> for Richmond's air quality to return completely to its normal background baseline.</li>
+                <li><strong>Public Health Implications</strong>: Fine particulate matter (PM2.5) is small enough to enter the lungs and bloodstream, posing significant cardiovascular and respiratory risks. Spikes of this magnitude temporarily push the air quality index (AQI) from a clean "Good" category (below 9 &micro;g/m&sup3;) into "Moderate" and "Unhealthy for Sensitive Groups" levels, demonstrating the tangible public health impact of neighborhood pyrotechnics in stagnation-prone geographic pockets.</li>
             </ul>
 
             <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
