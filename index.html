@@ -60,7 +60,14 @@
             <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading featured projects...</div>
         </div>
 
-        <div style="text-align: center; margin-top: 3rem;">
+        <h2 style="margin-top: 4rem; margin-bottom: 2rem; color: var(--primary-dark); font-weight: 700;">Featured Software & Open Sourced Projects</h2>
+
+        <!-- Software Cards Grid -->
+        <div class="project-list" id="software-list">
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading featured software...</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 4rem;">
             <a href="more-projects.html" class="more-projects-btn">View All Projects by Year</a>
         </div>
     </main>
@@ -165,30 +172,45 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const projectList = document.getElementById('project-list');
-            let projects = [];
+            const softwareList = document.getElementById('software-list');
 
             try {
                 const data = window.PROJECTS_DATA;
-                // Filter specifically for the 3 featured projects
-                const featuredSlugs = ['https://www.phonetag.me', 'bayesian-cortex-agent-routing.html', 'scranton-os.html'];
-                projects = data.filter(p => featuredSlugs.includes(p.slug));
                 
-                // Maintain order
-                projects.sort((a, b) => featuredSlugs.indexOf(a.slug) - featuredSlugs.indexOf(b.slug));
+                // 1. Featured Data Science / Analytics Projects
+                const featuredProjectSlugs = [
+                    'hawaii-benefit-cliff.html',
+                    'hotel-cancellations-wildfires-did.html',
+                    'scranton-os.html'
+                ];
+                const projects = data.filter(p => featuredProjectSlugs.includes(p.slug));
+                projects.sort((a, b) => featuredProjectSlugs.indexOf(a.slug) - featuredProjectSlugs.indexOf(b.slug));
+                renderCards(projectList, projects);
 
-                renderProjects(projects);
+                // 2. Featured Software & Open Sourced Projects
+                const featuredSoftwareSlugs = [
+                    'https://www.phonetag.me',
+                    'bayesian-cortex-agent-routing.html'
+                ];
+                const software = data.filter(p => featuredSoftwareSlugs.includes(p.slug));
+                software.sort((a, b) => featuredSoftwareSlugs.indexOf(a.slug) - featuredSoftwareSlugs.indexOf(b.slug));
+                
+                // Render software cards and append a placeholder card
+                renderCards(softwareList, software, true);
+
             } catch (err) {
                 projectList.innerHTML = '<div style="color: red; text-align: center;">Error loading projects.</div>';
+                softwareList.innerHTML = '<div style="color: red; text-align: center;">Error loading software.</div>';
                 console.error(err);
             }
 
-            function renderProjects(items) {
-                if (items.length === 0) {
-                    projectList.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No projects found.</div>';
+            function renderCards(container, items, appendPlaceholder = false) {
+                if (items.length === 0 && !appendPlaceholder) {
+                    container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No projects found.</div>';
                     return;
                 }
 
-                projectList.innerHTML = items.map(p => {
+                let html = items.map(p => {
                     const snippetHtml = p.snippet ? `<p class="project-desc">${p.snippet}</p>` : '';
                     const isExternal = p.slug.startsWith('http');
                     const href = isExternal ? p.slug : `projects/${p.slug}`;
@@ -211,6 +233,18 @@
                         </a>
                     `;
                 }).join('');
+
+                if (appendPlaceholder) {
+                    html += `
+                        <div class="project-card placeholder-card" style="border: 2px dashed var(--border-color); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; min-height: 250px; text-align: center; background: var(--bg-alt); border-radius: 8px;">
+                            <div style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;">🚀</div>
+                            <h2 class="project-title" style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 700;">New Project Coming Soon</h2>
+                            <p class="project-desc" style="margin: 0; font-size: 0.75rem;">Currently building the next open-source tool. Stay tuned!</p>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
             }
 
             // Interactive Skills Rating Logic
