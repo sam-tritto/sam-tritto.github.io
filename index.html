@@ -215,7 +215,8 @@
                     
                     const isAsset = p.image.startsWith('assets/') || p.image.startsWith('http');
                     const imgSrc = isAsset ? p.image : `projects/${p.image}`;
-                    const imageHtml = p.image ? `<img src="${imgSrc}" alt="${p.title}" class="project-thumb" style="object-fit: contain; background-color: #f8f9fc;" loading="lazy">` : '';
+                    const fitType = p.slug === 'bayesian-cortex-agent-routing.html' ? 'cover' : 'contain';
+                    const imageHtml = p.image ? `<img src="${imgSrc}" alt="${p.title}" class="project-thumb" style="object-fit: ${fitType}; background-color: #f8f9fc;" loading="lazy">` : '';
                     
                     return `
                         <a href="${href}"${targetAttr} class="project-card">
