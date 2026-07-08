@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BayesianCortex: Dynamic Agent Routing via Contextual Multi-Armed Bandits - Sam's Data Portfolio</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        pre {
+            background: #f4f5f7;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid #e5e7eb;
+        }
+        code {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.9em;
+            background: #f4f5f7;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+        }
+        pre code {
+            padding: 0;
+            background: none;
+            font-size: 0.95em;
+        }
+    </style>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>BayesianCortex: Dynamic Agent Routing via Contextual Multi-Armed Bandits</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <a href="https://github.com/sam-tritto/bayesian-cortex" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                    <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+        <article class="post-content">
+            <img src="BayesianCortex/logo.png" alt="BayesianCortex Logo" class="post-image" fetchpriority="high">
+            
+            <p>AI agents are often built with rigid utility belts. When they are tasked with retrieving information or executing a command, they guess which tool or prompt to use based on static heuristics or expensive LLM-based reasoning. They do not learn from their mistakes, and they fall apart when downstream services fail silently or prompt templates begin to hallucinate. This is a massive engineering bottleneck in production environments.</p>
+
+            <p>I built <strong>BayesianCortex</strong> to resolve this bottleneck. BayesianCortex is a Python middleware library that treats routing as a <strong>Contextual Multi-Armed Bandit</strong> problem. By leveraging <strong>Thompson Sampling</strong> with closed-form conjugate updates and <strong>Linear/Hybrid Bandits</strong>, it dynamically routes queries to the most successful candidates, self-heals in real time, and operates locally with negligible latency.</p>
+
+            <h2>The Routing Dilemma</h2>
+            <p>In production-grade AI engineering, routing is the gateway to execution. Developers generally choose between three patterns:</p>
+            
+            <ul>
+                <li><strong>The Cloud LLM Router:</strong> The system passes the user prompt and descriptions of all tools to a frontier model (like Claude or GPT) to select the candidate. This is slow, expensive, and subject to recursive "self-correction loops" that burn through tokens when a tool fails.</li>
+                <li><strong>Semantic Vector Search:</strong> The system embeds the user prompt and queries a vector database for the candidate with the closest cosine similarity. This approach is completely blind to performance. If a tool is a perfect semantic match but its API is down, the search engine will lock the agent into an infinite failure loop.</li>
+                <li><strong>BayesianCortex Router:</strong> The system embeds the user prompt, runs it through a contextual bandit math engine, and computes the candidate with the highest expected success rate based on real-world execution telemetry.</li>
+            </ul>
+
+            <p>By decoupling the routing decision from cloud LLMs and linking it directly to execution outcomes, BayesianCortex optimizes what I call <strong>The Golden Triad</strong> of agent interactions:</p>
+            <ul>
+                <li><strong>Tools (The Hands):</strong> Learning which specific action successfully retrieves data without throwing errors.</li>
+                <li><strong>Skills (The Mind):</strong> Tracking which specialized prompt template gets the best results, letting the agent shift away from underperforming instructions.</li>
+                <li><strong>Memory (The Records):</strong> Figuring out which document vault or retrieval strategy holds the true answer to a user's question.</li>
+            </ul>
+
+            <h2>The Core Math Engine</h2>
+            <p>To avoid runtime latency, BayesianCortex avoids heavy Markov Chain Monte Carlo (MCMC) sampling. Instead, it utilizes exact closed-form updates and supports three mathematical routing modes:</p>
+
+            <h3>1. Context Clustering Mode (Beta-Binomial Conjugate Pair)</h3>
+            <p>In clustering mode, each candidate is modeled as a Beta distribution representing the belief of its success probability. The default state is initialized with uniform flat priors \(\alpha_i = 1.0, \beta_i = 1.0\), representing total uncertainty. For each routing decision, we sample a success probability from the Beta distribution of each candidate: </p>
+            <p>$$\theta_i \sim \text{Beta}(\alpha_i, \beta_i)$$</p>
+            <p>The router then selects the candidate with the highest sampled probability:</p>
+            <p>$$i^* = \arg\max_{i} \theta_i$$</p>
+            <p>Once execution is complete, the telemetry hook updates the posterior parameters based on the observed reward (success = 1.0, failure = 0.0):</p>
+            <p>$$\alpha_i \leftarrow \alpha_i + \text{reward}$$</p>
+            <p>$$\beta_i \leftarrow \beta_i + (1 - \text{reward})$$</p>
+
+            <h4>Handling Non-Stationary Environments (Drifting APIs)</h4>
+            <p>If an API starts failing or degrades over time, historical successes should not dominate the routing indefinitely. BayesianCortex applies an exponential decay factor \(\gamma \in (0, 1]\) on historical updates prior to adding new rewards:</p>
+            <p>$$\alpha_t = \max(1.0, \gamma\alpha_{t-1} + \text{reward})$$</p>
+            <p>$$\beta_t = \max(1.0, \gamma\beta_{t-1} + (1 - \text{reward}))$$</p>
+            <p>Both parameters are strictly clamped to a lower-bound of 1.0 to prevent the distribution from becoming U-shaped or bimodal, which stabilizes Thompson Sampling exploration.</p>
+
+            <h3>2. Linear Contextual Bandits Mode (LinTS & LinUCB)</h3>
+            <p>Instead of partitioning tasks into discrete clusters, the linear modes learn a linear relationship between the continuous task embedding space and the expected reward. Let the text embedding vector be \(x \in \mathbb{R}^d\). We augment it with a bias term \(x' = [x, 1.0]\) to learn prior success rates as linear offsets.</p>
+            <ul>
+                <li><strong>Linear Thompson Sampling (LinTS):</strong> Models the success probability parameter \(\theta_a\) for candidate \(a\) as a linear combination of features, \(\theta_a = x'^T w_a\), where weights \(w_a\) are sampled from the posterior distribution \(\mathcal{N}(\hat{w}_a, v^2 B_a^{-1})\).</li>
+                <li><strong>Linear Upper Confidence Bound (LinUCB):</strong> Selects the candidate maximizing the upper confidence bound of the expected reward:
+                    <p>$$a^* = \arg\max_a \left(x'^T \hat{w}_a + \alpha \sqrt{x'^T B_a^{-1} x'}\right)$$</p>
+                    where \(\hat{w}_a\) is the ridge regression estimate, \(B_a\) is the precision matrix, and \(\alpha\) is the exploration weight.
+                </li>
+            </ul>
+            <p>I implemented a **Diagonal Covariance Approximation** option to avoid full matrix inversion (reducing complexity from \(O(d^3)\) to \(O(d)\)), which is highly recommended for performance-critical systems.</p>
+
+            <h3>3. Shared-Parameter (Hybrid) Contextual Bandits</h3>
+            <p>Disjoint bandits struggle when new candidates are added because they have no historical data (the cold-start problem). To resolve this, BayesianCortex implements a Shared-Parameter (Hybrid) mode. It maps both the task context \(x_c\) and the candidate's embedding \(t_a\) into a single joint feature space, \(x_{\text{augmented}} = [x_c, t_a, 1.0]\), and maintains a single unified weight vector \(w \in \mathbb{R}^{d_{ctx} + d_{candidate} + 1}\) across all candidates. This allows the system to generalize success probabilities across similar candidates, even if one is brand new.</p>
+
+            <h2>System Architecture & Production Engineering</h2>
+            <p>Building a mathematical routing engine is only half the battle; it must survive the realities of high-throughput, concurrent production environments. I engineered several core architectural features to address these challenges:</p>
+
+            <h3>⚡ High-Concurrency SQLite Storage</h3>
+            <p>SQLite is the default local storage backend. To prevent database locks during parallel executions, the storage engine implements:</p>
+            <ul>
+                <li><strong>Write-Ahead Logging (WAL):</strong> dramatically improves read/write concurrency.</li>
+                <li><strong>Connection Pooling:</strong> the asynchronous engine manages a connection pool to avoid connection establishment overhead.</li>
+                <li><strong>Exponential Backoff with Jitter:</strong> database write contentions are automatically retried with randomized backoff to ensure safety under concurrent load.</li>
+                <li><strong>Persistent Vector Indexing:</strong> utilizes the <code>sqlite-vec</code> extension to support native database-level cosine-distance vector matches, avoiding loading all context vectors into memory.</li>
+            </ul>
+
+            <h3>🛡️ HMAC-SHA256 Signed Trace IDs</h3>
+            <p>In decoupled setups where a client UI gathers user feedback (like a thumbs up/down button) and reports it back to the backend, there is a risk of client-side reward poisoning. BayesianCortex signs all routing trace IDs with an HMAC-SHA256 signature. The backend verifies the signature before updating parameters, ensuring telemetry data remains untampered.</p>
+
+            <h3>🧠 Automated RAG Success Metrics</h3>
+            <p>Retrieval-Augmented Generation (RAG) fails silently. Rather than throwing errors, it returns irrelevant text chunks or hallucinations. To automate feedback, BayesianCortex features helper functions that run citation checks and compute token-overlap faithfulness metrics to automatically determine success and update the bandit prior.</p>
+
+            <h2>Let's See Some Code</h2>
+            <p>BayesianCortex is designed to be drop-in middleware. Below is an example of routing tools with synchronous and asynchronous APIs, including automatic evaluation of RAG responses.</p>
+
+            <pre><code class="language-python">from bayesian_cortex import BayesianRouter
+from bayesian_cortex.embeddings import GeminiEmbedder
+from bayesian_cortex import evaluate_rag_success
+
+# 1. Initialize the router with local SQLite backend
+embedder = GeminiEmbedder(model_name="models/text-embedding-004")
+router = BayesianRouter(
+    storage_backend="sqlite",
+    storage_path="bayes_cache.db",
+    embedder=embedder,
+    decay_factor=0.95
+)
+
+# 2. Candidate Routing (Tools)
+chosen_tool = router.route(
+    context_key="Fetch user profile from PostgreSQL", 
+    candidates=["sql_tool", "vector_tool", "graphql_tool"]
+)
+print(f"Routed to candidate: {chosen_tool}")
+
+# Provide feedback after execution
+router.feedback(
+    context_key="Fetch user profile from PostgreSQL",
+    candidate=chosen_tool,
+    success=True
+)
+
+# 3. RAG Routing (Memory) with automatic evaluation
+chosen_kb = router.route(
+    context_key="What is our policy on parental leave rollover?",
+    candidates=["rag/hr_handbook", "rag/benefits_v2_draft", "rag/general_faq"]
+)
+
+retrieved_chunks = ["Parental leave rollover allows up to 5 days rollover..."]
+generated_response = "Our policy allows you to roll over up to 5 days of parental leave."
+
+# Automatically evaluate response quality
+success = evaluate_rag_success(
+    response=generated_response,
+    source_chunks=retrieved_chunks,
+    faithfulness_threshold=0.5
+)
+
+router.feedback(
+    context_key="What is our policy on parental leave rollover?",
+    candidate=chosen_kb,
+    success=success
+)
+</code></pre>
+
+            <p>For async web applications (like FastAPI or FastMCP), the router offers fully async methods:</p>
+
+            <pre><code class="language-python">import asyncio
+from bayesian_cortex import AsyncBayesianRouter
+from bayesian_cortex.embeddings import GeminiEmbedder
+
+async def main():
+    embedder = GeminiEmbedder(model_name="models/text-embedding-004")
+    router = AsyncBayesianRouter(
+        storage_backend="sqlite",
+        storage_path="bayes_cache.db",
+        embedder=embedder,
+        decay_factor=0.95
+    )
+
+    # Async Route & Feedback
+    chosen_skill = await router.aroute(
+        context_key="Refactor this legacy asyncio network loop", 
+        candidates=["skills/async-expert", "skills/naive-coder", "skills/strict-defensive"]
+    )
+    
+    # Executing logic...
+    await router.afeedback(
+        context_key="Refactor this legacy asyncio network loop",
+        candidate=chosen_skill,
+        success=True
+    )
+
+asyncio.run(main())
+</code></pre>
+
+            <h2>Visualizing Drifting Failure Rates</h2>
+            <p>I built an interactive simulation script to demonstrate how Thompson Sampling adapts. In this simulation, different tools have fluctuating failure rates. The bandit quickly identifies failures and routes around them.</p>
+
+            <img src="BayesianCortex/demo_interactive.png" alt="Interactive Bandit Simulation Console" class="post-image" loading="lazy">
+
+            <h2>The Model Context Protocol (FastMCP) Server</h2>
+            <p>To make BayesianCortex accessible to desktop agents like Claude Code, Cursor, or Claude Desktop, I packaged it with an out-of-the-box Model Context Protocol (MCP) server. MCP endpoints can consume substantial system context, so I implemented flags to selectively enable or disable endpoints to prevent token bloat.</p>
+
+            <img src="BayesianCortex/demo_dashboard.png" alt="BayesianCortex Diagnostics Metrics Dashboard" class="post-image" loading="lazy">
+
+            <p>The dashboard renders Unicode sparklines and Beta stats PDF SVG charts dynamically, showing the shapes of the probability distributions in real time as the agent executes actions and logs feedback.</p>
+
+            <h2>Conclusion</h2>
+            <p>BayesianCortex turns agentic routing from a static heuristic into a self-optimizing middleware layer. It saves token costs, prevents infinite retry loops, and ensures that your agents learn from failures in production. The repository is open-source, and I invite you to check it out on my GitHub page!</p>
+            
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </article>
+    </div>
+</body>
+</html>
