@@ -90,7 +90,7 @@
                 if (lowerTitle.includes('bayesian')) {
                     tags.push({ id: 'bayesian', label: 'Bayesian' });
                 }
-                if (lowerTitle.includes('spotify') || lowerTitle.includes('song') || lowerTitle.includes('band') || lowerTitle.includes('takeover') || lowerTitle.includes('marley') || lowerTitle.includes('music') || lowerTitle.includes('nelson') || lowerTitle.includes('podcast')) {
+                if (lowerTitle.includes('spotify') || lowerTitle.includes('song') || /\bband(s)?\b/.test(lowerTitle) || lowerTitle.includes('takeover') || lowerTitle.includes('marley') || lowerTitle.includes('music') || lowerTitle.includes('nelson') || lowerTitle.includes('podcast')) {
                     tags.push({ id: 'music', label: 'Music Analytics' });
                 }
                 if (lowerTitle.includes('forecast') || lowerTitle.includes('forecasting') || lowerTitle.includes('prophet') || lowerTitle.includes('time series')) {
@@ -99,7 +99,7 @@
                 if (lowerTitle.includes('simulation') || lowerTitle.includes('sir model') || lowerTitle.includes('overbooking')) {
                     tags.push({ id: 'simulation', label: 'Simulation' });
                 }
-                if (lowerTitle.includes('phonetag') || lowerTitle.includes('scranton-os') || lowerTitle.includes('scrantonos') || lowerTitle.includes('parser') || lowerTitle.includes('app') || lowerTitle.includes('command center') || lowerTitle.includes('platform') || lowerTitle.includes('dashboard') || lowerTitle.includes('web')) {
+                if (lowerTitle.includes('bayesiancortex') || lowerTitle.includes('bayesian-cortex') || lowerTitle.includes('phonetag') || lowerTitle.includes('scranton-os') || lowerTitle.includes('scrantonos') || lowerTitle.includes('parser') || lowerTitle.includes('app') || lowerTitle.includes('command center') || lowerTitle.includes('platform') || lowerTitle.includes('dashboard') || lowerTitle.includes('web')) {
                     tags.push({ id: 'apps-dev', label: 'Software & Apps' });
                 }
                 if (lowerTitle.includes('bigquery') || lowerTitle.includes('gcp') || lowerTitle.includes('cloud') || lowerTitle.includes('etl') || lowerTitle.includes('mlops') || lowerTitle.includes('sql') || lowerTitle.includes('database')) {
