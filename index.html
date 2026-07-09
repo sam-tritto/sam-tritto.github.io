@@ -192,8 +192,8 @@
                 const software = data.filter(p => featuredSoftwareSlugs.includes(p.slug));
                 software.sort((a, b) => featuredSoftwareSlugs.indexOf(a.slug) - featuredSoftwareSlugs.indexOf(b.slug));
                 
-                // Render software cards and append a placeholder card
-                renderCards(softwareList, software, true);
+                // Render software cards
+                renderCards(softwareList, software);
 
             } catch (err) {
                 projectList.innerHTML = '<div style="color: red; text-align: center;">Error loading projects.</div>';
@@ -201,8 +201,8 @@
                 console.error(err);
             }
 
-            function renderCards(container, items, appendPlaceholder = false) {
-                if (items.length === 0 && !appendPlaceholder) {
+            function renderCards(container, items) {
+                if (items.length === 0) {
                     container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No projects found.</div>';
                     return;
                 }
@@ -231,16 +231,6 @@
                         </a>
                     `;
                 }).join('');
-
-                if (appendPlaceholder) {
-                    html += `
-                        <div class="project-card placeholder-card" style="border: 2px dashed var(--border-color); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; min-height: 250px; text-align: center; background: var(--bg-alt); border-radius: 8px;">
-                            <div style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;">🚀</div>
-                            <h2 class="project-title" style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 700;">New Project Coming Soon</h2>
-                            <p class="project-desc" style="margin: 0; font-size: 0.75rem;">Currently building the next open-source tool. Stay tuned!</p>
-                        </div>
-                    `;
-                }
 
                 container.innerHTML = html;
             }
