@@ -193,7 +193,7 @@
                         
                         const isAsset = p.image.startsWith('assets/') || p.image.startsWith('http');
                         const imgSrc = isAsset ? p.image : `projects/${p.image}`;
-                        const fitType = p.slug === 'bayesian-cortex-agent-routing.html' ? 'cover' : 'contain';
+                        const fitType = (p.slug === 'bayesian-cortex-agent-routing.html' || p.slug === 'battle-beach-thrillers-tabfm-catboost.html') ? 'cover' : 'contain';
                         const imageHtml = p.image ? `<img src="${imgSrc}" alt="${p.title}" class="project-thumb" style="object-fit: ${fitType}; background-color: #f8f9fc;" fetchpriority="high">` : '';
                         
                         return `
