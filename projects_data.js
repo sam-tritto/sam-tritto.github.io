@@ -9,8 +9,8 @@ window.PROJECTS_DATA = [
   {
     "title": "Exploring Google's new Zero-Shot TabFM on Hawaiian Shark Attack Data",
     "slug": "battle-beach-thrillers-tabfm-catboost.html",
-    "snippet": "Predicting shark attack fatalities using messy historical narratives from Hawai'i. I pit Google's zero-shot TabFM against a text-aware CatBoost classifier to examine tabular foundation model in-context learning, dataset calibration trade-offs, and scaling limits.",
-    "image": "projects/Battle of the Beach Thrillers/thumbnail.png",
+    "snippet": "Predicting shark attack fatalities using messy historical narratives from Hawai'i. I pit Google's zero-shot TabFM against a text-aware CatBoost classifier, highlighting how TabFM's language-model-based pre-training on tabular text data grants it native semantic understanding of unstructured narratives (like activity descriptions and injury types). I evaluate in-context learning, dataset scaling limits, class imbalance behavior (where CatBoost collapses to the majority class while TabFM retains recall), and post-hoc calibration trade-offs.",
+    "image": "Battle of the Beach Thrillers/thumbnail.png",
     "filename": "battle-beach-thrillers-tabfm-catboost.html",
     "date": "July 2026"
   },
