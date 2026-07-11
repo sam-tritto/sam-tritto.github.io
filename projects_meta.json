@@ -7,6 +7,14 @@
     "filename": "2026.html"
   },
   {
+    "title": "Climate-Tourism Knowledge Graph: Analytics and Traversals in BigQuery",
+    "slug": "climate-tourism-knowledge-graph.html",
+    "snippet": "Building and querying a Climate-Tourism Knowledge Graph directly in Google BigQuery. Leveraging NOAA weather sensors, Google Trends, and OpenFlights to trace how extreme summer heatwaves causally redirect European tourism search interest and flight route capacity. Fits piecewise tipping point regressions and runs standard SQL/PGQ (GQL) queries.",
+    "image": "Climate Tourism Graph/lhr_destinations_comparison.png",
+    "filename": "climate-tourism-knowledge-graph.html",
+    "date": "July 2026"
+  },
+  {
     "title": "Exploring Google's New Zero-Shot TabFM on Hawaiian Shark Attack Data",
     "slug": "battle-beach-thrillers-tabfm-catboost.html",
     "snippet": "Predicting shark attack fatalities using messy historical narratives from Hawai'i. I pit Google's zero-shot TabFM against a text-aware CatBoost classifier, highlighting how TabFM's language-model-based pre-training on tabular text data grants it native semantic understanding of unstructured narratives (like activity descriptions and injury types). I evaluate in-context learning, dataset scaling limits, class imbalance behavior (where CatBoost collapses to the majority class while TabFM retains recall), and post-hoc calibration trade-offs.",
