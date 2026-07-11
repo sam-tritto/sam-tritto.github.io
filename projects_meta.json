@@ -7,7 +7,7 @@
     "filename": "2026.html"
   },
   {
-    "title": "Battle of the Beach Thrillers: Zero-Shot TabFM vs. Saturated CatBoost Text Analytics (Hawai'i Edition)",
+    "title": "Exploring Google's new Zero-Shot TabFM on Hawaiian Shark Attack Data",
     "slug": "battle-beach-thrillers-tabfm-catboost.html",
     "snippet": "Predicting shark attack fatalities using messy historical narratives from Hawai'i. I pit Google's zero-shot TabFM against a text-aware CatBoost classifier to examine tabular foundation model in-context learning, dataset calibration trade-offs, and scaling limits.",
     "image": "projects/Battle of the Beach Thrillers/thumbnail.png",

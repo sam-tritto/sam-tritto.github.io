@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Battle of the Beach Thrillers: Zero-Shot TabFM vs. Saturated CatBoost Text Analytics (Hawai'i Edition)</title>
+    <title>Exploring Google's new Zero-Shot TabFM on Hawaiian Shark Attack Data</title>
     <meta name="description" content="A comparative analysis of Google's zero-shot TabFM and supervised CatBoost on messy, high-cardinality historical shark attack reports from Hawai'i.">
     <link rel="stylesheet" href="../style.css">
     <style>
@@ -25,6 +25,7 @@
             font-family: monospace;
             font-size: 0.93em;
             color: #333;
+            overflow-x: auto;
         }
         .callout {
             background: #e8f4fd;
@@ -55,12 +56,69 @@
             padding: 0.45rem 0.8rem;
         }
         table.data-table tr:nth-child(even) td { background: #f5f6fa; }
+
+        /* Style for confusion matrix blocks */
+        .matrix-container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+        .matrix-box {
+            flex: 1;
+            min-width: 280px;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .matrix-title {
+            font-weight: bold;
+            color: #2c3e6b;
+            margin-bottom: 0.8rem;
+            text-align: center;
+            font-size: 1rem;
+        }
+        table.matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        table.matrix-table th {
+            background: #f0f0f0;
+            color: #333;
+            font-weight: 600;
+            padding: 0.4rem;
+            border: 1px solid #ddd;
+        }
+        table.matrix-table td {
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            font-weight: bold;
+        }
+        table.matrix-table td.correct {
+            background: #e2f0d9;
+            color: #385723;
+        }
+        table.matrix-table td.incorrect {
+            background: #fce4d6;
+            color: #c65911;
+        }
+        table.matrix-table td.label-cell {
+            background: #f9f9f9;
+            font-weight: normal;
+            color: #555;
+            text-align: right;
+            padding-right: 0.8rem;
+        }
     </style>
 </head>
 <body>
     <div class="post-container">
         <header class="post-header-area">
-            <h1>Battle of the Beach Thrillers: Zero-Shot TabFM vs. Saturated CatBoost</h1>
+            <h1>Exploring Google's new Zero-Shot TabFM on Hawaiian Shark Attack Data</h1>
         </header>
         <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
             <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
@@ -72,13 +130,13 @@
             </a>
         </div>
         <article class="post-content">
-            <h1>Zero-Shot TabFM vs. CatBoost on Messy Hawai'ian Shark Encounter Data</h1>
+            <h1>Exploring Google's new Zero-Shot TabFM on Hawaiian Shark Attack Data</h1>
             <img src="Battle of the Beach Thrillers/thumbnail.png" alt="High-contrast digital art of a shark with tabular overlay and metrics" class="post-image" fetchpriority="high">
 
             <p>GitHub Repo: <a href="https://github.com/sam-tritto/shark-attacks" target="_blank" rel="noopener noreferrer">https://github.com/sam-tritto/shark-attacks</a></p>
 
             <h2>Introduction: A New Tabular Paradigm</h2>
-            <p>In tabular machine learning, XGBoost, LightGBM, and CatBoost have long ruled the roost. If you wanted to classify rows of data, you collected training samples, engineered features, and ran gradient boosting backpropagation to optimize decision trees. However, a new paradigm is shifting this workflow: Tabular Foundation Models. Google's <strong>TabFM</strong> (Tabular Foundation Model) is a transformer-based architecture (detailed in their <a href="https://research.google/blog/introducing-tabfm-a-zero-shot-foundation-model-for-tabular-data/" target="_blank" rel="noopener noreferrer">Introducing TabFM research blog</a> and hosted on the <a href="https://github.com/google-research/tabfm" target="_blank" rel="noopener noreferrer">google-research/tabfm GitHub repository</a>) capable of performing in-context learning (ICL) directly on tabular datasets.</p>
+            <p>In tabular machine learning, XGBoost, LightGBM, and CatBoost have long ruled the roost. If you wanted to classify rows of data, you collected training samples, engineered features, and ran gradient boosting backpropagation to optimize decision trees. However, a new paradigm is shifting this workflow: Tabular Foundation Models. Google's <strong>TabFM</strong> (Tabular Foundation Model) is a transformer-based architecture (detailed in their <a href="https://research.google.com/blog/introducing-tabfm-a-zero-shot-foundation-model-for-tabular-data/" target="_blank" rel="noopener noreferrer">Introducing TabFM research blog</a> and hosted on the <a href="https://github.com/google-research/tabfm" target="_blank" rel="noopener noreferrer">google-research/tabfm GitHub repository</a>) capable of performing in-context learning (ICL) directly on tabular datasets.</p>
             
             <p>To put this technology to the test, I set up a high-stakes prediction task: classifying case fatalities (<code>Fatal (Y/N)</code>) from real historical shark encounter reports along the coastlines of <strong>Hawai'i</strong>. This project runs a head-to-head battle between a zero-shot, pre-trained TabFM model and a supervised CatBoost Classifier.</p>
 
@@ -88,7 +146,7 @@
             </div>
 
             <h2>1. The Raw Data: Messy Narratives from Hawai'i</h2>
-            <p>The data comes from the official <strong>Global Shark Attack File (GSAF)</strong>. Instead of clean, standardized categories, the GSAF is notorious for unstructured, high-cardinality text narratives. For example, rather than a simple label like "Surfing", the <code>Activity</code> column contains verbose descriptions of the incident circumstances:</p>
+            <p>The data comes from the official <a href="https://www.sharkattackfile.net/" target="_blank" rel="noopener noreferrer">Global Shark Attack File (GSAF)</a>, specifically utilizing the primary <a href="https://www.sharkattackfile.net/spreadsheets/GSAF5.xls" target="_blank" rel="noopener noreferrer">GSAF historical log spreadsheet</a>. Instead of clean, standardized categories, the GSAF is notorious for unstructured, high-cardinality text narratives. For example, rather than a simple label like "Surfing", the <code>Activity</code> column contains verbose descriptions of the incident circumstances:</p>
             <ul>
                 <li><em>"Surfing, fell off board, bit on leg"</em></li>
                 <li><em>"Wading / standing in 3 ft of water"</em></li>
@@ -102,6 +160,9 @@
                 <li><strong>CatBoost</strong>: Standard gradient boosting algorithms struggle with raw text unless you pre-process it into token vectors. CatBoost, however, includes a native text processing engine. It builds dictionaries and tokenizers on the fly, directly digesting the unstructured <code>Activity</code> strings alongside categorical predictors without manual feature engineering pipelines.</li>
                 <li><strong>TabFM</strong>: As a foundation model, TabFM utilizes an alternating row/column attention mechanism. It performs In-Context Learning by reading the training records as a "prompt" inside its transformer attention window. In a single forward pass, it makes zero-shot predictions on the evaluation set without updating a single weight or running backpropagation.</li>
             </ul>
+            
+            <h3>The Power of Semantic Pre-Training</h3>
+            <p>Why is TabFM uniquely suited for this messy text? Unlike standard tree classifiers that treat category tokens as arbitrary IDs, TabFM is built on top of a pre-trained language transformer. Because it has been pre-trained on tabular data containing rich text descriptions, the model inherently understands the semantic meaning of terms like "surfing", "wading", and "spearfishing", as well as the anatomical contexts of injuries. It leverages these semantic text embeddings and language priors directly, which explains why it performs well out of the box on unstructured categorical narratives without needing custom feature tokenization or vectorizers.</p>
 
             <h2>3. The In-Context Scaling Challenge</h2>
             <p>For experienced researchers, the primary architectural challenge with TabFM is <strong>context window scaling</strong>. Because TabFM processes the tabular matrix as a prompt, memory and compute scale dramatically with the size of the training pool. To operate within its attention limits, we cannot feed a massive dataset to the model. I implemented a stratified subsampling step to select a representative context dataset of up to 500 rows, preserving the target's class distribution:</p>
@@ -190,6 +251,61 @@ cat_probs = cat_model.predict_proba(test_pool)[:, 1]</code></pre>
                     </tr>
                 </tbody>
             </table>
+
+            <h3>Confusion Matrix Showdown</h3>
+            <p>The following matrices outline the predictions made by each model at a default threshold of 0.5 on the 63 test instances (53 survived, 10 fatal):</p>
+
+            <div class="matrix-container">
+                <div class="matrix-box">
+                    <div class="matrix-title">Google TabFM Zero-Shot Matrix</div>
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Pred Survived (0)</th>
+                                <th>Pred Fatal (1)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th class="label-cell">Actual Survived (0)</th>
+                                <td class="correct">50 (TN)</td>
+                                <td class="incorrect">3 (FP)</td>
+                            </tr>
+                            <tr>
+                                <th class="label-cell">Actual Fatal (1)</th>
+                                <td class="incorrect">8 (FN)</td>
+                                <td class="correct">2 (TP)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="matrix-box">
+                    <div class="matrix-title">CatBoost Supervised Matrix</div>
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Pred Survived (0)</th>
+                                <th>Pred Fatal (1)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th class="label-cell">Actual Survived (0)</th>
+                                <td class="correct">53 (TN)</td>
+                                <td class="incorrect">0 (FP)</td>
+                            </tr>
+                            <tr>
+                                <th class="label-cell">Actual Fatal (1)</th>
+                                <td class="incorrect">10 (FN)</td>
+                                <td class="correct">0 (TP)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
             <h3>The Imbalanced Class Collapse</h3>
             <p>The test dataset consists of 63 encounters: 53 survived and 10 fatal (a 16% fatality rate). Using the standard decision threshold of 0.5, CatBoost predicts "Survived" for every single row. Because the local dataset is small and highly imbalanced, the supervised optimizer collapsed to the majority class to maximize overall accuracy (84%).</p>
