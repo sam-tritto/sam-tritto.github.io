@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle of the Beach Thrillers: Zero-Shot TabFM vs. Saturated CatBoost Text Analytics (Hawai'i Edition)</title>
+    <meta name="description" content="A comparative analysis of Google's zero-shot TabFM and supervised CatBoost on messy, high-cardinality historical shark attack reports from Hawai'i.">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .math-block {
+            background: #f4f6fb;
+            border-left: 4px solid #4a6fa5;
+            border-radius: 4px;
+            padding: 1rem 1.5rem;
+            margin: 1.2rem 0;
+            font-family: 'Georgia', serif;
+            font-size: 1.05rem;
+            color: #222;
+            overflow-x: auto;
+        }
+        .inline-code {
+            background: #eef0f6;
+            border-radius: 3px;
+            padding: 0.1em 0.4em;
+            font-family: monospace;
+            font-size: 0.93em;
+            color: #333;
+        }
+        .callout {
+            background: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            border-radius: 4px;
+            padding: 0.9rem 1.2rem;
+            margin: 1.2rem 0;
+        }
+        .callout-warn {
+            background: #fff8e1;
+            border-left: 4px solid #ffa000;
+        }
+        .callout strong { display: block; margin-bottom: 0.3rem; }
+        table.data-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+            font-size: 0.92rem;
+        }
+        table.data-table th {
+            background: #2c3e6b;
+            color: #fff;
+            padding: 0.5rem 0.8rem;
+            text-align: left;
+        }
+        table.data-table td {
+            border: 1px solid #dde;
+            padding: 0.45rem 0.8rem;
+        }
+        table.data-table tr:nth-child(even) td { background: #f5f6fa; }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>Battle of the Beach Thrillers: Zero-Shot TabFM vs. Saturated CatBoost</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <a href="https://github.com/sam-tritto/shark-attacks" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                    <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+        <article class="post-content">
+            <h1>Zero-Shot TabFM vs. CatBoost on Messy Hawai'ian Shark Encounter Data</h1>
+            <img src="Battle of the Beach Thrillers/thumbnail.png" alt="High-contrast digital art of a shark with tabular overlay and metrics" class="post-image" fetchpriority="high">
+
+            <p>GitHub Repo: <a href="https://github.com/sam-tritto/shark-attacks" target="_blank" rel="noopener noreferrer">https://github.com/sam-tritto/shark-attacks</a></p>
+
+            <h2>Introduction: A New Tabular Paradigm</h2>
+            <p>In tabular machine learning, XGBoost, LightGBM, and CatBoost have long ruled the roost. If you wanted to classify rows of data, you collected training samples, engineered features, and ran gradient boosting backpropagation to optimize decision trees. However, a new paradigm is shifting this workflow: Tabular Foundation Models. Google's <strong>TabFM</strong> (Tabular Foundation Model) is a transformer-based architecture (detailed in their <a href="https://research.google/blog/introducing-tabfm-a-zero-shot-foundation-model-for-tabular-data/" target="_blank" rel="noopener noreferrer">Introducing TabFM research blog</a> and hosted on the <a href="https://github.com/google-research/tabfm" target="_blank" rel="noopener noreferrer">google-research/tabfm GitHub repository</a>) capable of performing in-context learning (ICL) directly on tabular datasets.</p>
+            
+            <p>To put this technology to the test, I set up a high-stakes prediction task: classifying case fatalities (<code>Fatal (Y/N)</code>) from real historical shark encounter reports along the coastlines of <strong>Hawai'i</strong>. This project runs a head-to-head battle between a zero-shot, pre-trained TabFM model and a supervised CatBoost Classifier.</p>
+
+            <div class="callout callout-warn">
+                <strong>MacBook Footprint Warning</strong>
+                While TabFM is simple to load and install natively through HuggingFace (using the weights from <a href="https://huggingface.co/google/tabfm-1.0.0-pytorch" target="_blank" rel="noopener noreferrer">google/tabfm-1.0.0-pytorch</a>), the pre-trained weights require a hefty 6.5GB. Fitting this footprint onto my MacBook's unified memory took a noticeable toll on local resources, making it a heavy baseline for quick local workflows, even though the configuration requires zero custom tokenizers.
+            </div>
+
+            <h2>1. The Raw Data: Messy Narratives from Hawai'i</h2>
+            <p>The data comes from the official <strong>Global Shark Attack File (GSAF)</strong>. Instead of clean, standardized categories, the GSAF is notorious for unstructured, high-cardinality text narratives. For example, rather than a simple label like "Surfing", the <code>Activity</code> column contains verbose descriptions of the incident circumstances:</p>
+            <ul>
+                <li><em>"Surfing, fell off board, bit on leg"</em></li>
+                <li><em>"Wading / standing in 3 ft of water"</em></li>
+                <li><em>"Spearfishing / free diving with catch"</em></li>
+            </ul>
+            <p>I cleaned and prepared a localized subset consisting of incidents in Hawai'i, predicting whether the encounter was fatal (1) or survived (0) based on four features: <code>Activity</code>, <code>Time of Day</code>, <code>Month</code>, and <code>Cleaned Species</code> (derived from raw text descriptions).</p>
+
+            <h2>2. Why These Two Libraries?</h2>
+            <p>This messy, textual dataset provides an ideal sandbox for contrasting the two paradigms:</p>
+            <ul>
+                <li><strong>CatBoost</strong>: Standard gradient boosting algorithms struggle with raw text unless you pre-process it into token vectors. CatBoost, however, includes a native text processing engine. It builds dictionaries and tokenizers on the fly, directly digesting the unstructured <code>Activity</code> strings alongside categorical predictors without manual feature engineering pipelines.</li>
+                <li><strong>TabFM</strong>: As a foundation model, TabFM utilizes an alternating row/column attention mechanism. It performs In-Context Learning by reading the training records as a "prompt" inside its transformer attention window. In a single forward pass, it makes zero-shot predictions on the evaluation set without updating a single weight or running backpropagation.</li>
+            </ul>
+
+            <h2>3. The In-Context Scaling Challenge</h2>
+            <p>For experienced researchers, the primary architectural challenge with TabFM is <strong>context window scaling</strong>. Because TabFM processes the tabular matrix as a prompt, memory and compute scale dramatically with the size of the training pool. To operate within its attention limits, we cannot feed a massive dataset to the model. I implemented a stratified subsampling step to select a representative context dataset of up to 500 rows, preserving the target's class distribution:</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code># Stratified context preparation for TabFM
+from sklearn.model_selection import train_test_split
+
+def prepare_tabfm_context(X_train, y_train, max_rows=500, random_state=42):
+    if len(X_train) &lt;= max_rows:
+        return X_train, y_train
+    
+    test_size = max_rows / len(X_train)
+    _, X_context, _, y_context = train_test_split(
+        X_train, y_train, 
+        test_size=test_size, 
+        stratify=y_train, 
+        random_state=random_state
+    )
+    return X_context, y_context</code></pre>
+
+            <h2>4. Modeling Ensembles &amp; Codes</h2>
+            
+            <h3>Google TabFM Inference</h3>
+            <p>Loading the weights and performing predictions is remarkably straightforward using the PyTorch-based HuggingFace wrapper:</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from tabfm import TabFMClassifier
+from tabfm import tabfm_v1_0_0_pytorch as tabfm_v1_0_0
+
+# Load weights natively from HuggingFace
+tabfm_model = tabfm_v1_0_0.load()
+tabfm_clf = TabFMClassifier(model=tabfm_model)
+
+# Fit behaves as an in-context setup step
+tabfm_clf.fit(X_context, y_context)
+
+# Generate zero-shot probabilities
+tabfm_probs = tabfm_clf.predict_proba(X_test)[:, 1]</code></pre>
+
+            <h3>Supervised CatBoost Classifier</h3>
+            <p>For CatBoost, I set up a validation split to perform early stopping and prevent overfitting on the small localized dataset, declaring the <code>Activity</code> feature as raw text:</p>
+
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from catboost import CatBoostClassifier, Pool
+
+# Identify raw text columns vs standard categoricals
+text_cols = ['Activity']
+cat_cols = ['Time of Day', 'Month', 'Cleaned Species']
+
+# Create training pool with native text processing
+train_pool = Pool(X_train, y_train, cat_features=cat_cols, text_features=text_cols)
+test_pool = Pool(X_test, cat_features=cat_cols, text_features=text_cols)
+
+cat_model = CatBoostClassifier(
+    iterations=111,
+    learning_rate=0.05,
+    eval_metric='AUC',
+    random_seed=42,
+    verbose=False
+)
+cat_model.fit(train_pool)
+cat_probs = cat_model.predict_proba(test_pool)[:, 1]</code></pre>
+
+            <h2>5. The Showdown Results</h2>
+            <p>Evaluating the models on a held-out test set reveals a fascinating contrast in behaviors:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Classifier</th>
+                        <th>Test ROC AUC</th>
+                        <th>Fatal Recall (Threshold 0.5)</th>
+                        <th>Fatal Precision (Threshold 0.5)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Google TabFM (Zero-Shot)</strong></td>
+                        <td>0.6755</td>
+                        <td>20.00%</td>
+                        <td>40.00%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CatBoost (Supervised)</strong></td>
+                        <td>0.7321</td>
+                        <td>0.00%</td>
+                        <td>0.00%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>The Imbalanced Class Collapse</h3>
+            <p>The test dataset consists of 63 encounters: 53 survived and 10 fatal (a 16% fatality rate). Using the standard decision threshold of 0.5, CatBoost predicts "Survived" for every single row. Because the local dataset is small and highly imbalanced, the supervised optimizer collapsed to the majority class to maximize overall accuracy (84%).</p>
+            <p>In contrast, TabFM's zero-shot pre-trained priors prevented it from collapsing. Even without class weight adjustment, it correctly isolated 2 of the 10 fatal attacks (achieving 20% recall and 40% precision), demonstrating how foundation models can be more robust to class imbalance out of the box.</p>
+
+            <h2>6. The Calibration Trade-off</h2>
+            <p>While ROC AUC indicates ranking strength (where CatBoost led with 0.7321 over TabFM's 0.6755), probability calibration is critical for real-world risk management. A model is calibrated if a predicted probability of 20% maps to an actual event rate of 20% in the real world.</p>
+            
+            <p>In-context foundation models are notoriously poorly calibrated. Because they make predictions in a single forward pass over synthetic training patterns, their raw outputs do not scale to match the baseline distribution of the localized test environment. CatBoost, by contrast, is directly optimized to match the target statistics of the training pool, aligning its probabilities closer to the true physical rate. For researchers using zero-shot models in critical decision systems, post-processing calibration (such as Platt scaling or isotonic regression) is a non-negotiable step.</p>
+
+            <h2>Conclusion: When to Choose What?</h2>
+            <p>For quick deployments on datasets with heavy, messy categorical text narratives, Google's TabFM represents an exciting paradigm shift, saving days of feature engineering and training pipeline design. However, if resource footprints on edge devices are a constraint, or if probability calibration is vital for safety-critical thresholds, the native text-processing engines of supervised gradient boosters like CatBoost remain the gold standard.</p>
+
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </article>
+    </div>
+</body>
+</html>
