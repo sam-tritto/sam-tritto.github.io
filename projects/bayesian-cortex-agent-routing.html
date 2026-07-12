@@ -51,9 +51,10 @@
         <article class="post-content">
             <img src="BayesianCortex/logo.png" alt="BayesianCortex Logo" class="post-image" fetchpriority="high">
             
-            <p>AI agents are often built with rigid utility belts. When they are tasked with retrieving information or executing a command, they guess which tool or prompt to use based on static heuristics or expensive LLM-based reasoning. They do not learn from their mistakes, and they fall apart when downstream services fail silently or prompt templates begin to hallucinate. This is a massive engineering bottleneck in production environments.</p>
+            <h2>What is BayesianCortex? 🧠</h2>
+            <p>AI agents are built with rigid utility belts. When you ask them to do a task, they guess which tool or prompt to use based on static logic. They don't learn from their mistakes, and they easily fall apart when things fail silently. BayesianCortex changes that by introducing a dynamic learning loop and treats routing as a Contextual Multi-Armed Bandit using Thompson Sampling with exact conjugate updates.</p>
 
-            <p>I built <strong>BayesianCortex</strong> to resolve this bottleneck. BayesianCortex is a Python middleware library that treats routing as a <strong>Contextual Multi-Armed Bandit</strong> problem. By leveraging <strong>Thompson Sampling</strong> with closed-form conjugate updates and <strong>Linear/Hybrid Bandits</strong>, it dynamically routes queries to the most successful candidates, self-heals in real time, and operates locally with negligible latency.</p>
+            <p>I built <strong>BayesianCortex</strong> as a Python middleware library to resolve this bottleneck. By leveraging <strong>Thompson Sampling</strong> with closed-form conjugate updates and <strong>Linear/Hybrid Bandits</strong>, it dynamically routes queries to the most successful candidates, self-heals in real time, and operates locally with negligible latency.</p>
 
             <h2>The Routing Dilemma</h2>
             <p>In production-grade AI engineering, routing is the gateway to execution. Developers generally choose between three patterns:</p>
@@ -64,11 +65,12 @@
                 <li><strong>BayesianCortex Router:</strong> The system embeds the user prompt, runs it through a contextual bandit math engine, and computes the candidate with the highest expected success rate based on real-world execution telemetry.</li>
             </ul>
 
-            <p>By decoupling the routing decision from cloud LLMs and linking it directly to execution outcomes, BayesianCortex optimizes what I call <strong>The Golden Triad</strong> of agent interactions:</p>
+            <p>It manages what AI architects call "The Golden Triad" (and sub-agents) of how an agent interacts with the world, adapting on the fly:</p>
             <ul>
-                <li><strong>Tools (The Hands):</strong> Learning which specific action successfully retrieves data without throwing errors.</li>
-                <li><strong>Skills (The Mind):</strong> Tracking which specialized prompt template gets the best results, letting the agent shift away from underperforming instructions.</li>
-                <li><strong>Memory (The Records):</strong> Figuring out which document vault or retrieval strategy holds the true answer to a user's question.</li>
+                <li><strong>🛠️ Tools (The Hands):</strong> It learns which specific action (like a SQL database query vs. a web search API) successfully retrieves the data you need without throwing errors.</li>
+                <li><strong>💡 Skills (The Mind):</strong> It tracks which specialized prompt or workflow gets the best results, letting the agent ditch underperforming instructions that cause hallucinations.</li>
+                <li><strong>📚 Memory (The Records):</strong> It figures out exactly which document vault or retrieval strategy holds the true answer to a user's question, cutting down on token waste.</li>
+                <li><strong>🤖 Sub-agents (The Assistants):</strong> It dynamically orchestrates and routes queries to the most capable sub-agent or expert model in a hierarchical supervisor architecture.</li>
             </ul>
 
             <h2>The Core Math Engine</h2>
