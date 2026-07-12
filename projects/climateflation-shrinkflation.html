@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climateflation and Shrinkflation: Bayesian Causal Inference on Retail Food Prices</title>
+    <meta name="description" content="A comprehensive tutorial on using PyMC and Bayesian Causal Inference to estimate the lagged effect of climate shocks on food prices and package weights, and evaluate the 2023 Cocoa Crisis.">
+    <link rel="stylesheet" href="../style.css">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .math-block {
+            background: #f4f6fb;
+            border-left: 4px solid #0f766e;
+            border-radius: 4px;
+            padding: 1rem 1.5rem;
+            margin: 1.2rem 0;
+            font-family: 'Georgia', serif;
+            font-size: 1.05rem;
+            color: #222;
+            overflow-x: auto;
+        }
+        .inline-code {
+            background: #eef0f6;
+            border-radius: 3px;
+            padding: 0.1em 0.4em;
+            font-family: monospace;
+            font-size: 0.93em;
+            color: #333;
+            overflow-x: auto;
+        }
+        .callout {
+            background: #f0fdf4;
+            border-left: 4px solid #16a34a;
+            border-radius: 4px;
+            padding: 0.9rem 1.2rem;
+            margin: 1.2rem 0;
+        }
+        .callout-warn {
+            background: #fff8e1;
+            border-left: 4px solid #ffa000;
+        }
+        .callout strong { display: block; margin-bottom: 0.3rem; }
+        
+        pre {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 1rem 1.2rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            margin: 1.2rem 0;
+        }
+        code {
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+        }
+        pre code {
+            color: inherit;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            font-size: inherit;
+            border: none;
+        }
+        
+        table.data-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+            font-size: 0.92rem;
+        }
+        table.data-table th {
+            background: #0f766e;
+            color: #fff;
+            padding: 0.5rem 0.8rem;
+            text-align: left;
+        }
+        table.data-table td {
+            border: 1px solid #dde;
+            padding: 0.45rem 0.8rem;
+        }
+        table.data-table tr:nth-child(even) td { background: #f8fafc; }
+
+        figure {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        figcaption {
+            margin-top: 0.8rem;
+            font-size: 0.9rem;
+            color: #64748b;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>Climateflation &amp; Shrinkflation: Bayesian Causal Inference on Retail Food Prices</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <a href="https://github.com/sam-tritto/climateflation-and-shrinkflation" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                    <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+        <article class="post-content">
+            <h1>Climateflation &amp; Shrinkflation: Bayesian Causal Inference on Retail Food Prices</h1>
+            
+            <p>GitHub Repository: <a href="https://github.com/sam-tritto/climateflation-and-shrinkflation" target="_blank" rel="noopener noreferrer">https://github.com/sam-tritto/climateflation-and-shrinkflation</a></p>
+
+            <figure>
+                <img src="Climateflation and Shrinkflation/causal_dags.png" alt="Causal DAGs mapping out Bayesian Distributed Lag and Synthetic Control structures" fetchpriority="high">
+                <figcaption>Figure 1: Causal Directed Acyclic Graphs (DAGs) representing the two distinct analysis frameworks. The left panel shows how California statewide drought conditions causally affect tomato prices and packaging sizes through a delayed transmission line, controlling for transport, fertilizer, and logistics cost paths. The right panel represents the event study setup isolating the cocoa crisis impact on chocolate chip cookies using a donor pool of cocoa-free baking products.</figcaption>
+            </figure>
+
+            <h2>Introduction: Causal Pathways of Environmental Shocks</h2>
+            <p>Climate change does not just affect temperature baselines; it induces immediate volatility in our global food supply. When extreme weather disrupts agriculture, consumers experience two distinct market behaviors: <strong>Climateflation</strong>, which is the direct inflation of final shelf prices, and <strong>Shrinkflation</strong>, which is the stealth reduction of a product's size or weight while the sticker price remains fixed.</p>
+            
+            <p>Evaluating these behaviors presents significant econometric challenges. Shocks do not propagate instantly through agricultural supply networks. A drought in a key growing region takes months to deplete warehouse inventory, force contract adjustments, and finally trigger grocery store pricing or packaging changes. Furthermore, isolating a specific crop crisis (such as the West African cocoa crop collapse of late 2023) requires constructing credible counterfactuals that account for general macroeconomic inflation trends.</p>
+            
+            <p>In this project, I implemented two robust Bayesian causal inference methods using <strong>PyMC</strong> to study these market dynamics:
+            <ol>
+                <li>A <strong>Bayesian Distributed Lag Model</strong> to map the monthly delayed transmission of California statewide drought conditions onto retail tomato prices and simulated package sizes.</li>
+                <li>A <strong>Bayesian Synthetic Control Model</strong> to isolate the consumer cost premium resulting from the late 2023 Cocoa Crop Crisis on retail chocolate chip cookies.</li>
+            </ol>
+            </p>
+
+            <div class="callout">
+                <strong>Target Audience Guide</strong>
+                <ul>
+                    <li><strong>For Beginners:</strong> This tutorial showcases how Bayesian statistics allows us to enforce logical constraints, such as ensuring package weights only drop in response to sustained cost pressures or forcing weights in synthetic controls to sum to one, making the model parameters highly interpretable.</li>
+                    <li><strong>For Experienced Researchers:</strong> I detail how the random walk prior regularizes high-order lag coefficients to prevent collinearity issues, and evaluate the specific hazard of donor concentration (overfitting) when using a Dirichlet weight prior in small donor pools.</li>
+                </ul>
+            </div>
+
+            <h2>1. The Data and Where It Comes From</h2>
+            <p>I aggregated and aligned raw datasets from three official public records to isolate environmental and macroeconomic signals:</p>
+            
+            <h3>A. Federal Reserve Economic Data (FRED)</h3>
+            <p>To acquire consumer prices, I pulled regional monthly average retail price series from the U.S. Bureau of Labor Statistics (BLS) database via FRED. This includes the target outcome categories of <strong>Tomatoes</strong> (series <code>APU0000711111</code>) and <strong>Chocolate Chip Cookies</strong> (series <code>APU0000702421</code>), alongside five donor food products that do not require cocoa: <strong>White Bread</strong>, <strong>Wheat Flour</strong>, <strong>Grade A Eggs</strong>, <strong>Fresh Milk</strong>, and <strong>Ground Beef</strong>. I also collected <strong>Retail Gasoline Prices</strong> (average reg, series <code>GASREGW</code>) and the <strong>Fertilizer Materials Producer Price Index</strong> (PPI, series <code>WPU0652</code>) to control for major farm input and transport cost components.</p>
+
+            <h3>B. NOAA National Centers for Environmental Information</h3>
+            <p>For the climate treatment variable, I utilized the statewide Monthly Palmer Drought Severity Index (PDSI) for California, which is obtained from the NOAA nClimDiv database. The PDSI measures regional moisture deficits where values below zero represent dry anomalies and values above zero represent wet periods. California was selected because it represents the primary domestic source region for processing tomatoes in the United States.</p>
+
+            <h3>C. Federal Reserve Bank of New York</h3>
+            <p>To control for international logistics disruptions (such as shipping container rates or port delays that introduce independent retail inflation), I integrated the New York Fed's monthly Global Supply Chain Pressure Index (GSCPI).</p>
+
+            <figure>
+                <img src="Climateflation and Shrinkflation/historical_trends.png" alt="Historical aligned trends of tomato prices, package weights, California PDSI, and macroeconomic confounders">
+                <figcaption>Figure 2: Aligned historical series from 1998 to 2017. The top panel contrasts the retail tomato sticker price against simulated stepwise package sizes. The middle panel plots California statewide PDSI, indicating periods of severe drought (red) and wet spells (blue). The bottom panel tracks the key input cost confounders (gasoline, fertilizer, and global logistics bottlenecks).</figcaption>
+            </figure>
+
+            <h2>2. Simulating Stealth Shrinkflation</h2>
+            <p>Unlike sticker prices, which vary continuously on store shelves, package weights drop in discrete, stepwise increments. Manufacturers do not redesign their jar templates every month; they absorb costs until cumulative pressures exceed a critical threshold, then execute a structural downsizing.</p>
+            
+            <p>To model this sticky decision-making, I wrote a custom simulator in src/data_processor.py. The script builds a composite input cost pressure index by combining standardized fuel index values, fertilizer indices, and the negative Palmer Drought Severity Index. It then applies a six-month rolling average to represent stickiness, and reduces package size by 0.5 ounces only when cumulative pressure crosses a threshold. Crucially, the simulator locks in the new package size for a minimum cooldown period of 24 months before permitting another drop. This replicates the real-world manufacturing lag associated with factory line retooling.</p>
+
+            <pre><code class="language-python">def simulate_shrinkflation(df):
+    gas_norm = (df["retail_gas_price"] - df["retail_gas_price"].mean()) / df["retail_gas_price"].std()
+    fert_norm = (df["fertilizer_materials_index"] - df["fertilizer_materials_index"].mean()) / df["fertilizer_materials_index"].std()
+    drought_norm = -df["pdsi"] 
+    
+    cost_index = 0.4 * gas_norm + 0.3 * fert_norm + 0.3 * drought_norm
+    df["rolling_cost_pressure"] = cost_index.rolling(window=6, min_periods=1).mean()
+    
+    weights = []
+    current_weight = 16.0
+    cum_pressure = 0.0
+    cooldown = 0
+    
+    for idx, row in df.iterrows():
+        pressure = max(0, row["rolling_cost_pressure"] + 1.0)
+        if cooldown &gt; 0:
+            cooldown -= 1
+        elif pressure &gt; 1.2:
+            cum_pressure += (pressure - 1.2)
+            if cum_pressure &gt; 18.0 and current_weight &gt; 12.0:
+                current_weight -= 0.5
+                cum_pressure = 0.0
+                cooldown = 24 # 2-year manufacturing cooldown lock
+        weights.append(current_weight)
+        
+    df["package_weight_oz"] = weights
+    return df</code></pre>
+
+            <h2>3. Causal Framework 1: Bayesian Distributed Lag Model</h2>
+            <p>To estimate the delayed impact of climate anomalies on both tomato prices (\(Y_t\)) and simulated package weights (\(W_t\)), we must account for supply chain transmission times. If we run a naive regression of price on contemporary drought indicators, we risk missing the true effect entirely. I formulated a Distributed Lag Model where the outcome is regressed on the treatment variable across a range of historical monthly lags:</p>
+
+            <div class="math-block">
+                $$Y_t = \alpha + \sum_{l=0}^{L} \beta_l T_{t-l} + \gamma C_t + \epsilon_t$$
+            </div>
+
+            <p>where \(T_t\) is the California statewide Palmer Drought Severity Index and \(C_t\) represents the vector of contemporary confounders (gasoline price, fertilizer index, and GSCPI). In this analysis, I set \(L = 12\) months to trace a full seasonal crop cycle.</p>
+
+            <h3>The Random Walk Smoothing Prior</h3>
+            <p>Estimating 13 separate lag parameters (\(\beta_0\) through \(\beta_{12}\)) introduces severe multicollinearity because climate indices are highly correlated week-to-week. To prevent overfitting and resolve this issue, I placed a Random Walk prior on the lag coefficients. This prior acts as a temporal regularizer, forcing adjacent months to have similar values and guaranteeing a smooth effect curve:</p>
+
+            <div class="math-block">
+                $$\beta_0 \sim \mathcal{N}(0, 0.5)$$
+                $$\beta_l \sim \mathcal{N}(\beta_{l-1}, \sigma_\delta^2) \quad \text{for } l \ge 1$$
+            </div>
+
+            <p>The Python implementation of this PyMC model can be found in src/models.py:</p>
+
+            <pre><code class="language-python">with pm.Model() as self.model:
+    alpha = pm.Normal("alpha", mu=0, sigma=1)
+    
+    # Random Walk prior to enforce lag coefficient smoothness
+    sigma_delta = pm.Exponential("sigma_delta", lam=2.0)
+    beta_init = pm.Normal("beta_init", mu=0, sigma=0.5)
+    beta_steps = pm.Normal("beta_steps", mu=0, sigma=1, shape=self.max_lag)
+    
+    beta = pm.Deterministic(
+        "beta", 
+        pt.concatenate([[beta_init], beta_init + pt.cumsum(beta_steps * sigma_delta)])
+    )
+    
+    gamma = pm.Normal("gamma", mu=0, sigma=1, shape=num_confounders)
+    mu = alpha + pm.math.dot(X_lag_val, beta) + pm.math.dot(X_conf_val, gamma)
+    sigma_noise = pm.Exponential("sigma_noise", lam=1.0)
+    
+    pm.Normal("y_obs", mu=mu, sigma=sigma_noise, observed=y_val)</code></pre>
+
+            <figure>
+                <img src="Climateflation and Shrinkflation/distributed_lag_effects.png" alt="Estimated marginal lag coefficients on tomato price and package weight with 94% HDIs">
+                <figcaption>Figure 3: Estimated lag coefficients for retail tomato price (left, green) and package size (right, red) over a 12-month window. The shaded bands show the 94% highest density intervals (HDIs). The results reveal a statistically significant delayed drought effect peaking at lag 12.</figcaption>
+            </figure>
+
+            <h3>Distributed Lag Results Analysis</h3>
+            <p>The MCMC sampling results confirm the supply lag hypothesis:
+            <ul>
+                <li><strong>Delayed Climateflation:</strong> The Palmer Drought Severity Index coefficients on tomato prices are negative. Because a lower PDSI represents severe drought, these negative coefficients show that drought causes a price increase. The effect only becomes statistically significant at lags 11 and 12 (where the 94% HDIs strictly exclude zero), peaking at lag 12 with a mean effect of -0.0038 per PDSI point. This shows that the transmission line from agricultural soil moisture shocks to grocery retail checkout price requires a full year to propagate.</li>
+                <li><strong>Delayed Shrinkflation:</strong> Conversely, the lag coefficients on package size are positive. A positive coefficient indicates that wetter weather (higher PDSI) preserves package size, while drought (lower PDSI) drives package weight down. This effect is also concentrated at lags 11 and 12, peaking at lag 12 with a mean effect of 0.0318. Manufacturers delay product weight adjustments by roughly one year following soil moisture deficits, aligning closely with sticker price adjustments.</li>
+            </ul>
+            </p>
+
+            <h2>4. Causal Framework 2: Bayesian Synthetic Control</h2>
+            <p>In late 2023, extreme El Ni&ntilde;o weather and crop diseases collapsed cocoa harvests in West Africa, which yields 70% of the world's cocoa supply. Commodity futures prices surged by over 200%. To measure the direct causal impact of this agricultural crisis on retail shelves, I analyzed chocolate chip cookies, a category heavily dependent on cocoa. I compared cookies to a donor pool of cocoa-free baking staples (Bread, Flour, Eggs, Milk, and Ground Beef) around the October 2023 event date.</p>
+
+            <h3>The Bayesian Formulation and Dirichlet Constraint</h3>
+            <p>During the pre-treatment period (January 2021 to September 2023), I modeled the target cookie price series as a convex combination of donor items. This assumption is built directly into the model by placing a Dirichlet prior on the weight vector \(w\):</p>
+
+            <div class="math-block">
+                $$Y^{cookies}_{pre, t} \sim \mathcal{N}\left(\sum_{j=1}^{J} w_j X^{donors}_{pre, t, j}, \sigma^2\right)$$
+                $$w \sim \text{Dirichlet}(\mathbf{1}_J)$$
+            </div>
+
+            <p>The Dirichlet distribution mathematically guarantees that all donor weights are strictly non-negative (\(w_j \ge 0\)) and sum to exactly one (\(\sum w_j = 1\)). This ensures that the synthetic control represents a true weighted average of the donor pool, preventing extrapolation outside the support of the donor data. The pre-treatment weights were sampled using PyMC, and the resulting posterior distribution was projected into the post-event period (October 2023 to late 2025) to construct the counterfactual path.</p>
+
+            <figure>
+                <img src="Climateflation and Shrinkflation/donor_weights.png" alt="Weights assigned to the donor products in the synthetic control model">
+                <figcaption>Figure 4: Posterior weights assigned to the donor pool. The synthetic cookie is constructed almost entirely from milk prices (~97%), with negligible contributions from eggs, bread, and flour.</figcaption>
+            </figure>
+
+            <h3>Spurious Fit Risk: The Donor Concentration Bottleneck</h3>
+            <p>The donor weight distribution reveals a significant methodological challenge in synthetic control. The optimizer constructed the counterfactual "Synthetic Cookie" using Milk (97.1%), assigning less than 2% to eggs, bread, and flour combined. Because milk is not a primary physical ingredient in dry chocolate chip cookies, this represents a spurious correlation. The Bayesian optimizer selected milk because its pricing trend during the 2021-2023 inflationary period matched the cookie series closely, not because of a shared supply-chain link. This illustrates how synthetic control models can overfit to macro trends when utilizing small donor pools, highlighting the importance of evaluating donor composition alongside overall fit metrics.</p>
+
+            <figure>
+                <img src="Climateflation and Shrinkflation/synthetic_control_1.png" alt="Observed chocolate chip cookie prices vs. synthetic counterfactual and the pointwise causal effect">
+                <figcaption>Figure 5: The top panel compares observed cookie prices (teal) against the synthetic counterfactual (dashed red line) with 94% HDI bands. The bottom panel plots the pointwise causal effect, illustrating how cookie prices surged above the counterfactual following the October 2023 cocoa crop shock.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="Climateflation and Shrinkflation/synthetic_control_2.png" alt="Cumulative consumer cost premium paid for chocolate cookies due to the cocoa crisis">
+                <figcaption>Figure 6: Cumulative consumer checkout premium paid per pound of chocolate chip cookies after the October 2023 shock. By late 2025, consumers had paid an accumulated premium of over $1.50 per pound due to the cocoa crop crisis.</figcaption>
+            </figure>
+
+            <h3>Synthetic Control Causal Findings</h3>
+            <p>Despite the concentration of weights on milk, the causal divergence after October 2023 is stark:
+            <ul>
+                <li><strong>Pre-Event Fit:</strong> The synthetic control matches the actual cookie price curve closely from 2021 through late 2023, validating that the pre-event trend was well-reconstructed by the donor pool.</li>
+                <li><strong>Post-Event Divergence:</strong> Immediately following the crop collapse in October 2023, the observed cookie price climbs rapidly while the synthetic counterfactual remains flat. This gap represents the causal effect of the cocoa supply shock.</li>
+                <li><strong>Checkout Premium:</strong> The pointwise price divergence grew to roughly $0.20 per month. Summing these monthly effects yields a cumulative cost premium of <strong>over $1.50 per pound</strong> by late 2025, demonstrating the substantial consumer impact of localized agricultural shocks.</li>
+            </ul>
+            </p>
+
+            <h2>Conclusion and Technical Discussion</h2>
+            <p>This project illustrates the utility of Bayesian Causal Inference in estimating complex economic relationships:
+            <ul>
+                <li><strong>Bayesian Distributed Lags</strong> resolve the collinearity of temporal weather variables. By applying a Random Walk smoothing prior, I identified a consistent 11 to 12 month lag in the retail price and packaging weight response to California drought conditions.</li>
+                <li><strong>Bayesian Synthetic Controls</strong> provide a framework for evaluating industry-specific supply shocks. However, researchers must watch for donor concentration, where the optimizer overfits by mapping the target to a single donor that shares an inflation trend but lacks a physical input connection.</li>
+            </ul>
+            </p>
+
+            <h3>Expanding the Pipeline</h3>
+            <p>To implement this framework in a production environment:
+            <ul>
+                <li><strong>NOAA Web Service:</strong> Integrate the NOAA CDO web API using developer tokens to automate the retrieval of regional climate metrics like precipitation and temperature anomalies.</li>
+                <li><strong>FRED API:</strong> Automate consumer price index downloads using the Python <code>fredapi</code> package to scale these models across diverse retail product categories.</li>
+                <li><strong>Crowdsourced Shrinkflation Audits:</strong> Fusing these econometric models with crowdsourced retail scanner data (such as Open Food Facts) would allow for real-time tracking of brand size reduction strategies.</li>
+            </ul>
+            </p>
+
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </article>
+    </div>
+</body>
+</html>

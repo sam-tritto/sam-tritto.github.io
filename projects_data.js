@@ -7,6 +7,14 @@ window.PROJECTS_DATA = [
     "filename": "2026.html"
   },
   {
+    "title": "Climateflation & Shrinkflation: Bayesian Causal Inference on Retail Food Prices",
+    "slug": "climateflation-shrinkflation.html",
+    "snippet": "Estimating the lagged causal impact of climate change shocks on retail food prices and simulated package sizes using a Bayesian Distributed Lag Model in PyMC. Evaluates the consumer cost premium of the late 2023 Cocoa Crop Crisis on retail Chocolate Chip Cookies using a Bayesian Synthetic Control with a Dirichlet weight prior.",
+    "image": "Climateflation and Shrinkflation/distributed_lag_effects.png",
+    "filename": "climateflation-shrinkflation.html",
+    "date": "July 2026"
+  },
+  {
     "title": "Climate-Tourism Knowledge Graph: Analytics and Traversals in BigQuery",
     "slug": "climate-tourism-knowledge-graph.html",
     "snippet": "Building and querying a Climate-Tourism Knowledge Graph directly in Google BigQuery. Leveraging NOAA weather sensors, Google Trends, and OpenFlights to trace how extreme summer heatwaves causally redirect European tourism search interest and flight route capacity. Fits piecewise tipping point regressions and runs standard SQL/PGQ (GQL) queries.",
