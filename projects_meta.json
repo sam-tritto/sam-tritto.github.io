@@ -95,7 +95,7 @@
     "date": "June 2026"
   },
   {
-    "title": "ScrantonOS - Multi-Agent Cloud Command Center",
+    "title": "ScrantonOS: Dunder Mifflin GCP Agentic Cloud Command Center",
     "slug": "scranton-os.html",
     "snippet": "A persistent, multi-agent orchestration engine and web interface modeled after The Office staff, designed to handle cloud operations, system diagnostics, and Human-in-the-Loop workflows. Built using the Google Antigravity SDK, FastAPI, and WebSockets, with dual-persistence modes for local development and scalable production deployments.",
     "image": "ScrantonOS/thumbnail.webp",
