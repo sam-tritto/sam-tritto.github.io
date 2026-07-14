@@ -201,27 +201,70 @@ tabfm_clf.fit(X_context, y_context)
 # Generate zero-shot probabilities
 tabfm_probs = tabfm_clf.predict_proba(X_test)[:, 1]</code></pre>
 
-            <h3>Supervised CatBoost Classifier</h3>
-            <p>For CatBoost, I set up a validation split to perform early stopping and prevent overfitting on the small localized dataset, declaring the <code>Activity</code> feature as raw text:</p>
+            <h3>Supervised CatBoost Classifier &amp; Early Stopping</h3>
+            <p>To train the supervised CatBoost Classifier without overfitting on this small, localized dataset, I implemented an early stopping strategy. First, I performed an 80/20 train-validation split on the training set to monitor the model's generalization performance and find the optimal iteration count without data leakage. Once the validation loss (measured in AUC) ceased to improve for 100 consecutive rounds, the training stopped. Finally, I re-trained the model on the full training set (utilizing 100% of the available training data) up to that optimal iteration count.</p>
+            <p>Here is the implementation of the validation split and early stopping configuration, declaring the <code>Activity</code> feature as raw text:</p>
 
             <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code>from catboost import CatBoostClassifier, Pool
+from sklearn.model_selection import train_test_split
 
-# Identify raw text columns vs standard categoricals
+# Declare raw text columns and categoricals
 text_cols = ['Activity']
 cat_cols = ['Time of Day', 'Month', 'Cleaned Species']
 
-# Create training pool with native text processing
-train_pool = Pool(X_train, y_train, cat_features=cat_cols, text_features=text_cols)
+# Perform an 80/20 train-validation split on the training set to prevent leakage
+X_train_sub, X_val, y_train_sub, y_val = train_test_split(
+    X_train, y_train, test_size=0.2, random_state=42, stratify=y_train
+)
+
+train_sub_pool = Pool(X_train_sub, y_train_sub, cat_features=cat_cols, text_features=text_cols)
+val_pool = Pool(X_val, y_val, cat_features=cat_cols, text_features=text_cols)
 test_pool = Pool(X_test, cat_features=cat_cols, text_features=text_cols)
 
+# Train with early stopping (100 rounds) to identify the optimal iteration
+cat_model_es = CatBoostClassifier(
+    iterations=1000,
+    learning_rate=0.05,
+    eval_metric='AUC',
+    random_seed=42,
+    early_stopping_rounds=100,
+    verbose=100
+)
+
+# Fit on sub-train and evaluate on the validation pool
+cat_model_es.fit(train_sub_pool, eval_set=[train_sub_pool, val_pool])
+
+best_iteration = cat_model_es.get_best_iteration()
+best_val_score = cat_model_es.get_best_score()['validation_1']['AUC']</code></pre>
+
+            <p>The console output shows the overfitting detector stopping training at iteration 110, shrinking the model to the first 111 iterations:</p>
+            <pre style="background:#1e1e1e;color:#d4d4d4;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;border-left:4px solid #f44336;"><code>🐱 Training CatBoost with Early Stopping (100 rounds)...
+0:	test: 0.7678280	test1: 0.6653439	best: 0.6653439 (0)	total: 3.94ms	remaining: 3.94s
+100:	test: 0.9185266	test1: 0.6600529	best: 0.6679894 (68)	total: 247ms	remaining: 2.2s
+200:	test: 0.9404827	test1: 0.6309524	best: 0.6812169 (110)	total: 428ms	remaining: 1.7s
+Stopped by overfitting detector  (100 iterations wait)
+
+bestTest = 0.6812169312
+bestIteration = 110
+
+Shrink model to first 111 iterations.
+
+✅ Early stopping stopped at best iteration: 110 (Val AUC: 0.6812)</code></pre>
+
+            <p>With the optimal iteration count (111) established, I re-trained the final model on the complete training set (combining both the sub-train and validation sets) to maximize the training data footprint before evaluating on the held-out test set:</p>
+            <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code># Re-train the final model on the full training set for 111 iterations
+train_pool = Pool(X_train, y_train, cat_features=cat_cols, text_features=text_cols)
+
 cat_model = CatBoostClassifier(
-    iterations=111,
+    iterations=best_iteration + 1,  # 111 iterations
     learning_rate=0.05,
     eval_metric='AUC',
     random_seed=42,
     verbose=False
 )
 cat_model.fit(train_pool)
+
+# Predict probabilities on the test set
 cat_probs = cat_model.predict_proba(test_pool)[:, 1]</code></pre>
 
             <h2>5. The Showdown Results</h2>
