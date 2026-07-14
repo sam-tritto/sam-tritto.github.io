@@ -257,7 +257,7 @@ Shrink model to first 111 iterations.
                 <figcaption style="margin-top: 0.6rem; font-size: 0.9rem; color: #666; font-style: italic;">Figure 1: CatBoost learning curves (AUC vs iterations) indicating validation peak and subsequent early stopping.</figcaption>
             </figure>
 
-            <p>With the optimal iteration count (111) established, I re-trained the final model on the complete training set (combining both the sub-train and validation sets) to maximize the training data footprint before evaluating on the held-out test set:</p>
+            <p>Admitingly this is not the best learning curve I've seen, but it demonstrates the principle. You can see the test set struggleing to make ground, but it eventually peaks well enough. With the optimal iteration count (111) established, I re-trained the final model on the complete training set (combining both the sub-train and validation sets) to maximize the training data footprint before evaluating on the held-out test set:</p>
             <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code># Re-train the final model on the full training set for 111 iterations
 train_pool = Pool(X_train, y_train, cat_features=cat_cols, text_features=text_cols)
 
