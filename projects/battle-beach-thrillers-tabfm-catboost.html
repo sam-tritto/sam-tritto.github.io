@@ -251,6 +251,12 @@ Shrink model to first 111 iterations.
 
 ✅ Early stopping stopped at best iteration: 110 (Val AUC: 0.6812)</code></pre>
 
+            <p>The following learning curves show how training AUC on the sub-train set continues to rise toward overfitting, while the validation AUC peaks at iteration 110 before degrading. Early stopping halts training and shrinks the model to prevent leakage and overfitting:</p>
+            <figure style="margin: 1.5rem 0; text-align: center;">
+                <img src="Battle of the Beach Thrillers/learning_curve.png" alt="CatBoost training vs validation AUC learning curves" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <figcaption style="margin-top: 0.6rem; font-size: 0.9rem; color: #666; font-style: italic;">Figure 1: CatBoost learning curves (AUC vs iterations) indicating validation peak and subsequent early stopping.</figcaption>
+            </figure>
+
             <p>With the optimal iteration count (111) established, I re-trained the final model on the complete training set (combining both the sub-train and validation sets) to maximize the training data footprint before evaluating on the held-out test set:</p>
             <pre style="background:#1a1d2e;color:#e2e8f0;padding:1rem 1.2rem;border-radius:6px;overflow-x:auto;font-size:0.88rem;line-height:1.55;"><code># Re-train the final model on the full training set for 111 iterations
 train_pool = Pool(X_train, y_train, cat_features=cat_cols, text_features=text_cols)
