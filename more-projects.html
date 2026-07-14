@@ -42,6 +42,7 @@
                 <button class="cat-btn" data-category="ai">GenAI & Agents</button>
                 <button class="cat-btn" data-category="mlops">MLOps</button>
                 <button class="cat-btn" data-category="bayesian">Bayesian</button>
+                <button class="cat-btn" data-category="quantum">Quantum</button>
                 <button class="cat-btn" data-category="music">Music Analytics</button>
                 <button class="cat-btn" data-category="forecast">Forecasting</button>
                 <button class="cat-btn" data-category="simulation">Simulation</button>
@@ -89,6 +90,9 @@
                 }
                 if (lowerTitle.includes('bayesian')) {
                     tags.push({ id: 'bayesian', label: 'Bayesian' });
+                }
+                if (lowerTitle.includes('quantum')) {
+                    tags.push({ id: 'quantum', label: 'Quantum' });
                 }
                 if (lowerTitle.includes('spotify') || lowerTitle.includes('song') || /\bband(s)?\b/.test(lowerTitle) || lowerTitle.includes('takeover') || lowerTitle.includes('marley') || lowerTitle.includes('music') || lowerTitle.includes('nelson') || lowerTitle.includes('podcast')) {
                     tags.push({ id: 'music', label: 'Music Analytics' });
