@@ -7,6 +7,14 @@ window.PROJECTS_DATA = [
     "filename": "2026.html"
   },
   {
+    "title": "Quantum Bayesian Inference: Quantum Computing for Data Scientists",
+    "slug": "quantum-bayesian-inference.html",
+    "snippet": "A theoretical exploration of the mathematical connection between classical Bayesian statistics and quantum mechanics. Maps a Bernoulli prior to a single qubit state, translates data interactions to Kraus operators, and derives Bayes' Theorem directly from quantum state collapse. Examines Quantum Bayesian Networks (QBNs), quantum posterior sampling alternatives to MCMC, and quantum interference.",
+    "image": "Quantum Bayesian Inference/bayes_theorem_qubits.png",
+    "filename": "quantum-bayesian-inference.html",
+    "date": "July 2026"
+  },
+  {
     "title": "Climateflation & Shrinkflation: Bayesian Causal Inference on Retail Food Prices",
     "slug": "climateflation-shrinkflation.html",
     "snippet": "Estimating the lagged causal impact of climate change shocks on retail food prices and simulated package sizes using a Bayesian Distributed Lag Model in PyMC. Evaluates the consumer cost premium of the late 2023 Cocoa Crop Crisis on retail Chocolate Chip Cookies using a Bayesian Synthetic Control with a Dirichlet weight prior.",
