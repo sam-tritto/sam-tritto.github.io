@@ -116,7 +116,7 @@
             </figure>
 
             <h2>Introduction: Probability Meets Superposition</h2>
-            <p>Quantum computing is often introduced through the lens of physics; however, for data scientists, it is more useful to view it as a generalized framework for probability and linear algebra. In this post, I will explore the direct mathematical parallels between classical Bayesian statistics and the mechanics of quantum state transformation. We will bypass the code for now and focus purely on the theoretical foundation that connects these two fields.</p>
+            <p>Quantum computing is often introduced through the lens of physics; however, for data scientists, it is more useful to view it as a generalized framework for probability and linear algebra. In this post, I will explore the direct mathematical parallels between classical Bayesian statistics and the mechanics of quantum state transformation. I will bypass the code for now and focus purely on the theoretical foundation that connects these two fields.</p>
 
             <h2>1. Mapping the Prior to a Qubit</h2>
             <p>In classical statistics, a binary prior is just a Bernoulli distribution for a random variable \(X \in \{0, 1\}\). You assign a single probability parameter \(p\):</p>
@@ -125,21 +125,21 @@
                 $$P(X = 0) = 1 - p$$
             </div>
 
-            <p>In quantum computing, we represent this using a single qubit state, \(\vert{}\psi\rangle\). A qubit lives in a superposition of the basis states \(\vert{}0\rangle\) and \(\vert{}1\rangle\):</p>
+            <p>In quantum computing, I represent this using a single qubit state, \(\vert{}\psi\rangle\). A qubit lives in a superposition of the basis states \(\vert{}0\rangle\) and \(\vert{}1\rangle\):</p>
             <div class="math-block">
                 $$\vert{}\psi\rangle = \alpha\vert{}0\rangle + \beta\vert{}1\rangle$$
             </div>
 
             <p>The complex numbers \(\alpha\) and \(\beta\) are <strong>probability amplitudes</strong>. The Born Rule dictates that the actual probability of the qubit collapsing into a 0 or 1 upon measurement is the square of these amplitudes (\(\vert{}\alpha\vert{}^2\) and \(\vert{}\beta\vert{}^2\)).</p>
 
-            <p>To map your classical prior into this qubit, we simply set the amplitudes to the square roots of your prior probabilities (assuming real numbers for a moment):</p>
+            <p>To map a classical prior into this qubit, I set the amplitudes to the square roots of the prior probabilities (assuming real numbers for a moment):</p>
             <div class="math-block">
                 $$\vert{}\psi_{\text{prior}}\rangle = \sqrt{1-p}\vert{}0\rangle + \sqrt{p}\vert{}1\rangle$$
             </div>
 
             <figure>
                 <img src="Quantum Bayesian Inference/mapping_prior_qubit.png" alt="Infographic showing classical Bernoulli prior mapping to a quantum qubit state on the Bloch Sphere" loading="lazy">
-                <figcaption>Figure 2: Mapping classical Bernoulli prior probabilities to the quantum state space. By taking the square roots of the classical prior probabilities, we assign them as amplitudes on the orthogonal basis states of the qubit.</figcaption>
+                <figcaption>Figure 2: Mapping classical Bernoulli prior probabilities to the quantum state space. By taking the square roots of the classical prior probabilities, I assign them as amplitudes on the orthogonal basis states of the qubit.</figcaption>
             </figure>
 
             <h2>2. Introducing the Likelihood (The Data)</h2>
@@ -149,19 +149,19 @@
                 <li>\(P(D \mid 1)\): The probability of seeing this data if the true state is 1.</li>
             </ul>
 
-            <p>In the quantum world, interacting with data is modeled as a measurement operator (specifically, a Kraus operator) acting on the qubit. We can construct a "Data Operator" \(M_D\) using our classical likelihoods:</p>
+            <p>In the quantum world, interacting with data is modeled as a measurement operator (specifically, a Kraus operator) acting on the qubit. I can construct a "Data Operator" \(M_D\) using the classical likelihoods:</p>
             <div class="math-block">
                 $$M_D = \begin{pmatrix} \sqrt{P(D \mid 0)} & 0 \\ 0 & \sqrt{P(D \mid 1)} \end{pmatrix}$$
             </div>
 
-            <p>When this operator acts on our prior quantum state, it scales the amplitudes by their respective likelihoods:</p>
+            <p>When this operator acts on the prior quantum state, it scales the amplitudes by their respective likelihoods:</p>
             <div class="math-block">
                 $$M_D \vert{}\psi_{\text{prior}}\rangle = \sqrt{P(D \mid 0)}\sqrt{1-p}\vert{}0\rangle + \sqrt{P(D \mid 1)}\sqrt{p}\vert{}1\rangle$$
             </div>
 
             <h2>3. The Belief Update (Quantum Collapse)</h2>
-            <p>Right now, \(M_D \vert{}\psi_{\text{prior}}\rangle\) is an unnormalized quantum state. To turn it back into a valid physical state, we have to normalize it so that the total probability equals 1.</p>
-            <p>To find the normalization factor, we calculate the total squared length of this new vector:</p>
+            <p>Right now, \(M_D \vert{}\psi_{\text{prior}}\rangle\) is an unnormalized quantum state. To turn it back into a valid physical state, I must normalize it so that the total probability equals 1.</p>
+            <p>To find the normalization factor, I calculate the total squared length of this new vector:</p>
             <div class="math-block">
                 $$\text{Norm}^2 = \left(\sqrt{P(D \mid 0)}\sqrt{1-p}\right)^2 + \left(\sqrt{P(D \mid 1)}\sqrt{p}\right)^2$$
                 $$\text{Norm}^2 = P(D \mid 0)(1-p) + P(D \mid 1)p$$
@@ -169,7 +169,7 @@
 
             <p>If you look closely at that denominator, <strong>it is exactly the classical evidence (marginal likelihood), \(P(D)\)</strong>, from Bayes' theorem!</p>
 
-            <p>Now we divide by the square root of the evidence to get our fully normalized <strong>posterior quantum state</strong>:</p>
+            <p>Now I divide by the square root of the evidence to get the fully normalized <strong>posterior quantum state</strong>:</p>
             <div class="math-block">
                 $$\vert{}\psi_{\text{posterior}}\rangle = \frac{\sqrt{P(D \mid 0)(1-p)}}{\sqrt{P(D)}}\vert{}0\rangle + \frac{\sqrt{P(D \mid 1)p}}{\sqrt{P(D)}}\vert{}1\rangle$$
             </div>
@@ -194,16 +194,16 @@
 
             <p>Because of this phase variable, quantum updates allow for <strong>constructive and destructive interference</strong>. While a classical Bayesian update can only shift probabilities up or down smoothly, a quantum Bayesian model can use phase rotations to cancel out impossible hypotheses entirely or amplify hidden correlations vastly faster than a classical computer calculating joint probability tables.</p>
 
-            <p>The marriage of Bayesian statistics and quantum mechanics is incredibly natural. In fact, many physicists view quantum mechanics itself as a generalized theory of probability and inference. Because qubits are inherently probabilistic objects, we do not have to force "uncertainty" into the system; it is built into the hardware.</p>
+            <p>The marriage of Bayesian statistics and quantum mechanics is incredibly natural. In fact, many physicists view quantum mechanics itself as a generalized theory of probability and inference. Because qubits are inherently probabilistic objects, I do not have to force "uncertainty" into the system; it is built into the hardware.</p>
 
             <h2>Bayesian Inference on Composite Quantum Systems</h2>
-            <p>We can also apply Bayes' Theorem directly to analyze composite quantum systems to determine whether subsystems are statistically independent or entangled. This provides a direct proof of quantum correlation.</p>
+            <p>I can also apply Bayes' Theorem directly to analyze composite quantum systems to determine whether subsystems are statistically independent or entangled. This provides a direct proof of quantum correlation.</p>
 
             <p>Consider a composite system, \(AB\), made up of two distinct two-state subsystems: subsystem \(A\) (which can be in states \(\vert{}+\rangle\) and \(\vert{}-\rangle\)) and subsystem \(B\) (which can be in states \(\vert{}\uparrow\rangle\) and \(\vert{}\downarrow\rangle\)).</p>
             
             <p>If the two subsystems are independent, the combined state of the system is written as a simple product of their individual states: \(\vert{}AB\rangle = \vert{}A\rangle\vert{}B\rangle\). Expanding this mathematically yields a linear combination of all possible outcomes (e.g., \(a_+b_\uparrow \vert{}+\rangle\vert{}\uparrow\rangle\)). The coefficients represent the probability amplitudes for those combined events occurring.</p>
 
-            <p>We can use Bayes' Theorem to find the conditional probability of one subsystem's state based on the other. For example, what is the probability of finding subsystem \(B\) to be "up" (\(\vert{}\uparrow\rangle\)) given that subsystem \(A\) is measured to be "plus" (\(\vert{}+\rangle\))?</p>
+            <p>I can use Bayes' Theorem to find the conditional probability of one subsystem's state based on the other. For example, what is the probability of finding subsystem \(B\) to be "up" (\(\vert{}\uparrow\rangle\)) given that subsystem \(A\) is measured to be "plus" (\(\vert{}+\rangle\))?</p>
 
             <p>Using Bayes' Theorem, this conditional probability is written as:</p>
             <div class="math-block">
@@ -220,47 +220,188 @@
                 $$p(B; \uparrow \mid A; +) = \frac{1}{1 + \vert{}b_\downarrow / b_\uparrow\vert{}^2}$$
             </div>
 
-            <p>Notice that the right side of this final equation makes absolutely no reference to subsystem \(A\). By using Bayes' Theorem, we mathematically prove that if a composite quantum system is in a product state, the probability of finding \(B\) in a specific state is <strong>entirely independent</strong> of the state of \(A\).</p>
+            <p>Notice that the right side of this final equation makes absolutely no reference to subsystem \(A\). By using Bayes' Theorem, I mathematically prove that if a composite quantum system is in a product state, the probability of finding \(B\) in a specific state is <strong>entirely independent</strong> of the state of \(A\).</p>
 
             <p>Conversely, if the two subsystems were <strong>entangled</strong>, meaning their combined state could not be neatly factored into a product of \(\vert{}A\rangle\) and \(\vert{}B\rangle\), Bayes' Theorem would reveal a very different reality. The conditional probability of \(B\) would depend on the state of \(A\), illustrating the quintessential quantum phenomenon where measuring one subsystem instantly correlates with the other.</p>
 
-            <h2>Advanced "Bayesian Flavors" of Quantum Algorithms</h2>
-            <p>If you want to specialize at this intersection, several powerful hybrid models are actively being developed and deployed:</p>
+            <h2>Implementing Quantum Bayes in Code</h2>
+            <p>To transition from abstract mathematical formulation to physical qubits, I implemented these systems in Python. I used <strong>PennyLane</strong>, a quantum machine learning library designed for differentiable quantum circuits, to simulate the quantum states and gate operations.</p>
 
-            <h3>1. Quantum Bayesian Networks (QBNs)</h3>
-            <p>In classical data science, a Bayesian Network uses a Directed Acyclic Graph (DAG) and Conditional Probability Tables (CPTs) to map out dependencies. A QBN replaces those rigid classical probabilities with quantum probability amplitudes.</p>
-            <ul>
-                <li><strong>The Superpower:</strong> Because qubits can exist in a superposition, a QBN can model and process vastly more simultaneous hidden states than a classical network.</li>
-                <li><strong>The Quantum Edge:</strong> It uses quantum entanglement to model complex, non-local correlations and causal links that completely defy classical probability calculus.</li>
-                <li><strong>Where to find it:</strong> IBM's <span class="inline-code">qiskit-machine-learning</span> framework includes a native <span class="inline-code">QBayesian</span> module designed specifically to implement quantum Bayesian inference algorithms.</li>
-            </ul>
+            <h3>1. Single Variable Bayesian Update</h3>
+            <p>For a basic two-qubit Bayesian update, Qubit 0 represents the Hypothesis and Qubit 1 represents the Data. The Born rule dictates that the probability of measuring a qubit state is the square of its amplitude. Therefore, I convert the prior and conditional probabilities into rotation angles using the formula \(\theta = 2 \arcsin(\sqrt{P})\). This maps the classical probabilities directly onto the amplitude coefficients of the qubits.</p>
+            
+            <p>I initialize the Hypothesis qubit with the prior using a \(Y\)-rotation gate, then apply controlled \(Y\)-rotations (CRY) to encode the likelihoods on the Data qubit based on the state of the Hypothesis qubit:</p>
 
-            <h3>2. Quantum Posterior Sampling (The MCMC Alternative)</h3>
-            <p>If you have ever trained complex Bayesian models, you know that calculating the denominator in Bayes' theorem (the marginal likelihood) is notoriously expensive. This forces classical data scientists to rely on slow, sequential Markov Chain Monte Carlo (MCMC) or Gibbs sampling.</p>
-            <p>Quantum computing approaches this via <strong>Amplitude Encoding</strong>:</p>
-            <ul>
-                <li><strong>How it works:</strong> Algorithms allow you to encode a discretized posterior distribution directly into the probability amplitudes of an \(n\)-qubit state.</li>
-                <li><strong>The Edge:</strong> Instead of running millions of sequential classical iterations to explore a distribution, you prepare the quantum state and measure it. The system instantly collapses to yield a sample directly from the posterior distribution, opening a pathway to bypass classical MCMC bottlenecks entirely.</li>
-            </ul>
+<pre><code class="language-python"># Rotation angle calculations
+theta_prior = 2 * np.arcsin(np.sqrt(p_prior))
+theta_lik_0 = 2 * np.arcsin(np.sqrt(p_d_given_0))
+theta_lik_1 = 2 * np.arcsin(np.sqrt(p_d_given_1))
 
-            <h3>3. Quantum Annealing Variational Bayes (QAVB)</h3>
-            <p>Variational Bayes (VB) is a staple for estimating parameters and unobserved hidden variables in complex generative models. However, classical VB algorithms are notorious for getting trapped in local minima, even when using tricks like deterministic annealing.</p>
-            <ul>
-                <li><strong>The Quantum Flavor:</strong> QAVB swaps out classical optimization for quantum annealing.</li>
-                <li><strong>The Edge:</strong> By leveraging quantum tunneling, the algorithm can literally "tunnel" through the high-energy mathematical barriers of local minima that trip up classical algorithms. This allows it to find the true global optimum of the posterior distribution much more reliably.</li>
-            </ul>
+dev = qml.device("default.qubit", wires=2)
 
-            <h3>4. Bayesian Optimization for Hybrid Quantum Learning</h3>
-            <p>This flips the script: instead of using quantum to help Bayes, it uses classical Bayesian methods to fix a massive quantum problem.</p>
-            <p>Training a Variational Quantum Circuit or a Quantum Neural Network (QNN) requires tuning continuous parameters (like the rotation angles of quantum gates). Because physical quantum hardware is noisy and expensive to sample, we cannot afford to run millions of gradient steps.</p>
-            <ul>
-                <li><strong>How it applies:</strong> Data scientists use classical Bayesian Optimization to build a probabilistic surrogate model of the quantum circuit's objective function. This allows you to train complex quantum machine learning models using a fraction of the hardware runs required by traditional gradient descent.</li>
-            </ul>
+@qml.qnode(dev)
+def quantum_bayes_circuit():
+    # Step A: Initialize the Hypothesis qubit (Wire 0) with the Prior
+    qml.RY(theta_prior, wires=0)
+    
+    # Step B: Encode Likelihood if Hypothesis is 0
+    qml.X(0)
+    qml.CRY(theta_lik_0, wires=[0, 1])
+    qml.X(0)
+    
+    # Step C: Encode Likelihood if Hypothesis is 1
+    qml.CRY(theta_lik_1, wires=[0, 1])
+    
+    return qml.probs(wires=[0, 1])</code></pre>
+
+            <p>After running this circuit, I get the joint probability distribution over the states \(\vert{}00\rangle\), \(\vert{}01\rangle\), \(\vert{}10\rangle\), and \(\vert{}11\rangle\). To calculate the posterior probability of the hypothesis being true given that the data was observed, I post-select on the states where the Data qubit is in state \(\vert{}1\rangle\). This matches the classical Bayes' update exactly, as shown in the simulation results below.</p>
 
             <figure>
-                <img src="Quantum Bayesian Inference/classical_vs_quantum_networks.png" alt="A technical comparison infographic contrasting Classical Bayesian Networks with Quantum Bayesian Networks (QBNs)" loading="lazy">
-                <figcaption>Figure 4: Technical comparison between Classical Bayesian Networks (using DAGs and CPTs with real-valued probabilities) and Quantum Bayesian Networks (using superposition, phase circles, interference, and entanglement).</figcaption>
+                <img src="Quantum Bayesian Inference/single_var_bayes_update.png" alt="Bar charts comparing quantum joint probabilities and verifying classical vs quantum posteriors" loading="lazy">
+                <figcaption>Figure 4: Single variable update simulation. Left: The joint probability tensor of the Hypothesis and Data qubits, highlighting post-selected states where Data is 1. Right: Quantum and classical posteriors align perfectly at 0.7742.</figcaption>
             </figure>
+
+            <h3>2. Quantum Naive Bayes Classifier</h3>
+            <p>A major advantage of quantum modeling is scalability. In classical machine learning, a Naive Bayes model assumes that all features are conditionally independent given the class label, forcing the multiplication of several independent likelihoods together. In a quantum circuit, I can map this network structure directly onto physical qubits by leveraging quantum entanglement.</p>
+            
+            <p>The target class \(Y\) is mapped to Qubit 0, while each feature \(X_i\) is mapped to its own qubit (Qubit 1 for \(X_1\), Qubit 2 for \(X_2\)). Using controlled-rotation gates, the features condition themselves on the target class state simultaneously, populating the full joint probability tensor in a single circuit run:</p>
+
+<pre><code class="language-python">@qml.qnode(dev)
+def quantum_naive_bayes():
+    # Step A: Load the Prior into the Target qubit (Y)
+    qml.RY(theta_prior, wires=0)
+    
+    # Step B: Condition features on Y = 0
+    qml.X(0)
+    qml.CRY(theta_x1_y0, wires=[0, 1])  # X1 given Y=0
+    qml.CRY(theta_x2_y0, wires=[0, 2])  # X2 given Y=0
+    qml.X(0) # Flip back
+    
+    # Step C: Condition features on Y = 1
+    qml.CRY(theta_x1_y1, wires=[0, 1])  # X1 given Y=1
+    qml.CRY(theta_x2_y1, wires=[0, 2])  # X2 given Y=1
+    
+    return qml.probs(wires=[0, 1, 2])</code></pre>
+
+            <p>To infer the posterior \(P(Y=1 \mid X_1=1, X_2=1)\), I run the circuit and post-select on the outcomes where both feature qubits are observed as true, corresponding to the states \(\vert{}011\rangle\) (index 3) and \(\vert{}111\rangle\) (index 7). The normalized ratio yields the correct classification probability.</p>
+
+            <figure>
+                <img src="Quantum Bayesian Inference/naive_bayes_probs.png" alt="Joint probabilities for Naive Bayes and posterior verification" loading="lazy">
+                <figcaption>Figure 5: Naive Bayes simulation. Left: The joint probabilities of the 3-qubit system, highlighting the post-selected states. Right: The classification posterior converges to 0.9492.</figcaption>
+            </figure>
+
+            <h3>3. Quantum Bayesian Networks (QBNs)</h3>
+            <p>A Quantum Bayesian Network generalizes Naive Bayes by permitting arbitrary directed acyclic dependency structures. To illustrate this, I implemented the classical Rain-Sprinkler-Wet Grass model on a 3-qubit system. Qubit 0 represents Rain (\(R\)), Qubit 1 represents the Sprinkler (\(S\)), and Qubit 2 represents the Wet Grass (\(W\)).</p>
+            
+            <p>Experienced researchers will note that conditioning a node on multiple parents requires multi-controlled gates. I used the multi-controlled rotation feature in PennyLane to condition the Wet Grass qubit on the joint states of both Rain and Sprinkler:</p>
+
+<pre><code class="language-python"># Node R (Rain)
+qml.RY(theta_r, wires=0)
+
+# Node S (Sprinkler) conditioned on R
+qml.X(0)
+qml.CRY(theta_s_r0, wires=[0, 1])
+qml.X(0)
+qml.CRY(theta_s_r1, wires=[0, 1])
+
+# Node W (Wet Grass) conditioned on R and S
+# State |00&gt;: No Rain, No Sprinkler
+qml.X(0)
+qml.X(1)
+qml.ctrl(qml.RY, control=[0, 1])(theta_w_00, wires=2)
+qml.X(1)
+qml.X(0)</code></pre>
+
+            <p>This layout creates a highly structured way to represent joint distributions. By post-selecting states where the Wet Grass qubit is \(\vert{}1\rangle\), I can compute the posterior probability that it rained given that the grass is wet. This demonstrates how a QBN can model causal structures directly within the quantum state space.</p>
+
+            <figure>
+                <img src="Quantum Bayesian Inference/classical_vs_quantum_networks.png" alt="Infographic comparing classical DAGs and CPTs with quantum state superposition and phase nodes" loading="lazy">
+                <figcaption>Figure 6: Structural comparison. Left: Classical Bayesian Network with conditional probability tables. Right: Quantum Bayesian Network utilizing qubit superposition, multi-controlled phase rotations, and entanglement.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="Quantum Bayesian Inference/qbn_probabilities.png" alt="Joint probability tensor for the Rain-Sprinkler-Grass network and posterior verification" loading="lazy">
+                <figcaption>Figure 7: Quantum Bayesian Network simulation. Left: The joint probability tensor of the 3-qubit system, highlighting states where Wet Grass is 1. Right: Quantum and classical posteriors align perfectly at 0.4131.</figcaption>
+            </figure>
+
+            <h3>4. Adaptive Bayesian Metrology (Phase Estimation)</h3>
+            <p>Quantum sensors use quantum mechanics to achieve high-precision measurements of physical parameters. In this example, I implemented an adaptive algorithm to estimate an unknown phase \(\phi \in [0, 2\pi]\) using a single-qubit sensor. The sensor state is initialized in superposition, shifted by the true unknown phase \(\phi_{\text{true}}\), adjusted by a classical control phase offset \(-\theta\), and measured in the \(X\)-basis.</p>
+            
+            <p>For beginners, the phase offset acts as a tuning dial. For experienced researchers, the choice of setting the control phase \(\theta_t = \phi_{\text{est}} + \delta_t\) (where \(\delta_t \in \{0, \pi/2\}\) is alternated) is vital; it maximizes measurement sensitivity by evaluating near the steepest point of the cosine likelihood function, while breaking phase symmetry to resolve the sign ambiguity of the cosine argument.</p>
+            
+            <p>In the simulation, I model the uncertainty over \(\phi\) using a discrete grid of 100 candidate phases. At each step, I run the quantum circuit, draw a single-shot binary measurement, and use Bayes' rule classically to update the grid distribution:</p>
+
+<pre><code class="language-python">@qml.qnode(dev_metrology)
+def metrology_circuit(phi_true, theta):
+    qml.Hadamard(wires=0)            # Prepare |+&gt; state
+    qml.PhaseShift(phi_true, wires=0) # Apply unknown phase shift
+    qml.PhaseShift(-theta, wires=0)   # Apply classical feedback phase adjustment
+    qml.Hadamard(wires=0)            # Measure in X basis
+    return qml.probs(wires=0)
+
+# Inside the adaptive update loop:
+if m_t == 0:
+    likelihood = (1 + np.cos(phi_grid - theta_t)) / 2
+else:
+    likelihood = (1 - np.cos(phi_grid - theta_t)) / 2
+    
+p_phi = likelihood * p_phi
+p_phi /= np.sum(p_phi)  # Normalize</code></pre>
+
+            <p>Over several steps of this hybrid quantum-classical loop, the wide uniform distribution collapses into a sharp spike centered on the true phase value, illustrating rapid convergence.</p>
+
+            <figure>
+                <img src="Quantum Bayesian Inference/metrology_phase_evolution.png" alt="Probability density curves showing convergence of phase estimation over 15 steps" loading="lazy">
+                <figcaption>Figure 8: Adaptive Bayesian Metrology. As the measurement count increases from Step 0 to Step 15, the wide uniform prior collapses into a tight spike centered exactly on the true phase value of 4.2000 radians.</figcaption>
+            </figure>
+
+            <h3>5. Bayesian Optimization for Variational Quantum Algorithms (VQAs)</h3>
+            <p>Instead of using quantum computing to run Bayesian updates, I can also use classical Bayesian methods to solve quantum hardware problems. Variational quantum algorithms train parameterized quantum circuits by updating gate angles to minimize an objective function (such as energy expectation values). However, physical quantum hardware is noisy, making gradient estimation extremely expensive.</p>
+            
+            <p>To address this, I introduced <strong>scikit-learn</strong>, a machine learning library containing regression and statistical optimization routines. I constructed a Gaussian Process (GP) surrogate model using a Constant kernel combined with a Radial Basis Function (RBF) kernel. This surrogate model estimates the objective landscape and predicts the expectation values and uncertainty across the parameter space. I then use the Lower Confidence Bound (LCB) acquisition function to select the optimal parameter values to sample next, exploring regions of high uncertainty and exploiting regions of low energy:</p>
+
+<pre><code class="language-python"># Gaussian Process surrogate model with RBF kernel
+gp = GaussianProcessRegressor(
+    kernel=C(1.0, (1e-3, 1e3)) * RBF(1.0, (1e-2, 1e2)),
+    alpha=noise_level**2, # noise variance
+    n_restarts_optimizer=10,
+    random_state=42
+)
+
+# Custom LCB acquisition function
+def lcb_acquisition(x_grid, gp_model, kappa=1.5):
+    mu, sigma = gp_model.predict(x_grid.reshape(-1, 1), return_std=True)
+    return mu - kappa * sigma</code></pre>
+
+            <p>Comparing this approach to noisy gradient descent shows that Bayesian Optimization finds the ground state energy of a rotated qubit far faster and with significantly fewer quantum evaluations.</p>
+
+            <figure>
+                <img src="Quantum Bayesian Inference/vqa_bayesian_opt.png" alt="Gaussian Process regression fit of VQC energy and optimizer convergence comparison" loading="lazy">
+                <figcaption>Figure 9: Hybrid optimization. Left: The Gaussian Process surrogate model fitting the noisy quantum evaluation points. Right: Convergence comparison showing that Bayesian Optimization finds the global minimum faster than standard noisy gradient descent.</figcaption>
+            </figure>
+
+            <h2>Future Horizons: Advanced Bayesian Quantum Architectures</h2>
+            <p>While the examples above represent fundamental implementations, researchers are actively scaling these ideas to larger architectures. Below are several advanced concepts that I did not have time to code, but are critical to the future of this field:</p>
+
+            <h3>1. Bayesian Quantum State Tomography (QST)</h3>
+            <p>To estimate an unknown quantum state, researchers perform measurements in different directions (X, Y, Z) and use Bayes' rule to update their estimate of the density matrix. This process is highly accurate, but maintaining the physical validity of the density matrix (ensuring it remains positive semi-definite) is a moderate challenge. For a 1-qubit system, this requires limited math and allows for beautiful 3D Bloch sphere visualizations, where a cloud of candidate states collapses onto the true state; however, scaling this to multi-qubit systems requires importing specialized scientific optimization solvers.</p>
+            <p><strong>Code Complexity:</strong> Moderate (approximately 80 lines for a 1-qubit system).<br>
+            <strong>Visual Appeal:</strong> High (Bloch sphere 3D rendering showing the collapse of candidate states).</p>
+
+            <h3>2. Quantum Posterior Sampling (MCMC Alternative)</h3>
+            <p>Calculating the marginal likelihood denominator in classical Bayes is notoriously expensive, forcing researchers to rely on Markov Chain Monte Carlo (MCMC) sampling. Quantum amplitude encoding allows you to load an arbitrary probability distribution directly into quantum amplitudes, allowing the system to yield a posterior sample in a single measurement. However, preparing this quantum state is a significant bottleneck. Translating an arbitrary classical distribution into quantum amplitudes is a hard task that requires complex circuits, often relying on Quantum Generative Adversarial Networks (QGANs) or advanced matrix arithmetic.</p>
+            <p><strong>Code Complexity:</strong> High (writing state preparation circuits from scratch is a research project).<br>
+            <strong>Visual Appeal:</strong> Moderate (histograms of samples matching a target distribution, though setup code is extensive).</p>
+
+            <h3>3. Quantum Error Correction &amp; Decoding</h3>
+            <p>Physical quantum computers are highly susceptible to environmental noise. To protect quantum information, researchers simulate error-correcting codes (such as a distance-3 surface code) by injecting noise and building decoders. Implementing a classical Bayesian decoder, such as a belief propagation algorithm on a graph, allows the system to identify and correct errors. This is a very hard task, demanding extensive graph theory and hardware-level simulation logic.</p>
+            <p><strong>Code Complexity:</strong> Very High (hundreds of lines of graph theory and hardware-level code).<br>
+            <strong>Visual Appeal:</strong> Low (primarily debugging text outputs and syndrome grids).</p>
+
+            <h3>4. Quantum Annealing Variational Bayes (QAVB)</h3>
+            <p>Variational Bayes is a classical method to estimate parameters in complex generative models, but it frequently gets stuck in local minima. QAVB swaps out classical optimization for quantum annealing by mapping the variational loss function onto a Quadratic Unconstrained Binary Optimization (QUBO) problem or an Ising Spin Glass model. This allows the system to utilize quantum tunneling to pass through high-energy barriers and find the global optimum. This is the hardest algorithm to implement, requiring a complete shift to analog quantum annealers (such as D-Wave systems) and deep mathematical translation.</p>
+            <p><strong>Code Complexity:</strong> Very High (requires specialized mathematical mapping and cloud API integration).<br>
+            <strong>Visual Appeal:</strong> Low (mostly abstract energy-level charts).</p>
 
             <h2>Conclusion: The Future of Probabilistic Hardware</h2>
             <p>Classical computers struggle under the weight of calculating dense, multi-iteration probabilistic networks. Quantum processors natively treat uncertainty as a structured object (a wave function) rather than mere noise, making Bayesian methods one of the most promising avenues for near-term quantum advantage.</p>
