@@ -339,20 +339,28 @@ def metrology_circuit(phi_true, theta):
     qml.Hadamard(wires=0)            # Measure in X basis
     return qml.probs(wires=0)
 
-# Inside the adaptive update loop:
-if m_t == 0:
-    likelihood = (1 + np.cos(phi_grid - theta_t)) / 2
-else:
-    likelihood = (1 - np.cos(phi_grid - theta_t)) / 2
+# Setup simulation with n_steps = 30
+n_steps = 30
+steps_to_save = sorted(list({n_steps // 4, n_steps // 2, (3 * n_steps) // 4, n_steps}))
+
+# Adaptive loop update step using Bayes' rule:
+for t in range(1, n_steps + 1):
+    phi_est = phi_grid[np.argmax(p_phi)]
+    delta = 0 if t % 2 == 0 else np.pi / 2
+    theta_t = phi_est + delta
     
-p_phi = likelihood * p_phi
-p_phi /= np.sum(p_phi)  # Normalize</code></pre>
+    probs = metrology_circuit(phi_true, theta_t)
+    m_t = np.random.choice([0, 1], p=probs)
+    
+    likelihood = (1 + np.cos(phi_grid - theta_t)) / 2 if m_t == 0 else (1 - np.cos(phi_grid - theta_t)) / 2
+    p_phi = likelihood * p_phi
+    p_phi /= np.sum(p_phi)  # Normalize</code></pre>
 
             <p>Over several steps of this hybrid quantum-classical loop, the wide uniform distribution collapses into a sharp spike centered on the true phase value, illustrating rapid convergence.</p>
 
             <figure>
-                <img src="Quantum Bayesian Inference/metrology_phase_evolution.png" alt="Probability density curves showing convergence of phase estimation over 15 steps" loading="lazy">
-                <figcaption>Figure 8: Adaptive Bayesian Metrology. As the measurement count increases from Step 0 to Step 15, the wide uniform prior collapses into a tight spike centered exactly on the true phase value of 4.2000 radians.</figcaption>
+                <img src="Quantum Bayesian Inference/metrology_phase_evolution.png" alt="Probability density curves showing convergence of phase estimation over 30 steps" loading="lazy">
+                <figcaption>Figure 8: Adaptive Bayesian Metrology. As the measurement count increases from Step 0 to Step 30, the wide uniform prior collapses into a tight spike centered exactly on the true phase value of 4.2000 radians.</figcaption>
             </figure>
 
             <h3>5. Bayesian Optimization for Variational Quantum Algorithms (VQAs)</h3>
