@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bxai: Rigorous Bayesian Feature Selection and Local Explanation Suite - Sam's Data Portfolio</title>
+    <meta name="description" content="A technical deep-dive into bxai, a Python library implementing Bayesian BorutaSHAP, Bayesian Permutation, BayLIME, and Horseshoe GLMs for feature selection and model explainability.">
+    <link rel="stylesheet" href="../style.css">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .math-block {
+            background: #f4f6fb;
+            border-left: 4px solid #30406e;
+            border-radius: 4px;
+            padding: 1rem 1.5rem;
+            margin: 1.2rem 0;
+            font-family: 'Georgia', serif;
+            font-size: 1.05rem;
+            color: #222;
+            overflow-x: auto;
+        }
+        .inline-code {
+            background: #eef0f6;
+            border-radius: 3px;
+            padding: 0.1em 0.4em;
+            font-family: monospace;
+            font-size: 0.93em;
+            color: #333;
+            overflow-x: auto;
+        }
+        .callout {
+            background: #f0fdf4;
+            border-left: 4px solid #16a34a;
+            border-radius: 4px;
+            padding: 0.9rem 1.2rem;
+            margin: 1.2rem 0;
+        }
+        .callout-warn {
+            background: #fff8e1;
+            border-left: 4px solid #ffa000;
+        }
+        .callout strong { display: block; margin-bottom: 0.3rem; }
+        
+        pre {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 1rem 1.2rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            margin: 1.2rem 0;
+        }
+        code {
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+        }
+        pre code {
+            color: inherit;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            font-size: inherit;
+            border: none;
+        }
+        
+        table.data-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1.5rem 0;
+            font-size: 0.92rem;
+        }
+        table.data-table th {
+            background: #30406e;
+            color: #fff;
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+        }
+        table.data-table td {
+            border: 1px solid #dde;
+            padding: 0.5rem 0.8rem;
+        }
+        table.data-table tr:nth-child(even) td { background: #f8fafc; }
+
+        figure {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        figcaption {
+            margin-top: 0.8rem;
+            font-size: 0.9rem;
+            color: #64748b;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>bxai: Rigorous Bayesian Feature Selection and Local Explanation Suite</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <a href="https://github.com/sam-tritto/bxai" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                    <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+        <article class="post-content">
+            <figure style="margin-top: 1.5rem; text-align: center;">
+                <img src="../assets/bxai_logo.png" alt="bxai Logo: Bayesian Feature Selection and Attribution Suite" style="width: auto; max-width: 420px;" fetchpriority="high">
+                <figcaption>Figure 1: bxai - A Python package combining conjugate trackers and full MCMC pipelines for statistically rigorous machine learning explainability and feature selection.</figcaption>
+            </figure>
+
+            <h2>Introduction: Bringing Bayesian Rigor to XAI</h2>
+            <p>Feature selection and local model interpretability are critical tasks in modern machine learning; however, standard tools often fall short in statistical rigor. Algorithms like LIME are notorious for local instability; repeated explanations on the same instance can return conflicting results. Meanwhile, wrapper methods like Boruta rely heavily on frequentist p-values, which do not scale well over hundreds of feature-subsampling iterations.</p>
+            
+            <p>To resolve these issues, I designed and developed <a href="https://github.com/sam-tritto/bxai" target="_blank" rel="noopener noreferrer"><strong>bxai</strong></a> (available on PyPI as <a href="https://pypi.org/project/bxai" target="_blank" rel="noopener noreferrer">bxai</a>). My goal was to build a comprehensive suite that leverages Bayesian updating to make feature selection and explanation both stable and mathematically sound. By using <strong>closed-form conjugate updates</strong> where the prior and likelihood structures align, and delegating to <strong>PyMC MCMC sampling</strong> only when complex modeling (like heteroscedastic noise or Horseshoe shrinkage) is required, the library balances computational speed with statistical depth.</p>
+
+            <h2>The Inspiration: Zhao et al. and the BayLIME Framework</h2>
+            <p>The core inspiration for developing this package stems from the paper <a href="https://arxiv.org/abs/2012.03058" target="_blank" rel="noopener noreferrer"><em>"BayLIME: Bayesian Local Interpretable Model-Agnostic Explanations"</em></a> (Zhao et al., UAI 2021). The authors identified that standard LIME is highly sensitive to the random sampling of perturbations and the choice of kernel parameters. They proposed a Bayesian extension that incorporates prior knowledge into the local surrogate model. This prior can be seeded from global feature importances, verification analyses, or other explainers, allowing the local regression to converge reliably with far fewer perturbation samples.</p>
+
+            <p>I wanted to operationalize this concept. I built <strong>bxai</strong> around the BayLIME formulation, but expanded the underlying Bayesian philosophy to the entire model life cycle: global selection, model-agnostic permutation, parametric GLM shrinkage, and non-parametric tree ensembles. In doing so, I structured the library into five core components.</p>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+            <h2>1. Conjugate Bayesian Trackers (The Math Under the Hood)</h2>
+            <p>Rather than running heavy Markov Chain Monte Carlo (MCMC) simulations at every iteration of a wrapper loop, I implemented stateful, closed-form conjugate trackers. These mathematical engines update feature state variables in milliseconds.</p>
+
+            <h3>Discrete Engine: Beta-Binomial Tracker</h3>
+            <p>When tracking binary hits (e.g., whether an active feature outperforms a shadow feature), I model the probability of a hit \(\theta_j\) for feature \(j\) using a Beta prior. The posterior updates analytically upon receiving binary counts:</p>
+            <div class="math-block">
+                $$\theta_j \sim \text{Beta}(\alpha_j, \beta_j)$$
+                $$\alpha_j \leftarrow \alpha_j + x_{hit}, \quad \beta_j \leftarrow \beta_j + (1 - x_{hit})$$
+            </div>
+            <p>This allows me to evaluate the <strong>exceedance probability</strong> \(P(\theta_j > 0.5 \mid \text{data})\) using the Beta survival function (the complementary CDF). If this probability crosses a threshold (like 0.95), the feature is confirmed; if it drops below a floor (like 0.05), it is rejected.</p>
+
+            <h3>Continuous Engine: Normal-Inverse-Gamma (NIG) Tracker</h3>
+            <p>When modeling continuous values (such as differences in SHAP values or validation loss changes), I assume the observations are normally distributed with an unknown mean and variance: \(X \sim \text{Normal}(\mu, \sigma^2)\). I place a conjugate joint prior over the parameters:</p>
+            <div class="math-block">
+                $$(\mu, \sigma^2) \sim \text{NIG}(\mu_0, \nu_0, \alpha_0, \beta_0)$$
+            </div>
+            <p>For a batch of \(n\) new data points with sample mean \(\bar{x}\) and sum of squared differences \(SS\), the state variables update in closed-form:</p>
+            <div class="math-block">
+                $$\nu_{new} = \nu_{old} + n$$
+                $$\mu_{new} = \frac{\nu_{old}\mu_{old} + n\bar{x}}{\nu_{new}}$$
+                $$\alpha_{new} = \alpha_{old} + \frac{n}{2}$$
+                $$\beta_{new} = \beta_{old} + \frac{1}{2}SS + \frac{n\nu_{old}(\bar{x} - \mu_{old})^2}{2\nu_{new}}$$
+            </div>
+            <p>The marginal posterior distribution of the mean \(\mu\) resolves to a Student-t distribution:</p>
+            <div class="math-block">
+                $$\mu \mid D \sim t_{2\alpha_{new}}\left(\mu_{new}, \frac{\beta_{new}}{\alpha_{new}\nu_{new}}\right)$$
+            </div>
+            <p>By extracting the Highest Density Interval (HDI) or the Equal-Tailed Credible Interval (ETI) from this Student-t distribution, I make feature selection decisions: a feature is confirmed if the interval is completely above zero, and rejected if it is completely below zero.</p>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+            <h2>2. Global Non-Linear Selection</h2>
+            
+            <h3>BayesianBorutaSHAP</h3>
+            <p>Boruta is a classic algorithm that generates "shadow features" by shuffling columns, training a model, and determining if active features outperform the best noise feature. Instead of performing frequentist binomial tests on cumulative counts, <code>BayesianBorutaSHAP</code> feeds these evaluations to the trackers.</p>
+            <p>It supports a <code>discrete</code> mode (Beta-Binomial) and a <code>continuous</code> mode (NIG tracker analyzing the exact SHAP difference). To make it highly efficient, I implemented <strong>dynamic pruning</strong>: as soon as a feature is confirmed or rejected, it is removed from subsequent iterations, drastically reducing training times.</p>
+
+            <div class="callout callout-warn">
+                <strong>Important Note on Continuous Mode Convergence</strong>
+                In continuous mode, the NIG tracker receives exactly one difference value per active feature per iteration. Because the sample variance is unstable in early rounds (fewer than 20 to 30 draws), the Student-t credible interval remains wide. I recommend setting <code>max_iter</code> to at least 150-200 in continuous mode to avoid leaving features stuck in the tentative state.
+            </div>
+
+            <pre><code class="language-python">import lightgbm as lgb
+from sklearn.datasets import make_classification
+from bxai.selection import BayesianBorutaSHAP
+
+# Generate synthetic dataset
+X, y = make_classification(n_samples=500, n_features=20, n_informative=5, random_state=42)
+
+# Fit Bayesian BorutaSHAP in discrete mode
+clf = lgb.LGBMClassifier(random_state=42)
+selector = BayesianBorutaSHAP(model=clf, mode="discrete", max_iter=20, random_state=42)
+selector.fit(X, y)
+
+print("Confirmed Features:", selector.confirmed_)</code></pre>
+
+            <h3>BayesianPermutation</h3>
+            <p>This is a model-agnostic feature selection tool. It shuffles columns on a validation set and measures the resulting drop in score (or increase in loss) across multiple repeats. I integrated a continuous Student-t update engine here. A key design choice I made was computing the baseline score <em>inside</em> the repeat loop rather than hoisting it outside; this ensures that stochastic scorers (like those using subsampled ensembles) contribute matching noise profiles to both the baseline and permuted runs, avoiding systematic bias.</p>
+
+            <pre><code class="language-python">from bxai.selection import BayesianPermutation
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_classification
+
+# Generate synthetic dataset
+X_perm, y_perm = make_classification(n_samples=200, n_features=10, n_informative=3, random_state=42)
+clf_perm = RandomForestClassifier(random_state=42).fit(X_perm, y_perm)
+
+# Permutation feature selection with parallel jobs (n_jobs=2)
+selector_perm = BayesianPermutation(
+    model=clf_perm,
+    scoring="accuracy",
+    n_repeats=10,
+    n_jobs=2,
+    random_state=42
+)
+selector_perm.fit(X_perm, y_perm)
+
+print("Confirmed Features:", selector_perm.confirmed_)
+print(selector_perm.summary()[["feature", "mean", "ci_lower", "ci_upper", "selected"]])</code></pre>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+            <h2>3. Local Interpretability: BayLIME</h2>
+            <p>Fitting a local surrogate model on perturbed inputs is a classic way to explain a single prediction. <code>BayLIME</code> implements the Bayesian formulation of this surrogate, allowing me to inject prior beliefs directly. The package supports two backends:</p>
+            <ul>
+                <li><strong>Analytical Backend (Default)</strong>: Solves a closed-form weighted Bayesian linear regression. This is incredibly fast and operates under standard homoscedastic Gaussian assumptions.</li>
+                <li><strong>MCMC Backend</strong>: Builds a full PyMC model. Instead of flat variance, it uses a <strong>heteroscedastic noise structure</strong> where the observation standard deviation is scaled by the perturbation proximity weights: \(\sigma_i = \sigma_{global} / \sqrt{w_i}\). This matches the geometric intuition that perturbations closer to the explained instance should constrain the linear surrogate much more tightly than distant ones. It also supports a sparsity-inducing <strong>Horseshoe prior</strong> to drop irrelevant features.</li>
+            </ul>
+
+            <pre><code class="language-python">from bxai.explanation import BayLIME
+
+# Instantiate BayLIME (uses the analytical backend by default)
+# We can seed prior_mean with global SHAP weights from Phase 1
+explainer = BayLIME(
+    training_data=X,
+    feature_names=[f"feat_{i}" for i in range(20)]
+)
+
+# Explain a single instance
+explanation = explainer.explain_instance(
+    instance=X[0],
+    predict_fn=clf.predict_proba
+)
+
+print(explanation.as_dataframe())</code></pre>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+            <h2>4. Parametric Bayesian Importance</h2>
+            
+            <h3>ShrinkagePIP (Horseshoe & Lasso GLMs)</h3>
+            <p>For high-dimensional generalized linear models, I built <code>ShrinkagePIP</code>. It places either a Horseshoe or Lasso regularizing prior on the coefficients using PyMC and tracks their Posterior Inclusion Probabilities (PIP).</p>
+            <p>For the Horseshoe prior, I implemented a kappa-based selection method. Standard thresholding (checking if a coefficient is greater than an epsilon) is statistically flawed for continuous shrinkage distributions, because the posterior will almost always have some support away from zero. Instead, I calculate PIP using the posterior shrinkage factor \(\kappa_j\):</p>
+            <div class="math-block">
+                $$\kappa_j = \frac{1}{1 + \lambda_j^2 \tau^2}$$
+            </div>
+            <p>Here, \(\kappa_j \approx 0\) represents complete inclusion (no shrinkage, local scale dominates), and \(\kappa_j \approx 1\) represents complete shrinkage to zero. The PIP is computed as the probability that \(\kappa_j &lt; 0.5\). For Lasso priors, the package automatically defaults to scale-aware epsilon thresholding.</p>
+
+            <pre><code class="language-python">from bxai.parametric import ShrinkagePIP
+from sklearn.datasets import make_regression
+
+X, y = make_regression(n_samples=200, n_features=30, n_informative=5, random_state=42)
+
+# Horseshoe prior using kappa-based PIP
+selector = ShrinkagePIP(
+    prior="horseshoe",
+    kappa_threshold=0.5,
+    pip_threshold=0.80,
+    n_samples=500,
+    random_state=42,
+)
+selector.fit(X, y)
+
+print("Selected features:", selector.confirmed_)
+print(selector.summary()[["feature", "pip", "kappa_mean", "selected"]])</code></pre>
+
+            <h3>BARTImportance</h3>
+            <p>Bayesian Additive Regression Trees (BART) are powerful non-parametric models. The <code>BARTImportance</code> class fits a BART model via <code>pymc-bart</code>. During sampling, the trees write their split counts to a compact, base64-encoded byte array inside PyMC. I wrote a custom bit-shifting decoder to unpack this binary stream and extract the posterior distribution of Variable Inclusion Frequencies (VIF) for each draw. Features are selected if the lower boundary of their Highest Density Interval (HDI) exceeds a baseline random-chance frequency (\(1/n_{features}\)).</p>
+
+            <pre><code class="language-python">from bxai.parametric import BARTImportance
+from sklearn.datasets import make_regression
+
+X_reg, y_reg = make_regression(n_samples=100, n_features=10, n_informative=3, random_state=42)
+
+# Fit BART Importance for regression
+bart_reg = BARTImportance(
+    model_type="regression",
+    n_trees=20,
+    n_samples=200,
+    tune=100,
+    chains=1,
+    random_state=42
+)
+bart_reg.fit(X_reg, y_reg)
+
+print("Regression Selected features:", bart_reg.confirmed_)</code></pre>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+            <h2>Summary: Matching Computational Cost to Statistical Necessity</h2>
+            <p>By bringing these diverse components under a unified interface, <strong>bxai</strong> makes it easy to apply Bayesian reasoning to every stage of a machine learning workflow. If you need fast filter selections, the conjugate engines run in seconds. If you require deep, non-linear local attribution, the MCMC-backed BayLIME models proximity and sparsity with rigorous uncertainty bounds. The package represents my attempt to build a stable, robust, and mathematically grounded toolkit for explainable AI.</p>
+
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </article>
+    </div>
+</body>
+</html>

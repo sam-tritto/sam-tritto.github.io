@@ -7,6 +7,14 @@
     "filename": "2026.html"
   },
   {
+    "title": "bxai: Bayesian Feature Selection and Explainability Suite",
+    "slug": "bxai-bayesian-feature-selection.html",
+    "snippet": "A comprehensive Python package for fast, rigorous Bayesian feature selection and model explainability. Combines closed-form conjugate trackers (Beta-Binomial, Normal-Inverse-Gamma) for rapid updates with PyMC MCMC backends for Horseshoe GLM regularizations and BART variable inclusion frequencies.",
+    "image": "assets/bxai_logo.png",
+    "filename": "bxai-bayesian-feature-selection.html",
+    "date": "July 2026"
+  },
+  {
     "title": "Quantum Bayesian Inference: Quantum Computing for Data Scientists",
     "slug": "quantum-bayesian-inference.html",
     "snippet": "A theoretical exploration of the mathematical connection between classical Bayesian statistics and quantum mechanics. Maps a Bernoulli prior to a single qubit state, translates data interactions to Kraus operators, and derives Bayes' Theorem directly from quantum state collapse. Examines Quantum Bayesian Networks (QBNs), quantum posterior sampling alternatives to MCMC, and quantum interference.",
