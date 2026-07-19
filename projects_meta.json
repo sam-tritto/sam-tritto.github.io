@@ -7,7 +7,7 @@
     "filename": "2026.html"
   },
   {
-    "title": "bxai: Bayesian Feature Selection and Explainability Suite",
+    "title": "bxai: Bayesian Feature Selection and Attribution Suite",
     "slug": "bxai-bayesian-feature-selection.html",
     "snippet": "A comprehensive Python package for fast, rigorous Bayesian feature selection and model explainability. Combines closed-form conjugate trackers (Beta-Binomial, Normal-Inverse-Gamma) for rapid updates with PyMC MCMC backends for Horseshoe GLM regularizations and BART variable inclusion frequencies.",
     "image": "assets/bxai_logo.png",
