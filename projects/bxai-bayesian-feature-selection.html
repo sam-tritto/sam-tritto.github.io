@@ -87,6 +87,7 @@
         }
         figure img {
             max-width: 100%;
+            max-height: 500px;
             height: auto;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -124,12 +125,7 @@
             
             <p>To resolve these issues, I designed and developed <a href="https://github.com/sam-tritto/bxai" target="_blank" rel="noopener noreferrer"><strong>bxai</strong></a> (available on PyPI as <a href="https://pypi.org/project/bxai" target="_blank" rel="noopener noreferrer">bxai</a>). My goal was to build a comprehensive suite that leverages Bayesian updating to make feature selection and explanation both stable and mathematically sound. By using <strong>closed-form conjugate updates</strong> where the prior and likelihood structures align, and delegating to <strong>PyMC MCMC sampling</strong> only when complex modeling (like heteroscedastic noise or Horseshoe shrinkage) is required, the library balances computational speed with statistical depth.</p>
 
-            <h2>The Inspiration: Zhao et al. and the BayLIME Framework</h2>
-            <p>The core inspiration for developing this package stems from the paper <a href="https://arxiv.org/abs/2012.03058" target="_blank" rel="noopener noreferrer"><em>"BayLIME: Bayesian Local Interpretable Model-Agnostic Explanations"</em></a> (Zhao et al., UAI 2021). The authors identified that standard LIME is highly sensitive to the random sampling of perturbations and the choice of kernel parameters. They proposed a Bayesian extension that incorporates prior knowledge into the local surrogate model. This prior can be seeded from global feature importances, verification analyses, or other explainers, allowing the local regression to converge reliably with far fewer perturbation samples.</p>
-
-            <p>I wanted to operationalize this concept. I built <strong>bxai</strong> around the BayLIME formulation, but expanded the underlying Bayesian philosophy to the entire model life cycle: global selection, model-agnostic permutation, parametric GLM shrinkage, and non-parametric tree ensembles. In doing so, I structured the library into five core components.</p>
-
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+            <p>In this post, I walk through how to apply the complete model suite on the classic Wisconsin Breast Cancer dataset, illustrating the implementation details, the new visualization methods, and the modeling improvements, including a Region of Practical Equivalence (ROPE) on model-agnostic permutation selection.</p>
 
             <h2>1. Conjugate Bayesian Trackers (The Math Under the Hood)</h2>
             <p>Rather than running heavy Markov Chain Monte Carlo (MCMC) simulations at every iteration of a wrapper loop, I implemented stateful, closed-form conjugate trackers. These mathematical engines update feature state variables in milliseconds.</p>
@@ -158,7 +154,7 @@
             <div class="math-block">
                 $$\mu \mid D \sim t_{2\alpha_{new}}\left(\mu_{new}, \frac{\beta_{new}}{\alpha_{new}\nu_{new}}\right)$$
             </div>
-            <p>By extracting the Highest Density Interval (HDI) or the Equal-Tailed Credible Interval (ETI) from this Student-t distribution, I make feature selection decisions: a feature is confirmed if the interval is completely above zero, and rejected if it is completely below zero.</p>
+            <p>By extracting the Highest Density Interval (HDI) or the Equal-Tailed Credible Interval (ETI) from this Student-t distribution, I make feature selection decisions. A feature is confirmed if the interval is completely above zero, and rejected if it is completely below zero.</p>
 
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
 
@@ -166,50 +162,68 @@
             
             <h3>BayesianBorutaSHAP</h3>
             <p>Boruta is a classic algorithm that generates "shadow features" by shuffling columns, training a model, and determining if active features outperform the best noise feature. Instead of performing frequentist binomial tests on cumulative counts, <code>BayesianBorutaSHAP</code> feeds these evaluations to the trackers.</p>
-            <p>It supports a <code>discrete</code> mode (Beta-Binomial) and a <code>continuous</code> mode (NIG tracker analyzing the exact SHAP difference). To make it highly efficient, I implemented <strong>dynamic pruning</strong>: as soon as a feature is confirmed or rejected, it is removed from subsequent iterations, drastically reducing training times.</p>
+            <p>It supports a <code>discrete</code> mode (Beta-Binomial) and a <code>continuous</code> mode (NIG tracker analyzing the exact SHAP difference). To make it highly efficient, I implemented <strong>dynamic pruning</strong>. As soon as a feature is confirmed or rejected, it is removed from subsequent iterations, drastically reducing training times.</p>
 
-            <div class="callout callout-warn">
-                <strong>Important Note on Continuous Mode Convergence</strong>
-                In continuous mode, the NIG tracker receives exactly one difference value per active feature per iteration. Because the sample variance is unstable in early rounds (fewer than 20 to 30 draws), the Student-t credible interval remains wide. I recommend setting <code>max_iter</code> to at least 150-200 in continuous mode to avoid leaving features stuck in the tentative state.
-            </div>
+            <p>Below, I fit <code>BayesianBorutaSHAP</code> on the breast cancer dataset using a LightGBM classifier. We track binary hits against the shadow features over 100 iterations:</p>
 
             <pre><code class="language-python">import lightgbm as lgb
-from sklearn.datasets import make_classification
 from bxai.selection import BayesianBorutaSHAP
 
-# Generate synthetic dataset
-X, y = make_classification(n_samples=500, n_features=20, n_informative=5, random_state=42)
-
-# Fit Bayesian BorutaSHAP in discrete mode
-clf = lgb.LGBMClassifier(random_state=42)
-selector = BayesianBorutaSHAP(model=clf, mode="discrete", max_iter=20, random_state=42)
+# Fit Bayesian BorutaSHAP in discrete mode on Breast Cancer dataset
+clf = lgb.LGBMClassifier(random_state=42, verbose=-1)
+selector = BayesianBorutaSHAP(
+    model=clf,
+    mode="discrete",
+    max_iter=100,
+    confirm_threshold=0.95,
+    reject_threshold=0.05,
+    early_stopping=False,
+    random_state=42,
+)
 selector.fit(X, y)
 
-print("Confirmed Features:", selector.confirmed_)</code></pre>
+print("Confirmed Features:", selector.confirmed_)
+fig = selector.plot()</code></pre>
 
-            <h3>BayesianPermutation</h3>
-            <p>This is a model-agnostic feature selection tool. It shuffles columns on a validation set and measures the resulting drop in score (or increase in loss) across multiple repeats. I integrated a continuous Student-t update engine here. A key design choice I made was computing the baseline score <em>inside</em> the repeat loop rather than hoisting it outside; this ensures that stochastic scorers (like those using subsampled ensembles) contribute matching noise profiles to both the baseline and permuted runs, avoiding systematic bias.</p>
+            <figure>
+                <img src="bxai/boruta_shap_1.png" alt="Bayesian BorutaSHAP Plot">
+                <figcaption>Figure 2: Credible intervals of hit rates for each feature under BayesianBorutaSHAP. Green lines indicate Confirmed features whose posterior exceedance probability is &gt;= 0.95, while red lines represent Rejected features (exceedance probability &lt;= 0.05).</figcaption>
+            </figure>
 
-            <pre><code class="language-python">from bxai.selection import BayesianPermutation
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.datasets import make_classification
+            <h3>BayesianPermutation with ROPE</h3>
+            <p>This is a model-agnostic feature selection tool. It shuffles columns on a validation set and measures the resulting drop in score (or increase in loss) across multiple repeats. I integrated a continuous Student-t update engine here. A key design choice I made was computing the baseline score <em>inside</em> the repeat loop rather than hoisting it outside. This ensures that stochastic scorers (like those using subsampled ensembles) contribute matching noise profiles to both the baseline and permuted runs, avoiding systematic bias.</p>
 
-# Generate synthetic dataset
-X_perm, y_perm = make_classification(n_samples=200, n_features=10, n_informative=3, random_state=42)
-clf_perm = RandomForestClassifier(random_state=42).fit(X_perm, y_perm)
+            <p>Furthermore, I implemented a <strong>Region of Practical Equivalence (ROPE)</strong>. Often, a feature may be statistically important, but its impact on the model's score is negligible (e.g., less than 0.001 increase in Adjusted Mutual Information). The ROPE parameter allows a practitioner to define a threshold where any score changes inside this interval are treated as practically zero. The decision logic works as follows:</p>
+            <ul>
+                <li><strong>Confirmed:</strong> The entire credible interval of the score drop is strictly above the upper boundary of the ROPE (\(lower > rope\_upper\)).</li>
+                <li><strong>Rejected:</strong> The entire credible interval is contained within the ROPE (\(lower \ge rope\_lower\) and \(upper \le rope\_upper\)), or the entire interval is completely below the lower boundary of the ROPE (\(upper < rope\_lower\)).</li>
+                <li><strong>Tentative:</strong> The credible interval overlaps any boundary of the ROPE, indicating that more iterations are needed to narrow the posterior variance.</li>
+            </ul>
 
-# Permutation feature selection with parallel jobs (n_jobs=2)
+            <pre><code class="language-python">from sklearn.ensemble import RandomForestClassifier
+from bxai.selection import BayesianPermutation
+
+# Fit base RandomForest classifier
+clf_perm = RandomForestClassifier(random_state=42, verbose=0).fit(X.values, y)
+
+# Permutation feature selection with parallel jobs and a ROPE of [-0.001, 0.001]
 selector_perm = BayesianPermutation(
     model=clf_perm,
-    scoring="accuracy",
-    n_repeats=10,
-    n_jobs=2,
-    random_state=42
+    scoring="adjusted_mutual_info_score",
+    n_repeats=100,
+    n_jobs=4,
+    random_state=42,
+    rope=(-0.001, 0.001),
 )
-selector_perm.fit(X_perm, y_perm)
+selector_perm.fit(X, y)
 
 print("Confirmed Features:", selector_perm.confirmed_)
-print(selector_perm.summary()[["feature", "mean", "ci_lower", "ci_upper", "selected"]])</code></pre>
+fig = selector_perm.plot(max_features=None)</code></pre>
+
+            <figure>
+                <img src="bxai/permutation_2.png" alt="Bayesian Permutation Importance with ROPE">
+                <figcaption>Figure 3: Bayesian Permutation Importance showing the posterior credible intervals for the score drop when each feature is permuted. The shaded gray area highlights the Region of Practical Equivalence (ROPE) at [-0.001, 0.001]. Features with intervals entirely above the shaded region are Confirmed.</figcaption>
+            </figure>
 
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
 
@@ -220,22 +234,44 @@ print(selector_perm.summary()[["feature", "mean", "ci_lower", "ci_upper", "selec
                 <li><strong>MCMC Backend</strong>: Builds a full PyMC model. Instead of flat variance, it uses a <strong>heteroscedastic noise structure</strong> where the observation standard deviation is scaled by the perturbation proximity weights: \(\sigma_i = \sigma_{global} / \sqrt{w_i}\). This matches the geometric intuition that perturbations closer to the explained instance should constrain the linear surrogate much more tightly than distant ones. It also supports a sparsity-inducing <strong>Horseshoe prior</strong> to drop irrelevant features.</li>
             </ul>
 
+            <p>A major design goal of BayLIME is using global prior information to make local explanations stable. Here, I show the difference between explaining a single breast cancer instance with a flat prior versus seeding the explainer with global SHAP importances obtained from <code>BayesianBorutaSHAP</code>:</p>
+
             <pre><code class="language-python">from bxai.explanation import BayLIME
+import lightgbm as lgb
 
-# Instantiate BayLIME (uses the analytical backend by default)
-# We can seed prior_mean with global SHAP weights from Phase 1
-explainer = BayLIME(
+clf = lgb.LGBMClassifier(random_state=42, verbose=-1).fit(X, y)
+
+# Explaining with MCMC backend and flat priors
+explainer_flat = BayLIME(training_data=X, feature_names=list(X.columns), backend="mcmc")
+explanation_flat = explainer_flat.explain_instance(
+    instance=X.iloc[0].values, predict_fn=clf.predict_proba
+)
+fig_flat = explanation_flat.plot(max_features=None)</code></pre>
+
+            <figure>
+                <img src="bxai/baylime_3.png" alt="BayLIME Explanation with Flat Prior">
+                <figcaption>Figure 4: Local feature attribution for a single instance using BayLIME MCMC backend with a flat prior. The credible intervals indicate the posterior distribution of the local linear surrogate's weights.</figcaption>
+            </figure>
+
+            <p>Now, I seed the prior mean of the surrogate coefficients using the global importances from BorutaSHAP. This stabilizes the local regression, ensuring it is grounded in the model's global logic:</p>
+
+            <pre><code class="language-python"># Seeding BayLIME with global SHAP importances
+explainer_prior = BayLIME(
     training_data=X,
-    feature_names=[f"feat_{i}" for i in range(20)]
+    feature_names=list(X.columns),
+    prior_mean=selector.feature_importances_,
+    prior_precision=1.0,
+    backend="mcmc",
 )
-
-# Explain a single instance
-explanation = explainer.explain_instance(
-    instance=X[0],
-    predict_fn=clf.predict_proba
+explanation_prior = explainer_prior.explain_instance(
+    instance=X.iloc[0].values, predict_fn=clf.predict_proba
 )
+fig_prior = explanation_prior.plot(max_features=None)</code></pre>
 
-print(explanation.as_dataframe())</code></pre>
+            <figure>
+                <img src="bxai/baylime_4.png" alt="BayLIME Explanation with SHAP Prior">
+                <figcaption>Figure 5: Local feature attribution for the same instance using BayLIME seeded with global SHAP importances. The prior regularizes the local explanation, narrowing the credible intervals and emphasizing globally verified features.</figcaption>
+            </figure>
 
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
 
@@ -247,48 +283,125 @@ print(explanation.as_dataframe())</code></pre>
             <div class="math-block">
                 $$\kappa_j = \frac{1}{1 + \lambda_j^2 \tau^2}$$
             </div>
-            <p>Here, \(\kappa_j \approx 0\) represents complete inclusion (no shrinkage, local scale dominates), and \(\kappa_j \approx 1\) represents complete shrinkage to zero. The PIP is computed as the probability that \(\kappa_j &lt; 0.5\). For Lasso priors, the package automatically defaults to scale-aware epsilon thresholding.</p>
+            <p>Here, \(\kappa_j \approx 0\) represents complete inclusion (no shrinkage, local scale dominates), and \(\kappa_j \approx 1\) represents complete shrinkage to zero. The PIP is computed as the probability that \(\kappa_j &lt; 0.5\). For Lasso priors, the package automatically defaults to scale-aware epsilon thresholding. Below, I compare both priors on the scaled breast cancer dataset:</p>
 
-            <pre><code class="language-python">from bxai.parametric import ShrinkagePIP
-from sklearn.datasets import make_regression
+            <pre><code class="language-python">from sklearn.preprocessing import StandardScaler
+from bxai.parametric import ShrinkagePIP
 
-X, y = make_regression(n_samples=200, n_features=30, n_informative=5, random_state=42)
+scaler = StandardScaler()
+X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
 
 # Horseshoe prior using kappa-based PIP
-selector = ShrinkagePIP(
+selector_hs = ShrinkagePIP(
+    model_type="logistic",
     prior="horseshoe",
     kappa_threshold=0.5,
-    pip_threshold=0.80,
-    n_samples=500,
+    pip_threshold=0.50,
+    n_samples=1000,
+    chains=4,
     random_state=42,
 )
-selector.fit(X, y)
+selector_hs.fit(X_scaled, y)
+fig_hs = selector_hs.plot(max_features=None)</code></pre>
 
-print("Selected features:", selector.confirmed_)
-print(selector.summary()[["feature", "pip", "kappa_mean", "selected"]])</code></pre>
+            <figure>
+                <img src="bxai/shrinkage_pip_5.png" alt="ShrinkagePIP Horseshoe Plot">
+                <figcaption>Figure 6: Posterior inclusion probabilities (PIP) for features under the Horseshoe prior GLM. Green bars indicate features with a PIP above the 0.5 threshold, meaning their shrinkage factor kappa is primarily below 0.5.</figcaption>
+            </figure>
+
+            <pre><code class="language-python"># Lasso prior using epsilon thresholding
+selector_lasso = ShrinkagePIP(
+    model_type="logistic",
+    prior="lasso",
+    pip_threshold=0.50,
+    n_samples=1000,
+    chains=4,
+    random_state=42,
+)
+selector_lasso.fit(X_scaled, y)
+fig_lasso = selector_lasso.plot(max_features=None)</code></pre>
+
+            <figure>
+                <img src="bxai/shrinkage_pip_6.png" alt="ShrinkagePIP Lasso Plot">
+                <figcaption>Figure 7: Feature PIP under the Lasso prior GLM. Epsilon-based thresholding is used to determine selection, highlighting a different distribution of feature importance.</figcaption>
+            </figure>
 
             <h3>BARTImportance</h3>
             <p>Bayesian Additive Regression Trees (BART) are powerful non-parametric models. The <code>BARTImportance</code> class fits a BART model via <code>pymc-bart</code>. During sampling, the trees write their split counts to a compact, base64-encoded byte array inside PyMC. I wrote a custom bit-shifting decoder to unpack this binary stream and extract the posterior distribution of Variable Inclusion Frequencies (VIF) for each draw. Features are selected if the lower boundary of their Highest Density Interval (HDI) exceeds a baseline random-chance frequency (\(1/n_{features}\)).</p>
 
             <pre><code class="language-python">from bxai.parametric import BARTImportance
-from sklearn.datasets import make_regression
 
-X_reg, y_reg = make_regression(n_samples=100, n_features=10, n_informative=3, random_state=42)
-
-# Fit BART Importance for regression
-bart_reg = BARTImportance(
-    model_type="regression",
-    n_trees=20,
-    n_samples=200,
-    tune=100,
-    chains=1,
+# Fit BART Importance for classification (using 50 trees)
+bart_clf = BARTImportance(
+    model_type="classification",
+    n_trees=50,
+    n_samples=1000,
+    tune=1000,
+    chains=4,
     random_state=42
 )
-bart_reg.fit(X_reg, y_reg)
+bart_clf.fit(X, y)
+print("Selected features (BART):", bart_clf.confirmed_)
+fig_bart = bart_clf.plot(max_features=None)</code></pre>
 
-print("Regression Selected features:", bart_reg.confirmed_)</code></pre>
+            <figure>
+                <img src="bxai/bart_importance_7.png" alt="BART Importance VIF Plot">
+                <figcaption>Figure 8: Variable Inclusion Frequencies (VIF) for breast cancer features under a BART model. The red dashed line indicates the random selection threshold (1/n_features). Green intervals represent features whose VIF credible interval is entirely above the baseline.</figcaption>
+            </figure>
 
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+            <h2>Practitioner's Guide: When to Use Which Model?</h2>
+            <p>With five distinct modeling components, <strong>bxai</strong> allows practitioners to trade off computational complexity against statistical depth. The following table provides a guide for choosing the correct tool for your dataset and model archetype:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Model Name</th>
+                        <th>Statistical Basis</th>
+                        <th>Computational Cost</th>
+                        <th>Primary Use Case</th>
+                        <th>When to Reach for It</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BayesianBorutaSHAP</strong></td>
+                        <td>Discrete (Beta-Binomial) or Continuous (Normal-Inverse-Gamma) trackers over tree-based SHAP margins.</td>
+                        <td>Medium (optimized via dynamic feature pruning).</td>
+                        <td>Global non-linear feature selection.</td>
+                        <td>When you use GBDT ensembles (LightGBM/XGBoost) and want to isolate active features from shadow noise without frequentist p-value instability.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BayesianPermutation</strong></td>
+                        <td>Normal-Inverse-Gamma tracker evaluating validation metric drops under a continuous Student-t distribution.</td>
+                        <td>Low-Medium (requires model predictions but no retraining).</td>
+                        <td>Model-agnostic global selection.</td>
+                        <td>When using arbitrary models (SVMs, Neural Networks) and custom metrics. Reach for it specifically when using a <strong>ROPE</strong> to ignore negligible effects.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BayLIME</strong></td>
+                        <td>Weighted Bayesian linear surrogate with MCMC heteroscedastic noise and sparsity (Horseshoe) priors.</td>
+                        <td>Analytical: Extremely Low (ms). MCMC: High (seconds to minutes).</td>
+                        <td>Single-prediction local explainability.</td>
+                        <td>When you need stable, reproducible local attributions. Use the MCMC backend to model weight-scaled observation noise and pass global SHAP priors.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ShrinkagePIP</strong></td>
+                        <td>Parametric GLM using PyMC MCMC with regularizing Horseshoe or Lasso priors to estimate posterior inclusion probabilities.</td>
+                        <td>High (requires full MCMC sampling).</td>
+                        <td>Linear/Logistic GLM variable selection.</td>
+                        <td>When fitting parametric models and seeking to enforce sparse, interpretable coefficients while avoiding the bias of stepwise regression.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BARTImportance</strong></td>
+                        <td>Variable Inclusion Frequencies (VIF) posterior estimation from Bayesian Additive Regression Trees.</td>
+                        <td>High (requires full MCMC sampling of BART trees).</td>
+                        <td>Native non-linear Bayesian selection.</td>
+                        <td>When you want to build a native non-linear Bayesian ensemble (BART) and select features directly using posterior credible intervals of tree splits.</td>
+                    </tr>
+                </tbody>
+            </table>
 
             <h2>Summary: Matching Computational Cost to Statistical Necessity</h2>
             <p>By bringing these diverse components under a unified interface, <strong>bxai</strong> makes it easy to apply Bayesian reasoning to every stage of a machine learning workflow. If you need fast filter selections, the conjugate engines run in seconds. If you require deep, non-linear local attribution, the MCMC-backed BayLIME models proximity and sparsity with rigorous uncertainty bounds. The package represents my attempt to build a stable, robust, and mathematically grounded toolkit for explainable AI.</p>
