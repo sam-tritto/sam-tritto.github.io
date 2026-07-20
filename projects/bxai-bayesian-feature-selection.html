@@ -357,10 +357,65 @@ fig_bart = bart_clf.plot(max_features=None)</code></pre>
                 <figcaption>Figure 8: Variable Inclusion Frequencies (VIF) for breast cancer features under a BART model. The red dashed line indicates the random selection threshold (1/n_features). Green intervals represent features whose VIF credible interval is entirely above the baseline.</figcaption>
             </figure>
 
+            <h3>BayesianCorrelation</h3>
+            <p>Evaluating feature relationships through correlation is standard practice; however, standard correlation coefficients are point estimates that lack any representation of uncertainty. <code>BayesianCorrelation</code> solves this by framing correlation coefficient estimation as a parametric Bayesian inference problem in PyMC, producing the full posterior distribution of Pearson's \(r\), Spearman's \(\rho\), or Kendall's \(\tau\).</p>
+            <p>The estimator supports two modeling frameworks:</p>
+            <ul>
+                <li><strong>Quick Backend (Default for Pearson/Spearman)</strong>: Fits a standard bivariate normal model. For Spearman's rank correlation, it fits the model on the ranks of the data.</li>
+                <li><strong>Latent Copula Backend (Required for Kendall, Optional for Spearman)</strong>: Maps the ranks of the variables to standard normal scores (using the probit-transform of the empirical cumulative distribution function) and fits a bivariate normal model on these latent scores. Greiner's relations are then applied to map the latent correlation parameter back to Spearman's \(\rho\) or Kendall's \(\tau\).</li>
+            </ul>
+
+            <p>I also implemented an adaptive <code>plot()</code> method that changes style based on input type. For bivariate single-feature correlation, it renders a smooth KDE distribution plot of the correlation samples with a 95% Highest Density Interval (HDI) bar. For multivariate correlations (correlating multiple features against a single target), it renders a forest-style interval line plot, color-coded by statistical significance guidelines (green for positive correlation, red for negative correlation, and gray for intervals that overlap zero).</p>
+
+            <h4>Bivariate Correlation Example</h4>
+            <p>Below, I estimate the Pearson correlation between <code>mean radius</code> and <code>mean perimeter</code>. Because radius and perimeter are geometrically coupled, we expect a strong positive correlation:</p>
+
+            <pre><code class="language-python">from bxai.parametric import BayesianCorrelation
+
+# Pearson correlation between two features
+model = BayesianCorrelation(
+    method="pearson",
+    backend="quick",
+    chains=2,
+    cores=1,
+    random_state=42
+)
+model.fit(X["mean radius"], X["mean perimeter"])
+
+# Print summary metrics including Posterior Mean and Strength classification
+print(model.summary()[["Feature 1", "Feature 2", "Posterior Mean", "95% HDI Lower", "95% HDI Upper", "Strength"]])
+fig = model.plot()</code></pre>
+
+            <figure>
+                <img src="bxai/correlation_1.png" alt="Bayesian Bivariate Correlation Distribution">
+                <figcaption>Figure 9: Bivariate Pearson correlation posterior density distribution between mean radius and mean perimeter. The distribution is highly concentrated near 0.98, confirming a very strong positive correlation.</figcaption>
+            </figure>
+
+            <h4>Multivariate Correlation Example</h4>
+            <p>To analyze the linear relationship between all dataset features and the target variable (malignancy diagnosis), I fit a multivariate Pearson correlation. The forest plot displays the posterior mean and HDI interval for each feature, color-coded by direction and magnitude:</p>
+
+            <pre><code class="language-python"># Correlation of multiple features against the target variable
+model_multi = BayesianCorrelation(
+    method="pearson",
+    backend="quick",
+    chains=2,
+    cores=1,
+    random_state=42
+)
+model_multi.fit(X, y)
+
+print(model_multi.summary()[["Feature", "Target", "Posterior Mean", "Strength"]])
+fig_multi = model_multi.plot()</code></pre>
+
+            <figure>
+                <img src="bxai/correlation_2.png" alt="Bayesian Multivariate Correlation Forest Plot">
+                <figcaption>Figure 10: Stacked forest plot displaying the Pearson correlation posterior means and 95% HDIs for all features against the target variable. Green indicates positive correlation, red indicates negative correlation, and gray indicates intervals overlapping zero.</figcaption>
+            </figure>
+
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
 
             <h2>Practitioner's Guide: When to Use Which Model?</h2>
-            <p>With five distinct modeling components, <strong>bxai</strong> allows practitioners to trade off computational complexity against statistical depth. The following table provides a guide for choosing the correct tool for your dataset and model archetype:</p>
+            <p>With <strong>six</strong> distinct modeling components, <strong>bxai</strong> allows practitioners to trade off computational complexity against statistical depth. The following table provides a guide for choosing the correct tool for your dataset and model archetype:</p>
 
             <table class="data-table">
                 <thead>
@@ -407,6 +462,13 @@ fig_bart = bart_clf.plot(max_features=None)</code></pre>
                         <td>High (requires full MCMC sampling of BART trees).</td>
                         <td>Native non-linear Bayesian selection.</td>
                         <td>When you want to build a native non-linear Bayesian ensemble (BART) and select features directly using posterior credible intervals of tree splits.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BayesianCorrelation</strong></td>
+                        <td>MCMC posterior estimation of Pearson's \(r\), Spearman's \(\rho\), or Kendall's \(\tau\) using bivariate normal models or latent copulas.</td>
+                        <td>Medium (requires PyMC MCMC sampling for correlation distributions).</td>
+                        <td>Parametric correlation estimation.</td>
+                        <td>When you need to measure the linear or rank relationship between features and targets, and want to verify correlation strength using full posterior credible intervals instead of standard frequentist p-values.</td>
                     </tr>
                 </tbody>
             </table>
