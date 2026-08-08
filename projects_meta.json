@@ -7,6 +7,14 @@
     "filename": "2026.html"
   },
   {
+    "title": "GCP Certification Exam Knowledge Graph & GraphRAG Chatbot with Adaptive Bayesian Learning",
+    "slug": "gcp-certification-graphrag-bayesian-learning.html",
+    "snippet": "An interactive GCP study assistant that pairs a Neo4j knowledge graph of exam blueprints with an adaptive Bayesian Belief Network. Tracks student mastery in real time, guides learning via Shannon-entropy active learning, and triggers graph-traversed RAG context for personalized tutoring.",
+    "image": "gcp-graphrag/graph_view.png",
+    "filename": "gcp-certification-graphrag-bayesian-learning.html",
+    "date": "August 2026"
+  },
+  {
     "title": "bxai: Bayesian Feature Selection and Attribution Suite",
     "slug": "bxai-bayesian-feature-selection.html",
     "snippet": "A comprehensive Python package for fast, rigorous Bayesian feature selection and model explainability. Combines closed-form conjugate trackers (Beta-Binomial, Normal-Inverse-Gamma) for rapid updates with PyMC MCMC backends for Horseshoe GLM regularizations and BART variable inclusion frequencies.",

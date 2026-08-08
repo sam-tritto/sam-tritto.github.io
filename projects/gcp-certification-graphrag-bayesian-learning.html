@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCP Certification Exam Knowledge Graph & GraphRAG Chatbot with Adaptive Bayesian Learning - Sam's Data Portfolio</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        pre {
+            background: #f4f5f7;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid #e5e7eb;
+        }
+        code {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.9em;
+            background: #f4f5f7;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+        }
+        pre code {
+            padding: 0;
+            background: none;
+            font-size: 0.95em;
+        }
+        figure {
+            margin: 2.5rem 0;
+            text-align: center;
+        }
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        figcaption {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: #5f6368;
+            font-style: italic;
+        }
+        .callout-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #1a73e8;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .callout-box p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #3c4043;
+        }
+    </style>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>GCP Certification Exam Knowledge Graph & GraphRAG Chatbot with Adaptive Bayesian Learning</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <a href="https://github.com/sam-tritto/gcp-graphrag" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+        
+        <article class="post-content">
+            <p>Preparing for Google Cloud Platform (GCP) certifications like the <strong>Professional Cloud Architect (PCA)</strong> or the <strong>Professional Data Engineer (PDE)</strong> is a massive undertaking. The scope is vast, spanning hundreds of services, intricate configuration rules, detailed CLI commands, and complex case studies. Standard LLMs often fail in this context; they hallucinate, miss subtle trade-offs, and lack a structured curriculum map.</p>
+
+            <p>To address this challenge, I designed and built an interactive study assistant. It couples a <strong>Neo4j Knowledge Graph</strong> storing GCP frameworks with an <strong>Adaptive Bayesian Learning Engine</strong>. The application dynamically assesses a student's strengths and weaknesses through a diagnostic quiz, visualizes their mastery in real time, and feeds their current knowledge gaps back into a <strong>GraphRAG Chatbot</strong> to serve custom troubleshooting scenarios.</p>
+
+            <figure>
+                <img src="gcp-graphrag/workspace_home.png" alt="Workspace Home Interface" fetchpriority="high">
+                <figcaption>Figure 1: The main workspace dashboard, featuring exam selection, syllabus navigation, and the interactive chatbot panel.</figcaption>
+            </figure>
+
+            <h2>Core Technology Stack & Libraries</h2>
+            <p>This project is built as a lightweight, performant Python application using the following key dependencies:</p>
+            <ul>
+                <li><strong>Neo4j</strong> and <strong>neo4j-graphrag</strong>: Serves as the database storing the document nodes, exam blueprints, hierarchical service taxonomy, and vector search indices.</li>
+                <li><strong>NiceGUI</strong>: A Python-based frontend framework built on top of FastAPI, Vue, and TailwindCSS, which enables writing a reactive web interface in pure Python.</li>
+                <li><strong>pgmpy</strong>: A dedicated library for Probabilistic Graphical Models in Python, which manages the structures, conditional probability tables, and exact inferences of our Bayesian Belief Network.</li>
+                <li><strong>Google Generative AI (Gemini API)</strong>: Powered by <code>gemini-2.5-flash</code> for generating scenario questions and grounded chatbot responses, and <code>gemini-embedding-001</code> for vector embeddings.</li>
+                <li><strong>PyPDF & BeautifulSoup4</strong>: Handles the raw ingestion of official GCP architectural frameworks and PDF case study resources.</li>
+            </ul>
+
+            <hr/>
+
+            <h2>1. The Graph Taxonomy and Ingestion Process</h2>
+            <p>The system organizes exam preparation into a strict four-level hierarchical taxonomy. An <strong>Exam</strong> (e.g., PCA) contains multiple syllabus <strong>Domains</strong>. Each Domain tests knowledge of specific GCP <strong>Services</strong>, which in turn group detailed <strong>SubConcepts</strong>.</p>
+            <p>To support advanced reasoning, I extended this taxonomy with a "third-tier" leaf layer, which connects services to:</p>
+            <ul>
+                <li><strong>UseCase Nodes:</strong> Connects services to their optimal deployment contexts (e.g., Cloud Storage is linked as <code>BEST_FOR</code> "Unstructured Data & Cost-Effective Archiving").</li>
+                <li><strong>CLICommand Nodes:</strong> Pairs services with critical administrative shell syntax (e.g., GKE is linked via <code>SCALED_BY</code> to <code>kubectl scale deployment</code>).</li>
+                <li><strong>AntiPattern Nodes:</strong> Links services to common pitfalls (e.g., using Cloud SQL for globally distributed horizontal scaling is marked as a <code>COMMON_PITFALL</code> resolved by switching to Cloud Spanner).</li>
+                <li><strong>GCP Architectural Decision Boundaries:</strong> Configures <code>PREFERABLE_OVER</code> relationships between competing services, specifying the exact conditional reasons for selecting one over another.</li>
+            </ul>
+
+            <h3>Data Ingestion Pipeline</h3>
+            <p>The ingestion process (implemented in <code>sync_pipeline.py</code>) follows a robust delta-sync workflow. It downloads the official GCP documentation page or case study PDF, computes its MD5 hash, and compares it with the database's stored hash. If changes are detected, it commenses ingestion:</p>
+            
+            <ol>
+                <li><strong>Document Chunking:</strong> The raw text is divided using a sliding window algorithm to ensure semantic continuity, using a chunk size of 1000 characters and a 200-character overlap.</li>
+                <li><strong>Taxonomy Mapping:</strong> Chunks are batch-inserted and connected to the core <code>Exam</code> node. A regex scanner then checks the chunk text against all registered GCP service names, dynamically creating <code>DISCUSSES</code> relationships from the chunk to matched <code>Service</code> nodes.</li>
+                <li><strong>Sequential Linking:</strong> To preserve the original narrative order for context retrieval, chunks from the same document are linked sequentially using <code>NEXT</code> relationships: <code>(c1)-[:NEXT]->(c2)</code>.</li>
+                <li><strong>Embedding Generation & Indexing:</strong> The text content is embedded in batches using Gemini and uploaded to Neo4j. We then register a cosine-similarity vector index on the <code>Chunk</code> nodes.</li>
+            </ol>
+
+            <pre><code class="language-python"># Excerpt from sync_pipeline.py: Ingestion & Relationship Building
+def sync_source(driver, source_key, source_name, url, exam_id, all_services, is_pdf=False):
+    res = requests.get(url, timeout=15)
+    content_bytes = res.content
+    current_hash = hashlib.md5(content_bytes).hexdigest()
+    
+    stored_hash = get_stored_hash(driver, f"{exam_id}_{source_key}")
+    if current_hash == stored_hash:
+        return True # Content has not changed
+        
+    raw_chunks = parse_pdf_case_study(source_key, url) if is_pdf else parse_html_framework(url, source_name)
+    
+    # Process sliding window chunking
+    chunks = []
+    for rc in raw_chunks:
+        text_slices = chunk_text_sliding_window(rc["text"], chunk_size=1000, overlap=200)
+        for idx, slice_text in enumerate(text_slices):
+            sub_chunk = rc.copy()
+            sub_chunk["chunk_id"] = f"{exam_id}_{rc['chunk_id']}_part{idx}"
+            sub_chunk["text"] = slice_text
+            chunks.append(sub_chunk)
+            
+    # Purge old chunks and perform batch inserts
+    delete_source_chunks(driver, source_name, exam_id=exam_id)
+    insert_chunks_batch(driver, chunks, source_exam=exam_id)
+    link_chunks_to_services_batch(driver, chunks, all_services)
+    build_sequential_relationships(driver, source_name, exam_id=exam_id)
+    
+    # Update embeddings in Neo4j
+    embedded_chunks = generate_embeddings_in_batches(chunks)
+    update_chunk_embeddings_batch(driver, embedded_chunks)
+    set_stored_hash(driver, f"{exam_id}_{source_key}", current_hash)</code></pre>
+
+            <hr/>
+
+            <h2>2. The Bayesian Engine: Modeling Student Mastery</h2>
+            <p>To avoid generic linear study paths, the application builds a **Bayesian Belief Network (BBN)**. BBNs are directed acyclic graphical models where nodes represent random variables and edges represent conditional dependencies. In our network, nodes represent latent (hidden) mastery states of the student, and the final leaf nodes represent observable quiz question outcomes.</p>
+
+            <figure>
+                <img src="gcp-graphrag/graph_view.png" alt="Bayesian Network Graph View">
+                <figcaption>Figure 2: Real-time Bayesian network visualization. Node colors indicate mastery: green is high, yellow is uncertain, and red represents low mastery.</figcaption>
+            </figure>
+
+            <h3>Network Hierarchy and Mathematical Formulation</h3>
+            <p>The network structure follows the hierarchy: </p>
+            <p>$$\text{Domain} \rightarrow \text{Service} \rightarrow \text{SubConcept} \rightarrow \text{Question}$$</p>
+            
+            <p>Every node in our network is modeled as a binary random variable representing mastery (0 = Unmastered, 1 = Mastered):</p>
+            <ul>
+                <li><strong>Domain Nodes (Root):</strong> Represent high-level syllabus sections. Their prior probabilities are derived from beta tracking distributions:
+                    <p>$$P(D_i = 1) = \theta_i \sim \text{Beta}(\alpha_{D_i}, \beta_{D_i})$$</p>
+                    The expected probability of mastery is the mean of this distribution:
+                    <p>$$\mathbb{E}[\theta_i] = \frac{\beta_{D_i}}{\alpha_{D_i} + \beta_{D_i}}$$</p>
+                </li>
+                <li><strong>Service & SubConcept Nodes (Conditional):</strong> Represent the mid-tier services. Their probabilities are conditional on their parent nodes. For a node \(X\) with parents \(\text{Parents}(X)\), we define the conditional probability table (CPT) such that mastery probability increases linearly with the number of mastered parent nodes:
+                    <p>$$P(X=1 \mid \text{Parents}(X)) = 0.1 + 0.7 \cdot \frac{\sum_{P \in \text{Parents}(X)} \mathbb{I}(P = 1)}{|\text{Parents}(X)|}$$</p>
+                    This modeling choice reflects reality; a student cannot easily master GKE node configurations if they have zero mastery of both basic VM concepts and container registers.
+                </li>
+                <li><strong>Question Nodes (Observable Leaves):</strong> Model actual quiz answers. Since questions are imperfect measurement tools, we introduce conditional error rates (slip and guess probabilities):
+                    <p>$$P(\text{Question}=1 \mid \text{SubConcept}=1) = 0.90 \quad (\text{Slip rate} = 10\%)$$</p>
+                    <p>$$P(\text{Question}=1 \mid \text{SubConcept}=0) = 0.05 \quad (\text{Guess rate} = 5\%)$$</p>
+                </li>
+            </ul>
+
+            <div class="callout-box">
+                <p><strong>For Researchers: Conjugate Beta-Binomial Updates</strong><br/>
+                Rather than using computationally heavy Markov Chain Monte Carlo (MCMC) algorithms, the engine performs exact local updates. When a user submits a quiz answer for a subconcept, we record a Bernoulli outcome \(y \in \{0, 1\}\). Since the Beta distribution is conjugate to the Binomial likelihood, the posterior update remains in the Beta family:
+                $$\alpha \leftarrow \alpha + (1 - y) \quad \text{and} \quad \beta \leftarrow \beta + y$$
+                This allows us to perform real-time probability updates inside the web application loop with zero latency.</p>
+            </div>
+
+            <pre><code class="language-python"># Excerpt from utils/bayesian_engine.py: Model Construction
+def build_bayesian_model(blueprint_records, user_stats):
+    model = DiscreteBayesianNetwork(edges)
+    cpds = []
+    
+    # 1. Define Domain prior CPDs (root nodes)
+    for d_node in domain_nodes:
+        d_name = d_node.replace("_Domain", "")
+        stats = user_stats.get("domains", {}).get(d_name, {"alpha": 1, "beta": 1})
+        p_mastery = stats["beta"] / (stats["alpha"] + stats["beta"])
+        cpds.append(TabularCPD(variable=d_node, variable_card=2, values=[[1.0 - p_mastery], [p_mastery]]))
+        
+    # 2. Define Service CPDs conditional on their parent domains
+    for s_node in service_nodes:
+        parents = sorted(list(model.get_parents(s_node)))
+        k = len(parents)
+        cols = 2**k
+        row_fail, row_pass = [], []
+        for c in range(cols):
+            set_bits = sum((c >> i) & 1 for i in range(k))
+            p_master = 0.1 + 0.7 * (set_bits / k)
+            row_pass.append(p_master)
+            row_fail.append(1.0 - p_master)
+            
+        cpds.append(TabularCPD(variable=s_node, variable_card=2, values=[row_fail, row_pass], evidence=parents, evidence_card=[2] * k))
+        
+    # 3. Define Question CPDs conditional on SubConcept mastery
+    for q_node in question_nodes:
+        sub_node = q_node.replace("_Question", "_SubConcept")
+        cpds.append(TabularCPD(
+            variable=q_node, variable_card=2,
+            values=[[0.95, 0.10], [0.05, 0.90]], # Slip & guess rates
+            evidence=[sub_node], evidence_card=[2]
+        ))
+        
+    model.add_cpds(*cpds)
+    model.check_model()
+    return model, latent_nodes, candidate_questions</code></pre>
+
+            <hr/>
+
+            <h2>3. Active Learning & Thompson Sampling</h2>
+            <p>The Bayesian engine operates in two study modes: **Diagnostic Mode** and **Study Mode**.</p>
+            
+            <h3>Diagnostic Mode (Information Gain Optimization)</h3>
+            <p>To evaluate a student as fast as possible, the diagnostic mode implements **Active Learning** using expected Shannon entropy reduction. We want to choose the question \(Q^*\) that, when answered, minimizes the expected entropy of all latent mastery nodes \(X\) in the network:</p>
+            
+            <p>$$Q^* = \arg\min_Q \mathbb{E}_{y \sim Q} [\mathbb{H}(X \mid Q = y)]$$</p>
+            
+            <p>Where the Shannon entropy \(\mathbb{H}\) of a node is defined as:</p>
+            <p>$$\mathbb{H}(X) = -\sum_{x \in \{0, 1\}} P(X = x) \log_2 P(X = x)$$</p>
+            <p>And the expected entropy is the weighted average of the outcomes:</p>
+            <p>$$\mathbb{E}[\mathbb{H}(X \mid Q)] = P(Q = 1) \mathbb{H}(X \mid Q = 1) + P(Q = 0) \mathbb{H}(X \mid Q = 0)$$</p>
+            
+            <p>Computing this across the entire graph for every question is computationally prohibitive. To optimize this, the engine first prunes the search space, focusing only on subconcepts under services whose current mastery entropy exceeds 0.5 (representing high uncertainty). It then evaluates expected entropy changes over a localized subgraph, preserving snappy UI interactions.</p>
+
+            <figure>
+                <img src="gcp-graphrag/quiz_question.png" alt="Quiz Question Generation">
+                <figcaption>Figure 3: Dynamically generated diagnostic question, showing active learning targets based on high-entropy topics.</figcaption>
+            </figure>
+
+            <h3>Study Mode (Thompson Sampling for Remediation)</h3>
+            <p>In standard study mode, the engine uses **Thompson Sampling** to select topics. For each domain, we draw a sample from its Beta distribution. To guide students toward their weakest areas, we sample using the failure counts as the positive shape parameter:</p>
+            <p>$$\theta_i \sim \text{Beta}(\alpha_{D_i}, \beta_{D_i})$$</p>
+            <p>Since \(\alpha\) tracks incorrect answers and \(\beta\) tracks correct answers, a high \(\alpha\) shifts the sampled values higher, indicating a strong recommendation for remediation. Once a domain is selected, the same rule is applied hierarchically to select a service and subconcept, ensuring targeted practice.</p>
+
+            <figure>
+                <img src="gcp-graphrag/quiz_feedback.png" alt="Quiz Answer Feedback">
+                <figcaption>Figure 4: Real-time grading and mathematical feedback. Answering questions updates the posterior mastery state across the knowledge graph.</figcaption>
+            </figure>
+
+            <hr/>
+
+            <h2>4. GraphRAG Chatbot with Adaptive Remediation</h2>
+            <p>The final pillar of this architecture is the GraphRAG chatbot workspace. When a student types a query, the application combines vector embeddings, graph traversal, and the student's Bayesian mastery state to build the context prompt.</p>
+
+            <figure>
+                <img src="gcp-graphrag/chat_response.png" alt="Chat Workspace Interface">
+                <figcaption>Figure 5: The chatbot responding to a scenario. It extracts vector documentation and injects third-tier structural rules to address the student's weaknesses.</figcaption>
+            </figure>
+
+            <h3>The GraphRAG Execution Flow</h3>
+            <p>The chatbot follows a four-step retrieval and generation pipeline:</p>
+            <ol>
+                <li><strong>Vector Search:</strong> The user's query is embedded, and Neo4j's vector index returns the top 3 semantically closest documentation chunks.</li>
+                <li><strong>Adaptive Remediation Hook:</strong> The system looks up the student's mastery stats in the database. If their expected mastery for a service matching the query is low (\(\mathbb{E}[\text{mastery}] < 0.50\)), the system runs a specialized Cypher query to pull troubleshooting chunks for that service, adding them to the prompt context. It also injects a warning instructing the LLM to address these specific failure modes.</li>
+                <li><strong>Sub-Graph Expansion (Third-Tier Traversal):</strong> We extract the unique IDs of the retrieved chunks and query Neo4j for structural relations. It traverses from the chunks to their matching <code>Service</code> nodes and fetches all connected <code>UseCase</code>, <code>CLICommand</code>, <code>AntiPattern</code>, and <code>PREFERABLE_OVER</code> boundary nodes.</li>
+                <li><strong>LLM Generation:</strong> The text chunks, troubleshooting docs, and third-tier graph rules are structured into a prompt and submitted to <code>gemini-2.5-flash</code> to generate a highly tailored response.</li>
+            </ol>
+
+            <pre><code class="language-python"># Excerpt from app.py: Cypher Sub-Graph Traversal
+def retrieve_third_tier_context(driver, exam_id, chunk_uids):
+    query = """
+    MATCH (c:Chunk)-[:DISCUSSES]->(s:Service)
+    WHERE c.uid IN $chunk_uids
+    
+    OPTIONAL MATCH (s)-[r_out]->(leaf_out)
+    WHERE NOT leaf_out:Domain AND NOT leaf_out:Exam AND NOT leaf_out:Chunk AND NOT leaf_out:AntiPattern
+    
+    OPTIONAL MATCH (leaf_in)-[r_in]->(s)
+    WHERE NOT leaf_in:Domain AND NOT leaf_in:Exam AND NOT leaf_in:Chunk AND NOT leaf_in:AntiPattern
+    
+    OPTIONAL MATCH (s)-[:COMMON_PITFALL]->(ap:AntiPattern)-[:RESOLVED_BY]->(res:Service)
+    
+    RETURN s.name AS service, 
+           type(r_out) AS rel_out, labels(leaf_out)[0] AS label_out, 
+           coalesce(leaf_out.description, leaf_out.syntax, leaf_out.name) AS val_out,
+           r_out.condition AS r_out_cond, r_out.reason AS r_out_reason,
+           type(r_in) AS rel_in, labels(leaf_in)[0] AS label_in, 
+           coalesce(leaf_in.description, leaf_in.syntax, leaf_in.name) AS val_in,
+           ap.description AS ap_desc, res.name AS ap_res
+    """
+    lines = set()
+    with driver.session() as session:
+        result = session.run(query, chunk_uids=chunk_uids)
+        for record in result:
+            service = record["service"]
+            if record["rel_out"] == "PREFERABLE_OVER":
+                lines.add(f"Boundary Decision: Prefer ({service}) over ({record['val_out']}) when: '{record['r_out_cond']}' (Reason: {record['r_out_reason']})")
+            elif record["rel_out"]:
+                lines.add(f"Graph Rule: ({service}) -[:{record['rel_out']}]-> ({record['label_out']}: \"{record['val_out']}\")")
+            if record["ap_desc"]:
+                lines.add(f"Anti-Pattern: Using ({service}) for '{record['ap_desc']}' is an anti-pattern. RESOLUTION: Use ({record['ap_res']}) instead.")
+    return "\n".join(sorted(list(lines)))</code></pre>
+
+            <hr/>
+
+            <h2>5. Demonstrating Adaptive Remediation in Action</h2>
+            <p>To see how the components work together, let's look at the walkthrough from my testing sessions:</p>
+            
+            <ol>
+                <li><strong>Baseline State:</strong> I started with a fresh database profile. The knowledge graph displayed uniform gray/light yellow colors representing prior uncertainty (50% mastery).</li>
+                <li><strong>Diagnostic Phase:</strong> I navigated to the <strong>Quiz</strong> page. The active learning algorithm selected a diagnostic question on <strong>Cloud Storage Classes</strong>. I answered it incorrectly, which immediately triggered a conjugate update lowering my Cloud Storage mastery.</li>
+                <li><strong>Visualizing Gaps:</strong> Returning to the <strong>Graph</strong> page, the nodes for Cloud Storage and its parent domains updated to a deep red color, indicating failure.</li>
+                <li><strong>Remediation Chat:</strong> I asked the chatbot: <em>"How should I design a multi-region database solution for high availability and strong consistency in GCP, and how does Cloud Spanner compare to Cloud SQL in terms of recovery objectives (RTO/RPO)?"</em> (Figure 5).</li>
+                <li><strong>Grounded Generation:</strong> The chatbot retrieved the vector documentation for Spanner and SQL. Since my profile had low mastery on storage topics, the system pulled active troubleshooting rules from Neo4j regarding Cloud Storage and SQL replicas, warning the LLM to address these gaps. The resulting explanation focused heavily on explaining the underlying replication mechanisms, trade-offs, and common pitfalls, providing a highly personalized study path.</li>
+            </ol>
+
+            <figure>
+                <img src="gcp-graphrag/graph_filtered.png" alt="Filtered Sub-Graph Visualization">
+                <figcaption>Figure 6: Filtering the knowledge graph by domain to isolate specific service dependencies and target remediation paths.</figcaption>
+            </figure>
+
+            <hr/>
+
+            <h2>Conclusion & Key Takeaways</h2>
+            <p>By shifting from standard text search to a structured graph representation, and replacing simple heuristics with a mathematically rigorous Bayesian network, this project offers a blueprint for structured, adaptive learning tools. It ensures that the LLM is grounded in authoritative facts while dynamically adjusting to the student's learning pace, resulting in a more robust and personalized study experience.</p>
+
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </article>
+    </div>
+</body>
+</html>
