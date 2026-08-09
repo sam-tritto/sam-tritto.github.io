@@ -154,7 +154,7 @@ def sync_source(driver, source_key, source_name, url, exam_id, all_services, is_
             <hr/>
 
             <h2>2. The Bayesian Engine: Modeling Student Mastery</h2>
-            <p>To avoid generic linear study paths, the application builds a **Bayesian Belief Network (BBN)**. BBNs are directed acyclic graphical models where nodes represent random variables and edges represent conditional dependencies. In our network, nodes represent latent (hidden) mastery states of the student, and the final leaf nodes represent observable quiz question outcomes.</p>
+            <p>To avoid generic linear study paths, the application builds a <strong>Bayesian Belief Network (BBN)</strong>. BBNs are directed acyclic graphical models where nodes represent random variables and edges represent conditional dependencies. In our network, nodes represent latent (hidden) mastery states of the student, and the final leaf nodes represent observable quiz question outcomes.</p>
 
             <figure>
                 <img src="gcp-graphrag/graph_view.png" alt="Bayesian Network Graph View">
@@ -231,10 +231,10 @@ def build_bayesian_model(blueprint_records, user_stats):
             <hr/>
 
             <h2>3. Active Learning & Thompson Sampling</h2>
-            <p>The Bayesian engine operates in two study modes: **Diagnostic Mode** and **Study Mode**.</p>
+            <p>The Bayesian engine operates in two study modes: <strong>Diagnostic Mode</strong> and <strong>Study Mode</strong>.</p>
             
             <h3>Diagnostic Mode (Information Gain Optimization)</h3>
-            <p>To evaluate a student as fast as possible, the diagnostic mode implements **Active Learning** using expected Shannon entropy reduction. We want to choose the question \(Q^*\) that, when answered, minimizes the expected entropy of all latent mastery nodes \(X\) in the network:</p>
+            <p>To evaluate a student as fast as possible, the diagnostic mode implements <strong>Active Learning</strong> using expected Shannon entropy reduction. We want to choose the question \(Q^*\) that, when answered, minimizes the expected entropy of all latent mastery nodes \(X\) in the network:</p>
             
             <p>$$Q^* = \arg\min_Q \mathbb{E}_{y \sim Q} [\mathbb{H}(X \mid Q = y)]$$</p>
             
@@ -251,7 +251,7 @@ def build_bayesian_model(blueprint_records, user_stats):
             </figure>
 
             <h3>Study Mode (Thompson Sampling for Remediation)</h3>
-            <p>In standard study mode, the engine uses **Thompson Sampling** to select topics. For each domain, we draw a sample from its Beta distribution. To guide students toward their weakest areas, we sample using the failure counts as the positive shape parameter:</p>
+            <p>In standard study mode, the engine uses <strong>Thompson Sampling</strong> to select topics. For each domain, we draw a sample from its Beta distribution. To guide students toward their weakest areas, we sample using the failure counts as the positive shape parameter:</p>
             <p>$$\theta_i \sim \text{Beta}(\alpha_{D_i}, \beta_{D_i})$$</p>
             <p>Since \(\alpha\) tracks incorrect answers and \(\beta\) tracks correct answers, a high \(\alpha\) shifts the sampled values higher, indicating a strong recommendation for remediation. Once a domain is selected, the same rule is applied hierarchically to select a service and subconcept, ensuring targeted practice.</p>
 
