@@ -326,9 +326,21 @@ def retrieve_third_tier_context(driver, exam_id, chunk_uids):
                 <li><strong>Grounded Generation:</strong> The chatbot retrieved the vector documentation for Spanner and SQL. Since my profile had low mastery on storage topics, the system pulled active troubleshooting rules from Neo4j regarding Cloud Storage and SQL replicas, warning the LLM to address these gaps. The resulting explanation focused heavily on explaining the underlying replication mechanisms, trade-offs, and common pitfalls, providing a highly personalized study path.</li>
             </ol>
 
+            <p>To inspect specific segments of the graph in detail, we can leverage vis.js navigation controls to zoom into clustered service hubs, and hover over individual nodes to inspect their real-time properties:</p>
+
             <figure>
-                <img src="gcp-graphrag/graph_filtered.png" alt="Filtered Sub-Graph Visualization">
-                <figcaption>Figure 6: Filtering the knowledge graph by domain to isolate specific service dependencies and target remediation paths.</figcaption>
+                <img src="gcp-graphrag/graph_zoomed.png" alt="Zoomed Clustered Services Hub">
+                <figcaption>Figure 6: A zoomed-in view of the constellation network, highlighting key relational paths between database backends (Cloud SQL, Cloud Spanner) and domain anchors.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="gcp-graphrag/graph_hover_score.png" alt="Service Mastery Hover Popup">
+                <figcaption>Figure 7: Hovering over a service node (Google Kubernetes Engine) reveals a live score card detailing its description, role, and the student's current posterior mastery percentage calculated by the Bayesian engine.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="gcp-graphrag/graph_cli_popup.png" alt="CLI Command Hover Popup">
+                <figcaption>Figure 8: Hovering over a CLI Command leaf node exposes the command-line syntax (e.g., IAM policy binding) mapped directly to its parent service node.</figcaption>
             </figure>
 
             <hr/>
