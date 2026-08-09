@@ -10,7 +10,7 @@ window.PROJECTS_DATA = [
     "title": "GCP Certification Exam Knowledge Graph & GraphRAG Chatbot with Adaptive Bayesian Learning",
     "slug": "gcp-certification-graphrag-bayesian-learning.html",
     "snippet": "An interactive GCP study assistant that pairs a Neo4j knowledge graph of exam blueprints with an adaptive Bayesian Belief Network. Tracks student mastery in real time, guides learning via Shannon-entropy active learning, and triggers graph-traversed RAG context for personalized tutoring.",
-    "image": "gcp-graphrag/graph_view.png",
+    "image": "gcp-graphrag/logo.png",
     "filename": "gcp-certification-graphrag-bayesian-learning.html",
     "date": "August 2026"
   },
