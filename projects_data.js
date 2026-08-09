@@ -15,6 +15,14 @@ window.PROJECTS_DATA = [
     "date": "August 2026"
   },
   {
+    "title": "The Pay Transparency Staggered Rollout: Causal Inference in People Analytics",
+    "slug": "pay-transparency-staggered-rollout.html",
+    "snippet": "Estimating the causal impact of state-level salary transparency laws on tech-sector compensation and hiring using staggered Difference-in-Differences, Bayesian Event Studies in PyMC, and Synthetic Control methods.",
+    "image": "projects/Pay Transparency/bayesian_event_study.png",
+    "filename": "pay-transparency-staggered-rollout.html",
+    "date": "July 2026"
+  },
+  {
     "title": "bxai: Bayesian Feature Selection and Attribution Suite",
     "slug": "bxai-bayesian-feature-selection.html",
     "snippet": "A comprehensive Python package for fast, rigorous Bayesian feature selection and model explainability. Combines closed-form conjugate trackers (Beta-Binomial, Normal-Inverse-Gamma) for rapid updates with PyMC MCMC backends for Horseshoe GLM regularizations and BART variable inclusion frequencies.",

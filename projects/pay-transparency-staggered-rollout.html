@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Pay Transparency Staggered Rollout: Causal Inference in People Analytics - Sam's Data Portfolio</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        pre {
+            background: #f4f5f7;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid #e5e7eb;
+        }
+        code {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.9em;
+            background: #f4f5f7;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+        }
+        pre code {
+            padding: 0;
+            background: none;
+            font-size: 0.95em;
+        }
+        figure {
+            margin: 2.5rem 0;
+            text-align: center;
+        }
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        figcaption {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: #5f6368;
+            font-style: italic;
+        }
+        .callout-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #1a73e8;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .callout-box p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #3c4043;
+        }
+    </style>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>The Pay Transparency Staggered Rollout: Causal Inference in People Analytics</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <a href="https://github.com/sam-tritto/Pay-Transparency" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+        
+        <article class="post-content">
+            <img src="Pay Transparency/bayesian_event_study.png" alt="Bayesian Event Study Results" class="post-image" fetchpriority="high">
+            <p>Between 2021 and 2024, multiple US states enacted legislation requiring employers to disclose salary ranges in public job listings. These laws were designed to reduce wage gaps and empower job seekers, but they also introduced a natural experiment for People Analytics researchers. Because the mandates went into effect at different times, they created a staggered rollout across the country. This setup presents a classic causal inference problem: estimating the impact of policy changes using observational panel data.</p>
+
+            <p>In this tutorial, I investigate the causal impact of pay transparency laws on average weekly wages and overall employment levels. I focus on <strong>NAICS 54 (Professional, Scientific, and Technical Services)</strong>, the sector containing software engineering, consulting, and system design, where the competition for tech talent was intense and pay transparency legislation was highly debated. I walk through frequentist panel methods, highlight the statistical pitfalls of staggered rollouts, and show how to resolve them using a hierarchical Bayesian Event Study in <strong>PyMC</strong> and a Synthetic Control model.</p>
+
+            <hr/>
+
+            <h2>1. The Data and Where It Comes From</h2>
+            <p>The analysis relies on real-world quarterly panel data from the <strong>US Bureau of Labor Statistics (BLS) Quarterly Census of Employment and Wages (QCEW)</strong>. The QCEW is a comprehensive program that publishes data on the number of establishments, monthly employment, and quarterly wages for workers covered by State unemployment insurance laws. This provides an incredibly robust, administrative-grade census of employment and compensation trends.</p>
+
+            <p>The panel spans from 2019 Q1 to 2024 Q4, covering a total of ten states:</p>
+            <ul>
+                <li><strong>Treated Group:</strong> Colorado (CO, treated 2021-Q1), New York (NY, treated 2022-Q4), California (CA, treated 2023-Q1), and Washington (WA, treated 2023-Q1).</li>
+                <li><strong>Donor Control Group:</strong> Florida (FL), Georgia (GA), Illinois (IL), North Carolina (NC), Ohio (OH), and Texas (TX) - states that did not enact salary transparency mandates during our study window.</li>
+            </ul>
+
+            <p>To acquire the data, I wrote an automated download script that queries the BLS API. To keep the workflow reproducible and fast, the script caches the raw files locally, filtering for private sector establishments (ownership code 5) in NAICS 54.</p>
+
+            <pre><code class="language-python"># Ingestion logic from data/get_real_data.py
+def download_qcew_quarter(year, quarter, naics):
+    cache_path = os.path.join(CACHE_DIR, f"qcew_{year}_q{quarter}_ind_{naics}.csv")
+    if os.path.exists(cache_path):
+        return pd.read_csv(cache_path, low_memory=False)
+
+    url = f"https://data.bls.gov/cew/data/api/{year}/{quarter}/industry/{naics}.csv"
+    headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
+    response = requests.get(url, headers=headers, timeout=15)
+    if response.status_code == 200:
+        with open(cache_path, "wb") as f:
+            f.write(response.content)
+        return pd.read_csv(cache_path, low_memory=False)
+    return None</code></pre>
+
+            <p>Let us begin by loading the compiled dataset and inspecting the raw trends. A fundamental assumption in panel causal inference is <strong>parallel trends</strong>; the treated and control states should share similar trajectories before the treatment occurs.</p>
+
+            <figure>
+                <img src="Pay Transparency/raw_wage_trends.png" alt="Raw Wage Trends">
+                <figcaption>Figure 1: Average weekly wages in NAICS 54 from 2019 to 2024. Dashed vertical lines represent the effective date of pay transparency laws in treated states.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="Pay Transparency/raw_employment_trends.png" alt="Raw Employment Trends">
+                <figcaption>Figure 2: Average quarterly employment levels across states, illustrating baseline differences and growth patterns.</figcaption>
+            </figure>
+
+            <p>From the plots, we can see that wages in professional services are highly seasonal, typically peaking in Q4 or Q1 due to annual performance bonuses and equity distributions. California and New York have significantly higher wage baselines than states like Colorado or Ohio. The pre-treatment trends (2019-2020) appear roughly parallel, though the severe COVID-19 shock in 2020 and the 2022-2023 tech winter introduce localized fluctuations that we must control for.</p>
+
+            <hr/>
+
+            <h2>2. The Frequentist Baseline: Two-Way Fixed Effects (TWFE)</h2>
+            <p>The standard econometric tool for evaluating policy changes in panel data is the <strong>Two-Way Fixed Effects (TWFE)</strong> regression. By including state fixed effects, we control for all time-invariant differences between states (like California's structurally higher cost of living). By including time fixed effects, we control for national macroeconomic shocks (like the inflation spike of 2022). The baseline specification is:</p>
+
+            <p>$$ \log(\text{Wage}_{it}) = \beta \text{Treated}_{it} + \alpha_i + \gamma_t + \epsilon_{it} $$</p>
+
+            <p>Where \(i\) indexes the state, \(t\) indexes the year-quarter, \(\alpha_i\) is the state fixed effect, \(\gamma_t\) is the time fixed effect, and \(\text{Treated}_{it}\) is a dummy variable indicating if state \(i\) had a pay transparency law active at time \(t\). The coefficient \(\beta\) represents the percentage change in wages associated with the transparency mandate.</p>
+
+            <h3>The Landmine of Standard Error Clustering</h3>
+            <p>For beginners in causal inference, the most common mistake is using standard ordinary least squares (OLS) standard errors. In panel data, observations within the same state over time are not independent. If California has a higher-than-average wage in Q1, it will likely have a higher-than-average wage in Q2. Failing to account for this autocorrelation leads to severely deflated standard errors and a high rate of false positives.</p>
+
+            <p>I fit the TWFE model using `statsmodels` under two different assumptions: standard OLS and clustered standard errors (grouped at the state level).</p>
+
+            <pre><code class="language-python"># Excerpt from src/models.py
+def fit_twfe_model(df, outcome_col="avg_wkly_wage", state_seasonality=False, cov_type="cluster"):
+    df_fit = df.copy()
+    df_fit["log_outcome"] = np.log(df_fit[outcome_col])
+    df_fit["time_fe"] = df_fit["year"].astype(str) + "-Q" + df_fit["qtr"].astype(str)
+    
+    formula = "log_outcome ~ treated + C(state_code) + C(time_fe)"
+    if state_seasonality:
+        formula += " + C(state_code):C(qtr)"
+        
+    model = smf.ols(formula, data=df_fit)
+    
+    if cov_type == "cluster":
+        results = model.fit(cov_type="cluster", cov_kwds={"groups": df_fit["state_code"]})
+    else:
+        results = model.fit()
+        
+    return results</code></pre>
+
+            <p>The results highlight why rigorous inference matters:</p>
+            <ul>
+                <li><strong>Without Clustering:</strong> The coefficient \(\beta\) is estimated as \(+0.0144\) with a standard error of \(0.007\), yielding a marginally significant p-value of \(0.061\). A researcher might conclude that pay transparency laws increase average wages by roughly 1.44%.</li>
+                <li><strong>With State Clustering:</strong> The coefficient remains \(+0.0144\), but the clustered standard error expands to \(0.019\), pushing the p-value to \(0.477\). The effect becomes statistically indistinguishable from zero.</li>
+                <li><strong>Controlling for Local Seasonality:</strong> By adding state-specific seasonality controls (State \(\times\) Quarter fixed effects) to handle localized bonus schedules, the coefficient drops to \(+0.0129\) with a p-value of \(0.567\). The positive effect completely vanishes.</li>
+            </ul>
+
+            <div class="callout-box">
+                <p><strong>For Experienced Researchers: The Staggered Rollout Trap</strong><br/>
+                Recent econometrics literature (e.g., Goodman-Bacon, 2021; Callaway &amp; Sant'Anna, 2021) has exposed a major mathematical weakness in TWFE under staggered treatment timing. TWFE estimates a weighted average of all possible two-by-two Difference-in-Differences comparisons. Under staggered rollouts, early-treated units (like Colorado in 2021) are used as controls for later-treated units (like California in 2023). If the treatment effect changes over time (heterogeneous treatment effects), the early-treated unit's changes are subtracted, creating a "forbidden comparison" bias that can flip the sign of the overall coefficient. We must use models that isolate clean controls.</p>
+            </div>
+
+            <hr/>
+
+            <h2>3. The Bayesian Solution: Hierarchical Event Study in PyMC</h2>
+            <p>To avoid the "forbidden comparisons" bias and handle the temporal dynamics of the treatment, I built a hierarchical Bayesian Event Study model in <strong>PyMC</strong>. An event study replaces the single treatment dummy with a series of coefficients \(\beta_e\) corresponding to the "event time" \(e = t - E_i\), which measures the quarters relative to when the law took effect in state \(i\).</p>
+
+            <p>By shifting to a Bayesian framework, I can inject prior knowledge to regularize the seasonal fluctuations and obtain full posterior distributions for the causal parameters rather than simple point estimates.</p>
+
+            <h3>Mathematical Formulation</h3>
+            <p>The model is formulated as follows:</p>
+            <p>$$ y_{it} \sim \text{Normal}(\mu_{it}, \sigma_y) $$</p>
+            <p>$$ \mu_{it} = \alpha_{\text{state}[i]} + \gamma_{\text{time}[t]} + \eta_{\text{state}[i], \text{qtr}[t]} + \beta_{\text{event}[it]} \cdot \mathbb{I}(e_{it} \neq -1) $$</p>
+
+            <p>Where:</p>
+            <ul>
+                <li>\(y_{it}\) is the log weekly wage.</li>
+                <li>\(\sigma_y \sim \text{HalfNormal}(0.05)\) represents the observation noise standard deviation.</li>
+                <li>\(\alpha_i \sim \text{Normal}(\bar{y}, 0.5)\) represents the state random effects, centered on the mean log wage.</li>
+                <li>\(\gamma_t \sim \text{Normal}(0, 0.1)\) represents the global time random effects.</li>
+                <li>\(\eta_{i, q} \sim \text{Normal}(0, 0.05)\) represents the state-specific seasonality random effects (one for each state-quarter combination). This regularizes the seasonal bonus peaks toward zero unless the data strongly supports them.</li>
+                <li>\(\beta_e \sim \text{Normal}(0, 0.05)\) represents the event coefficients. The prior standard deviation of 0.05 is weakly informative, implying that we expect any wage effect to be within \(\pm 10\%\).</li>
+                <li>The event time \(e = -1\) (the quarter immediately preceding the law) is normalized to \(0.0\) to act as the baseline reference period.</li>
+            </ul>
+
+            <pre><code class="language-python"># PyMC Model Definition from src/models.py
+def fit_bayesian_event_study(df_prep, draws=2000, tune=1000, random_seed=42):
+    num_states = df_prep["state_idx"].nunique()
+    num_times = df_prep["time_idx"].nunique()
+    num_events = 10  # 10 event bins
+    
+    state_idx = df_prep["state_idx"].values
+    time_idx = df_prep["time_idx"].values
+    qtr_idx = df_prep["qtr_idx"].values
+    event_idx = df_prep["event_idx"].values
+    has_effect = df_prep["has_effect"].values
+    y_obs = df_prep["log_wage"].values
+    mean_log_wage = np.mean(y_obs)
+    
+    with pm.Model() as model:
+        sigma_y = pm.HalfNormal("sigma_y", sigma=0.05)
+        alpha = pm.Normal("alpha", mu=mean_log_wage, sigma=0.5, shape=num_states)
+        gamma = pm.Normal("gamma", mu=0.0, sigma=0.1, shape=num_times)
+        
+        # State-specific seasonality random effects (State x Quarter)
+        eta = pm.Normal("eta", mu=0.0, sigma=0.05, shape=(num_states, 4))
+        
+        # Event study coefficients
+        beta = pm.Normal("beta", mu=0.0, sigma=0.05, shape=num_events)
+        
+        mu = alpha[state_idx] + gamma[time_idx] + eta[state_idx, qtr_idx] + beta[event_idx] * has_effect
+        y_lik = pm.Normal("y_lik", mu=mu, sigma=sigma_y, observed=y_obs)
+        
+        trace = pm.sample(
+            draws=draws, 
+            tune=tune, 
+            random_seed=random_seed, 
+            return_inferencedata=True, 
+            target_accept=0.95
+        )
+    return trace</code></pre>
+
+            <h3>MCMC Diagnostics &amp; Convergence</h3>
+            <p>Before interpreting the posteriors, I review the Markov Chain Monte Carlo (MCMC) diagnostics to ensure the chains mixed well and converged to the target distribution. I check the Gelman-Rubin statistic \(\hat{R}\) (which should be close to 1.0) and inspect the trace plots.</p>
+
+            <figure>
+                <img src="Pay Transparency/mcmc_trace_plots.png" alt="MCMC Trace Plots">
+                <figcaption>Figure 3: MCMC trace plots for the event study coefficients. The overlapping, fuzzy-caterpillar chains indicate excellent mixing and convergence.</figcaption>
+            </figure>
+
+            <p>All \(\hat{R}\) statistics are below \(1.01\), and the trace plots show no signs of drift or divergence, indicating that the posterior samples are highly reliable.</p>
+
+            <hr/>
+
+            <h2>4. Causal Interpretation: The Event Study Timeline</h2>
+            <p>Now, I extract the posterior estimates for the event study coefficients \(\beta_e\) and plot them over the event timeline. The timeline ranges from \(e \le -4\) (four or more quarters before the law) to \(e \ge 6\) (six or more quarters after the law).</p>
+
+            <figure>
+                <img src="Pay Transparency/bayesian_event_study.png" alt="Bayesian Event Study Timeline">
+                <figcaption>Figure 4: Dynamic causal impact of salary transparency on weekly wages. The blue bands illustrate the 50% and 94% highest density credible intervals (HDI).</figcaption>
+            </figure>
+
+            <p>The interpretation of the event study timeline is clear:</p>
+            <ol>
+                <li><strong>Pre-Treatment Checks (Parallel Trends Validation):</strong> The coefficients for the pre-treatment quarters (\(e = -4, -3, -2\)) are centered tightly around zero, with credible intervals overlapping the zero line. This confirms that there are no systematic differences in wage trends between treated and control states before the laws were enacted, validating our parallel trends assumption.</li>
+                <li><strong>Post-Treatment Causal Impact:</strong> Once the laws go into effect at \(e = 0\), the posterior means remain extremely close to zero. The 94% credible intervals expand slightly but continuously cover zero, showing no upward or downward pressure on wages. The probability that pay transparency caused a wage shift greater than 1% is less than 5%. The aggregate effect is statistically indistinguishable from random chance.</li>
+            </ol>
+
+            <hr/>
+
+            <h2>5. Robustness Check: The Synthetic Control Method (SCM)</h2>
+            <p>To verify the results at the individual state level, I implemented the <strong>Synthetic Control Method (SCM)</strong>. SCM is ideal for cases with a single treated unit (like California) and a small donor pool. Instead of comparing California to an unweighted average of control states, SCM uses optimization to find a weighted combination of control states (a "Synthetic California") that matches California's pre-treatment growth trends and wage levels as closely as possible.</p>
+
+            <p>To implement this, I define the SCM loss function as the sum of squared differences in the pre-treatment period, subject to the constraints that all weights are non-negative and sum to 1.</p>
+
+            <pre><code class="language-python"># SCM optimization from src/models.py
+def loss_func(w):
+    return np.sum((y_treated_pre - np.dot(y_controls_pre, w)) ** 2)
+    
+num_controls = len(control_units)
+initial_weights = np.ones(num_controls) / num_controls
+bounds = [(0.0, 1.0) for _ in range(num_controls)]
+constraints = {"type": "eq", "fun": lambda w: np.sum(w) - 1.0}
+
+res = minimize(loss_func, initial_weights, method="SLSQP", bounds=bounds, constraints=constraints)
+best_weights = res.x</code></pre>
+
+            <p>Fitting the model to California (treatment starting in 2023 Q1), the optimizer constructs "Synthetic California" using a donor combination of:</p>
+            <ul>
+                <li><strong>Illinois (IL):</strong> 80.3%</li>
+                <li><strong>North Carolina (NC):</strong> 19.7%</li>
+                <li><strong>All other control states (FL, GA, OH, TX):</strong> 0.0%</li>
+            </ul>
+
+            <p>This composition makes sense; Illinois (containing the Chicago tech hub) and North Carolina (containing the Research Triangle) share similar economic and tech-industry compositions with California, matching its steep pre-2023 wage growth.</p>
+
+            <figure>
+                <img src="Pay Transparency/synthetic_control.png" alt="Synthetic Control Results">
+                <figcaption>Figure 5: California actual weekly wages versus the counterfactual Synthetic California. The lower panel shows the causal gap (Actual - Synthetic).</figcaption>
+            </figure>
+
+            <p>The top panel shows that the actual California wage and its synthetic counterpart track each other almost perfectly in the pre-treatment period, achieving a normalized Mean Squared Error (MSE) of just \(0.00015\). In the post-treatment period (2023-2024), the actual and counterfactual lines continue to overlap closely. The causal gap in the lower panel fluctuates near zero, confirming that the salary transparency mandate had no significant causal impact on California's average wages.</p>
+
+            <hr/>
+
+            <h2>Conclusion &amp; People Analytics Playbook</h2>
+            <p>By combining frequentist panel controls, hierarchical Bayesian models, and synthetic counterfactuals, this analysis establishes that state-level pay transparency laws did not lead to aggregate wage inflation in the professional services sector. The positive wage pressure often feared by corporate finance departments did not materialize; the initial wage increases suggested by basic regressions are statistical artifacts that disappear once we cluster standard errors and control for seasonal bonus cycles.</p>
+
+            <p>For HR executives and People Analytics leaders, these findings offer a clear strategic playbook:</p>
+            <ul>
+                <li><strong>Shift Focus to Recruiting Efficiency:</strong> Since salary transparency does not drive up aggregate wage costs, its primary ROI lies in recruiting. Publishing salary bands aligns candidate expectations early, reduces candidates dropping out in the final interview rounds, and increases the offer-acceptance rate (OAR).</li>
+                <li><strong>Transition to Structured Compensation:</strong> Implementing pay transparency forces organizations to move away from discretionary, ad-hoc salary negotiations. HR should invest in structured, skill-based pay bands where certifications and competency levels map directly to compensation, reducing internal pay compression and equity friction.</li>
+                <li><strong>Conduct Proactive Pay Equity Audits:</strong> The true value of auditing compensation is risk mitigation. Correcting localized, indefensible pay gaps protects the company from legal exposure and reputational damage under these laws, even if broad salary inflation is not a threat.</li>
+            </ul>
+
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </article>
+    </div>
+</body>
+</html>
