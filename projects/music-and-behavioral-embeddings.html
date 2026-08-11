@@ -7,134 +7,97 @@
     <meta name="description" content="A multimodal data science tutorial fusing Spotify audio features, Genius lyric embeddings, and FRED macroeconomic indicators to track how American music taste shifts under economic stress. Covers dataset fusion, Gemini lyric embeddings, UMAP, temporal K-Means with Hungarian alignment, sub-clustering, and Granger causality.">
     <link rel="stylesheet" href="../style.css">
     <style>
-        .math-block {
-            background: #f4f6fb;
-            border-left: 4px solid #4a6fa5;
-            border-radius: 4px;
+        pre {
+            background-color: #21252b !important;
+            background: #21252b !important;
+            color: #abb2bf !important;
+        }
+        figure {
+            margin: 2.5rem 0;
+            text-align: center;
+        }
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        figcaption {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: #5f6368;
+            font-style: italic;
+        }
+        .callout-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #1a73e8;
             padding: 1rem 1.5rem;
-            margin: 1.2rem 0;
-            font-family: 'Georgia', serif;
-            font-size: 1.05rem;
-            color: #222;
-            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
         }
-        .inline-code {
-            background: #eef0f6;
-            border-radius: 3px;
-            padding: 0.1em 0.4em;
-            font-family: monospace;
-            font-size: 0.93em;
-            color: #333;
+        .callout-box p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #3c4043;
         }
-        .callout {
-            background: #e8f4fd;
-            border-left: 4px solid #2196f3;
-            border-radius: 4px;
-            padding: 0.9rem 1.2rem;
-            margin: 1.2rem 0;
-        }
-        .callout-warn {
-            background: #fff8e1;
-            border-left: 4px solid #ffa000;
-        }
-        .callout-success {
-            background: #e8f5e9;
-            border-left: 4px solid #43a047;
-        }
-        .callout strong { display: block; margin-bottom: 0.3rem; }
-        table.data-table {
-            border-collapse: collapse;
+        .benchmark-table {
             width: 100%;
-            margin: 1rem 0;
-            font-size: 0.92rem;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.95rem;
         }
-        table.data-table th {
-            background: #2c3e6b;
-            color: #fff;
-            padding: 0.5rem 0.8rem;
+        .benchmark-table th, .benchmark-table td {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
             text-align: left;
         }
-        table.data-table td {
-            border: 1px solid #dde;
-            padding: 0.45rem 0.8rem;
+        .benchmark-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
         }
-        table.data-table tr:nth-child(even) td { background: #f5f6fa; }
-        .pipeline-box {
-            background: #1a1d2e;
-            color: #e2e8f0;
-            border-radius: 8px;
-            padding: 1.2rem 1.5rem;
-            margin: 1.2rem 0;
-            font-family: monospace;
-            font-size: 0.88rem;
-            line-height: 1.8;
-            overflow-x: auto;
-        }
-        .cluster-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-        .cluster-card {
-            background: #f7f9fc;
-            border: 1px solid #e0e4f0;
-            border-radius: 8px;
-            padding: 1rem 1.2rem;
-        }
-        .cluster-card h4 {
-            margin: 0 0 0.4rem 0;
-            color: #2c3e6b;
-            font-size: 0.97rem;
-        }
-        .cluster-card p {
-            margin: 0;
-            font-size: 0.88rem;
-            color: #444;
-            line-height: 1.5;
-        }
-        .corr-positive { color: #c0392b; font-weight: 600; }
-        .corr-negative { color: #1a6b3c; font-weight: 600; }
-        .corr-neutral  { color: #555; }
-    
+
         /* OneDark Pro / VS Code Dark Code Block Styling */
         pre {
             background-color: #21252b !important;
-            color: #abb2bf;
-            padding: 1.25rem;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 1.75rem 0;
-            border: 1px solid #282c34;
-            position: relative;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-            font-size: 0.92rem;
-            line-height: 1.6;
+            background: #21252b !important;
+            color: #abb2bf !important;
+            padding: 1.25rem !important;
+            border-radius: 8px !important;
+            overflow-x: auto !important;
+            margin: 1.75rem 0 !important;
+            border: 1px solid #282c34 !important;
+            position: relative !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25) !important;
+            font-size: 0.92rem !important;
+            line-height: 1.6 !important;
         }
         code {
-            font-family: 'JetBrains Mono', SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
-            font-size: 0.88em;
-            background-color: #f0f2f5;
-            color: #e06c75;
-            padding: 0.2em 0.4em;
-            border-radius: 4px;
+            font-family: 'JetBrains Mono', SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace !important;
+            font-size: 0.88em !important;
+            background-color: #282c34 !important;
+            background: #282c34 !important;
+            color: #e06c75 !important;
+            padding: 0.2em 0.4em !important;
+            border-radius: 4px !important;
         }
         pre code {
-            padding: 0;
+            padding: 0 !important;
             background: transparent !important;
-            color: inherit;
-            font-size: 1em;
-            border-radius: 0;
+            background-color: transparent !important;
+            color: inherit !important;
+            font-size: 1em !important;
+            border-radius: 0 !important;
         }
         /* Custom OneDark Pro Syntax Highlighting Token Tweaks */
-        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #5c6370; font-style: italic; }
-        .token.function, .token.class-name { color: #61afef; }
-        .token.keyword { color: #c678dd; font-weight: 600; }
-        .token.string, .token.char, .token.attr-value { color: #98c379; }
-        .token.number, .token.boolean { color: #d19a66; }
-        .token.operator, .token.entity, .token.url { color: #56b6c2; }
-        .token.decorator, .token.builtin { color: #e5c07b; }
-        .token.property, .token.tag, .token.symbol { color: #e06c75; }
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #5c6370 !important; font-style: italic !important; }
+        .token.function, .token.class-name { color: #61afef !important; }
+        .token.keyword { color: #c678dd !important; font-weight: 600 !important; }
+        .token.string, .token.char, .token.attr-value { color: #98c379 !important; }
+        .token.number, .token.boolean { color: #d19a66 !important; }
+        .token.operator, .token.entity, .token.url { color: #56b6c2 !important; }
+        .token.decorator, .token.builtin { color: #e5c07b !important; }
+        .token.property, .token.tag, .token.symbol { color: #e06c75 !important; }
 
         /* Interactive Copy Button */
         .copy-btn {
@@ -157,9 +120,9 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
         .copy-btn:hover {
-            background: #3e4451;
-            color: #ffffff;
-            border-color: #4b5263;
+            background: #3e4451 !important;
+            color: #ffffff !important;
+            border-color: #4b5263 !important;
             transform: translateY(-1px);
         }
         .copy-btn.copied {
@@ -620,5 +583,53 @@ cluster_name_mapping = {d["cluster_id"]: d["name"] for d in brief_descriptions}<
             </div>
         </article>
     </div>
+
+    <!-- Syntax Highlighting (PrismJS) & Copy Button Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('pre').forEach((preBlock) => {
+                if (preBlock.querySelector('.copy-btn')) return;
+
+                const button = document.createElement('button');
+                button.className = 'copy-btn';
+                button.type = 'button';
+                button.setAttribute('aria-label', 'Copy code to clipboard');
+                button.innerHTML = `
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg> Copy`;
+
+                button.addEventListener('click', async () => {
+                    const code = preBlock.querySelector('code');
+                    const text = code ? code.innerText : preBlock.innerText;
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        button.classList.add('copied');
+                        button.innerHTML = `
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg> Copied!`;
+                        setTimeout(() => {
+                            button.classList.remove('copied');
+                            button.innerHTML = `
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg> Copy`;
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                    }
+                });
+
+                preBlock.appendChild(button);
+            });
+        });
+    </script>
 </body>
 </html>
