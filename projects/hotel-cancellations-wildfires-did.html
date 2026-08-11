@@ -80,7 +80,80 @@
         .comparison-table tr:nth-child(even) {
             background-color: #f9fafb;
         }
+    
+        /* OneDark Pro / VS Code Dark Code Block Styling */
+        pre {
+            background-color: #21252b !important;
+            color: #abb2bf;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.75rem 0;
+            border: 1px solid #282c34;
+            position: relative;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+        code {
+            font-family: 'JetBrains Mono', SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.88em;
+            background-color: #f0f2f5;
+            color: #e06c75;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+        }
+        pre code {
+            padding: 0;
+            background: transparent !important;
+            color: inherit;
+            font-size: 1em;
+            border-radius: 0;
+        }
+        /* Custom OneDark Pro Syntax Highlighting Token Tweaks */
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #5c6370; font-style: italic; }
+        .token.function, .token.class-name { color: #61afef; }
+        .token.keyword { color: #c678dd; font-weight: 600; }
+        .token.string, .token.char, .token.attr-value { color: #98c379; }
+        .token.number, .token.boolean { color: #d19a66; }
+        .token.operator, .token.entity, .token.url { color: #56b6c2; }
+        .token.decorator, .token.builtin { color: #e5c07b; }
+        .token.property, .token.tag, .token.symbol { color: #e06c75; }
+
+        /* Interactive Copy Button */
+        .copy-btn {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            background: #282c34;
+            color: #abb2bf;
+            border: 1px solid #3e4451;
+            border-radius: 6px;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .copy-btn:hover {
+            background: #3e4451;
+            color: #ffffff;
+            border-color: #4b5263;
+            transform: translateY(-1px);
+        }
+        .copy-btn.copied {
+            background: #98c379 !important;
+            color: #1e1e2e !important;
+            border-color: #98c379 !important;
+            font-weight: 600;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
     <div class="post-container">
@@ -154,7 +227,7 @@
 
             <p>To demonstrate why this is a statistical landmine, I ran a sensitivity analysis fitting the log-linear OLS model for various choices of <code>&epsilon; &in; [1.0, 0.5, 0.1, 0.01, 0.001]</code>. I tracked the estimated treatment coefficient (<code>&theta;</code>) and its standard errors:</p>
 
-            <pre><code>offsets = [1.0, 0.5, 0.1, 0.01, 0.001]
+            <pre><code class="language-python">offsets = [1.0, 0.5, 0.1, 0.01, 0.001]
 coefficients = []
 std_errors = []
 
@@ -182,7 +255,7 @@ for eps in offsets:
 
             <p>I fitted the model using statsmodels' Generalized Linear Model (GLM) with a Poisson family. Importantly, I specified <code>cov_type='HC0'</code> to calculate robust standard errors. Under the Poisson Pseudo-Maximum Likelihood (PPML) framework, using robust standard errors ensures that the coefficient estimates remain consistent even if the data does not follow a strict Poisson distribution (for example, in the presence of overdispersion):</p>
 
-            <pre><code>import statsmodels.api as sm
+            <pre><code class="language-python">import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
 # Fit Poisson DiD for Demand (total_bookings) using PPML
@@ -241,7 +314,7 @@ cancellation_model = smf.glm(
 
             <p>To resolve this, Jeffrey Wooldridge (2021, 2023) developed the <strong>Extended Two-Way Fixed Effects (ETWFE)</strong> estimator. This is a nonlinear saturated DiD model that handles heterogeneous treatment effects across units and cohorts without introducing the biases of traditional TWFE. I implemented ETWFE on a multi-unit weekly panel (Online TA segment for top 5 countries) using overall demand (total_bookings) as the outcome variable:</p>
 
-            <pre><code>from etwfe import etwfe
+            <pre><code class="language-python">from etwfe import etwfe
 
 # Fit Wooldridge's saturated Poisson DiD model for demand
 etwfe_model = etwfe(
@@ -263,7 +336,7 @@ print(etwfe_model.emfx().round(4))</code></pre>
             <h2>Pre-Trend Diagnostics with diff-diff</h2>
             <p>The identifying assumption of Difference-in-Differences is that the treated and control groups share parallel trends in the pre-treatment period. I formally tested this assumption on the pre-treatment period (before week 102) using the <code>diff-diff</code> library:</p>
 
-            <pre><code>import diff_diff as dd
+            <pre><code class="language-python">import diff_diff as dd
 
 pre_periods = list(panel_simple[panel_simple['week_idx'] < 102]['week_idx'].unique())
 trends_res = dd.check_parallel_trends(

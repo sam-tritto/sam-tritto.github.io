@@ -97,7 +97,80 @@
             color: #64748b;
             font-style: italic;
         }
+    
+        /* OneDark Pro / VS Code Dark Code Block Styling */
+        pre {
+            background-color: #21252b !important;
+            color: #abb2bf;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.75rem 0;
+            border: 1px solid #282c34;
+            position: relative;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+        code {
+            font-family: 'JetBrains Mono', SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.88em;
+            background-color: #f0f2f5;
+            color: #e06c75;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+        }
+        pre code {
+            padding: 0;
+            background: transparent !important;
+            color: inherit;
+            font-size: 1em;
+            border-radius: 0;
+        }
+        /* Custom OneDark Pro Syntax Highlighting Token Tweaks */
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #5c6370; font-style: italic; }
+        .token.function, .token.class-name { color: #61afef; }
+        .token.keyword { color: #c678dd; font-weight: 600; }
+        .token.string, .token.char, .token.attr-value { color: #98c379; }
+        .token.number, .token.boolean { color: #d19a66; }
+        .token.operator, .token.entity, .token.url { color: #56b6c2; }
+        .token.decorator, .token.builtin { color: #e5c07b; }
+        .token.property, .token.tag, .token.symbol { color: #e06c75; }
+
+        /* Interactive Copy Button */
+        .copy-btn {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            background: #282c34;
+            color: #abb2bf;
+            border: 1px solid #3e4451;
+            border-radius: 6px;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .copy-btn:hover {
+            background: #3e4451;
+            color: #ffffff;
+            border-color: #4b5263;
+            transform: translateY(-1px);
+        }
+        .copy-btn.copied {
+            background: #98c379 !important;
+            color: #1e1e2e !important;
+            border-color: #98c379 !important;
+            font-weight: 600;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
     <div class="post-container">

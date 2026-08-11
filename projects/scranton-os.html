@@ -109,7 +109,80 @@
         code {
             font-family: inherit;
         }
+    
+        /* OneDark Pro / VS Code Dark Code Block Styling */
+        pre {
+            background-color: #21252b !important;
+            color: #abb2bf;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.75rem 0;
+            border: 1px solid #282c34;
+            position: relative;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+        code {
+            font-family: 'JetBrains Mono', SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.88em;
+            background-color: #f0f2f5;
+            color: #e06c75;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+        }
+        pre code {
+            padding: 0;
+            background: transparent !important;
+            color: inherit;
+            font-size: 1em;
+            border-radius: 0;
+        }
+        /* Custom OneDark Pro Syntax Highlighting Token Tweaks */
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #5c6370; font-style: italic; }
+        .token.function, .token.class-name { color: #61afef; }
+        .token.keyword { color: #c678dd; font-weight: 600; }
+        .token.string, .token.char, .token.attr-value { color: #98c379; }
+        .token.number, .token.boolean { color: #d19a66; }
+        .token.operator, .token.entity, .token.url { color: #56b6c2; }
+        .token.decorator, .token.builtin { color: #e5c07b; }
+        .token.property, .token.tag, .token.symbol { color: #e06c75; }
+
+        /* Interactive Copy Button */
+        .copy-btn {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            background: #282c34;
+            color: #abb2bf;
+            border: 1px solid #3e4451;
+            border-radius: 6px;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .copy-btn:hover {
+            background: #3e4451;
+            color: #ffffff;
+            border-color: #4b5263;
+            transform: translateY(-1px);
+        }
+        .copy-btn.copied {
+            background: #98c379 !important;
+            color: #1e1e2e !important;
+            border-color: #98c379 !important;
+            font-weight: 600;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 
 <body>
@@ -389,7 +462,7 @@
                     the proper security and compliance gates.
                 </p>
                 <p>Here is the core classification utility implemented in the workflow engine:</p>
-                <pre><code>def classify_intent(user_input: str) -> CommandIntent:
+                <pre><code class="language-python">def classify_intent(user_input: str) -> CommandIntent:
     """
     Deterministic intent classification based on keyword matching.
     This runs BEFORE the LLM to ensure routing cannot be manipulated
@@ -433,7 +506,7 @@
                     are missing from the environment variables, ScrantonOS automatically initiates a secure handshake
                     with <strong>Google Cloud Secret Manager</strong> to download them at runtime:
                 </p>
-                <pre><code>@model_validator(mode="after")
+                <pre><code class="language-python">@model_validator(mode="after")
 def check_prod_requirements(self) -> "ScrantonConfig":
     """Ensure critical credentials exist in PROD mode."""
     if self.ENV == "PROD":
@@ -470,7 +543,7 @@ def check_prod_requirements(self) -> "ScrantonConfig":
                 </p>
                 <p>For example, Dwight's SRE module checks if a service's memory usage grew monotonically over five
                     consecutive samples:</p>
-                <pre><code>def analyze_logs_structured(entries: list[dict[str, Any]]) -> dict[str, Any]:
+                <pre><code class="language-python">def analyze_logs_structured(entries: list[dict[str, Any]]) -> dict[str, Any]:
     """Pre-compute structured metrics from log entries via deterministic Python."""
     total = len(entries)
     severity_counts = Counter(e["severity"] for e in entries)
@@ -491,7 +564,7 @@ def check_prod_requirements(self) -> "ScrantonConfig":
     }</code></pre>
                 <p>Similarly, Oscar's FinOps billing tool aggregates GCP SKU charges, flags GPU budget utilization, and
                     maps cost outliers before Oscar writes the report:</p>
-                <pre><code>def compute_billing_metrics(data: dict[str, Any]) -> dict[str, Any]:
+                <pre><code class="language-python">def compute_billing_metrics(data: dict[str, Any]) -> dict[str, Any]:
     """Pre-compute billing statistics for Oscar's financial analysis."""
     items = data["line_items"]
     budget = data.get("budget_usd", 12000.0)
@@ -524,7 +597,7 @@ def check_prod_requirements(self) -> "ScrantonConfig":
                 and an appended iconic character quote. The utility loads quotes from a registry JSON file
                 (<code>quotes/lines.json</code>) and picks a quote pseudorandomly using <code>random.choice()</code>:
             </p>
-            <pre><code>def get_random_quote(character_id: str) -> str:
+            <pre><code class="language-python">def get_random_quote(character_id: str) -> str:
     quotes = _load_quotes()
     if character_id in quotes and quotes[character_id].get("quotes"):
         return random.choice(quotes[character_id]["quotes"])
@@ -603,7 +676,7 @@ def check_prod_requirements(self) -> "ScrantonConfig":
                 gated command is requested, Toby generates a signed token utilizing a key loaded from GCP Secret
                 Manager:
             </p>
-            <pre><code>def generate_approval_token(request_id: str) -> str:
+            <pre><code class="language-python">def generate_approval_token(request_id: str) -> str:
     """Generate an HMAC-signed approval token for an HITL request."""
     cfg = get_config()
     return hmac.new(
@@ -621,7 +694,7 @@ def verify_approval_token(request_id: str, token: str) -> bool:
                 signature. If the token is invalid or missing, the tool execution fails immediately, preventing bypasses
                 of Toby's approval portal:
             </p>
-            <pre><code>def apply_iam_grant(user: str, role: str, approval_token: str = "") -> dict[str, Any]:
+            <pre><code class="language-python">def apply_iam_grant(user: str, role: str, approval_token: str = "") -> dict[str, Any]:
     """Mock IAM grant. Rejects unless a valid HMAC approval token is provided."""
     whitelist_result = check_iam_whitelist(role)
     if whitelist_result.get("requires_hitl") or whitelist_result["status"] == "requires_approval":
@@ -657,7 +730,7 @@ def verify_approval_token(request_id: str, token: str) -> bool:
                 dispatcher inspects the global settings instance and injects either real cloud-native client interfaces
                 or static local mocks:
             </p>
-            <pre><code># tools/__init__.py
+            <pre><code class="language-python"># tools/__init__.py
 from config import get_config
 
 _cfg = get_config()
@@ -687,7 +760,7 @@ else:
                 broadcasting real-time agent updates. If a gated compliance action is encountered, the server emits a
                 specialized <code>hitl_pause</code> payload:
             </p>
-            <pre><code># server.py WebSocket Event Router
+            <pre><code class="language-python"># server.py WebSocket Event Router
 try:
     while True:
         data = await ws.receive_text()
