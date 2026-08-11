@@ -95,6 +95,7 @@
         </div>
 
         <article class="post-content">
+            <img src="AI Confidence Scores/overconfident_gemini_thumb.jpg" alt="The Overconfident Gemini" class="post-image" fetchpriority="high">
             <h2>1. The Overconfidence Problem in Production LLMs</h2>
             <p>When deploying modern Large Language Models (LLMs) such as Gemini 2.5 Flash to automate unstructured document processing, one issue repeatedly surfaces: raw probability outputs from instruction-tuned models are severely uncalibrated. Post-training reinforcement learning (RLHF/RLAIF) aligns models to generate fluent, decisive completions, but it systematically squashes predicted token log probabilities toward 1.0 or 0.0. As a result, a raw model confidence score of 0.98 does not mean the model is right 98% of the time.</p>
 
