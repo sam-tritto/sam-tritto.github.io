@@ -7,7 +7,7 @@ window.PROJECTS_DATA = [
     "filename": "2026.html"
   },
   {
-    "title": "Enterprise AI Confidence Calibration: Benchmarking 9 LLM Confidence Scoring Engines",
+    "title": "Google Gemini AI Confidence Scores for Multimodal PDF Resume Classification",
     "slug": "ai-confidence-scores-framework.html",
     "snippet": "Production-grade evaluation, calibration, and benchmarking of 9 distinct LLM confidence score frameworks for multimodal PDF resume classification using Google's google-genai SDK. Pits token logprob margins, Platt scaling, and temperature scaling against NLI grounding alignment and LLM-as-a-Judge.",
     "image": "AI Confidence Scores/radar_metrics_comparison.png",
