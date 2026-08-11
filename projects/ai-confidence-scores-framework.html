@@ -153,7 +153,7 @@
 
         <article class="post-content">
             <img src="AI Confidence Scores/overconfident_gemini_thumb.jpg" alt="The Overconfident Gemini" class="post-image" fetchpriority="high">
-            <h2>1. The Overconfidence Problem in Production LLMs</h2>
+            <h2>The Overconfidence Problem in Production LLMs</h2>
             <p>When deploying modern Large Language Models (LLMs) such as Gemini 2.5 Flash to automate unstructured document processing, one issue repeatedly surfaces: raw probability outputs from instruction-tuned models are severely uncalibrated. Post-training reinforcement learning (RLHF/RLAIF) aligns models to generate fluent, decisive completions, but it systematically squashes predicted token log probabilities toward 1.0 or 0.0. As a result, a raw model confidence score of 0.98 does not mean the model is right 98% of the time.</p>
 
             <p>In high-stakes enterprise applications, such as candidate resume parsing and recruiter routing, uncalibrated overconfidence creates hidden failure modes. An erroneous domain classification (for instance, classifying a Financial Analyst as a Data Scientist) might pass through automated hiring workflows without triggering a human review. Conversely, setting an arbitrary fixed threshold on uncalibrated probabilities leads to either auditing too many correct extractions or letting critical errors slide.</p>
@@ -164,7 +164,7 @@
                 <p><strong>Official Reference Documentation:</strong> For foundational concepts on token log probabilities in Gemini, explore the official <a href="https://github.com/GoogleCloudPlatform/generative-ai/blob/main/gemini/logprobs/intro_logprobs.ipynb" target="_blank" rel="noopener noreferrer">Gemini Logprobs Tutorial Notebook</a> and the <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig" target="_blank" rel="noopener noreferrer">Gemini GenerationConfig API Reference</a>.</p>
             </div>
 
-            <h2>2. The Dataset & Ingestion Pipeline</h2>
+            <h2>The Dataset & Ingestion Pipeline</h2>
             <p>Evaluating confidence calibration requires a realistic dataset with complex, multi-page formatting and inherent domain ambiguity. For this benchmark, I used synthetic PDF candidate resumes. Synthetic resumes mirror real-world applicant data: non-standard job titles, multi-column visual layouts, mixed technical keywords, and varying experience lengths across multiple career transitions.</p>
 
             <p>To ingest these documents, I built a dual parsing pipeline in <code>src/ingestion.py</code> that provides two complementary input paths for Gemini 2.5 Flash:</p>
@@ -199,7 +199,7 @@ class ResumeIngestor:
         """Load raw PDF bytes for native Gemini multimodal ingestion."""
         return Path(pdf_path).read_bytes()</code></pre>
 
-            <h2>3. Pydantic Contracts and Flexible Domain Schemas</h2>
+            <h2>Pydantic Contracts and Flexible Domain Schemas</h2>
             <p>A core design choice of this framework is strict schema enforcement. By leveraging Pydantic, all extractions are guaranteed to conform to structural contracts. The core benchmark targets <code>ResumeExtraction</code>, which categorizes candidates into domain roles and seniority tiers while capturing atomic factual claims for factual verification.</p>
 
             <p>Handling unstructured LLM outputs requires robust enum validation. I implemented custom <code>_missing_</code> classmethods on domain enums to map messy LLM string returns (such as "Machine Learning Engineer" or "AI Researcher") directly to canonical enum values (such as <code>DomainRole.DATA_SCIENCE</code>).</p>
@@ -250,7 +250,7 @@ class CalibrationResult(BaseModel):
     latency_ms: float
     metadata: dict</code></pre>
 
-            <h2>4. Mathematical Breakdown & Architectural Implementation of the 9 Calibration Engines</h2>
+            <h2>Mathematical Breakdown & Architectural Implementation of the 9 Calibration Engines</h2>
             <p>I structured the calibration suite around 9 distinct engines, spanning token-level statistics, post-hoc statistical modeling, sampling agreement, verbalized self-assessment, and context alignment verification.</p>
 
             <h3>Engine 1: Native Token LogProb Engine (<code>NativeLogProbEngine</code>)</h3>
@@ -555,7 +555,7 @@ judge_resp = client.models.generate_content(model="gemini-2.5-flash", contents=[
 judge_eval = JudgeEvaluation.model_validate_json(judge_resp.text)
 confidence = judge_eval.normalized_score  # Normalized rubric quality score</code></pre>
 
-            <h2>5. When to Use Each Calibration Engine</h2>
+            <h2>When to Use Each Calibration Engine</h2>
             <p>Choosing the right calibration framework involves balancing runtime latency, API cost, logprob availability, and compliance requirements:</p>
 
             <table class="benchmark-table">
@@ -625,7 +625,7 @@ confidence = judge_eval.normalized_score  # Normalized rubric quality score</cod
                 </tbody>
             </table>
 
-            <h2>6. Empirical Benchmark Results & Visual Insights</h2>
+            <h2>Empirical Benchmark Results & Visual Insights</h2>
             <p>I evaluated all 9 calibration engines on the synthetic PDF resume dataset. Metrics were computed for Expected Calibration Error (ECE), Maximum Calibration Error (MCE), Brier Score (mean squared error), Classification Accuracy, Mean Latency, and the resulting Automation Ratio under an audit threshold of 0.75.</p>
 
             <table class="benchmark-table">
@@ -762,7 +762,7 @@ confidence = judge_eval.normalized_score  # Normalized rubric quality score</cod
                 <figcaption>Figure 3: Multi-Metric Radar Comparison evaluating top engines across 4 operational dimensions: Accuracy, Calibration Quality (\(1 - \text{ECE}\)), Reliability (\(1 - \text{Brier}\)), and Automation Ratio.</figcaption>
             </figure>
 
-            <h2>7. Production Challenges & Engineering Lessons</h2>
+            <h2>Production Challenges & Engineering Lessons</h2>
             <p>Building this benchmark surfaced several key technical considerations for LLM confidence calibration:</p>
 
             <ul>
@@ -771,7 +771,7 @@ confidence = judge_eval.normalized_score  # Normalized rubric quality score</cod
                 <li><strong>Multimodal Ingestion vs CPU Layout Parsing:</strong> PyMuPDF layout parsing handles structured text quickly on CPU. However, for complex multi-column resumes or non-standard fonts, direct PDF byte ingestion to Gemini's visual engine eliminates text extraction artifacts.</li>
             </ul>
 
-            <h2>8. Architectural Recommendations</h2>
+            <h2>Architectural Recommendations</h2>
             <p>Based on empirical benchmark findings, I recommend a tiered production architecture for enterprise document extraction:</p>
 
             <ol>
