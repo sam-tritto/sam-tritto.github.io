@@ -25,7 +25,7 @@
             <div class="hero-text">
                 <h1 class="hero-title">Welcome to my portfolio!</h1>
                 <p class="hero-bio">
-                    Currently I'm a Senior Data Scientist at The Home Depot on the People Analytics team. I've obtained my M.S. in Analytics from Georgia Tech, also holding a B.S. in Mathematics as well as an M.Ed. in Mathematics Education. I'm a Python enthusiast with 8+ years of experience and an interest in Bayesian Statistics, AI, Causal Inference, Experimental Design, and MLOps. I love building and innovating on new projects, so this is just a space for me to document and share my work as I learn.I'm also a drummer with an immense passion for creating and listening to music! Feel free to get in touch with me below.
+                    Currently I'm a Senior Data Scientist at The Home Depot on the People Analytics team. I've obtained my M.S. in Analytics from Georgia Tech, also holding a B.S. in Mathematics as well as an M.Ed. in Mathematics Education. I'm a Python enthusiast with 8+ years of experience and an interest in Bayesian Statistics, Generative and Agentic AI, Causal Inference, Experimental Design, and MLOps. I love building and innovating on new projects, so this is just a space for me to document and share my work as I learn. I'm also a drummer with an immense passion for creating and listening to music! Feel free to get in touch with me below.
                 </p>
                 <!-- <p class="hero-bio" style="margin-top: 1rem; margin-bottom: 2rem;">
                     Also you might be interested to know that I've recently built PhoneTag, a phone app for iOS/Android in Flutter/Dart, which is a simple status tracker for everyone! It's in alpha testing right now so hopefully soon you'll be able to check out the app! Life can get busy and with this app I hope to build small moments of spontaneous connection for family and friends.
@@ -239,93 +239,93 @@
                 container.innerHTML = html;
             }
 
-            // Interactive Skills Rating Logic
-            const SKILLS_HUMOR = {
-                python: {
-                    1: "Knows how to write print('Hello World') and exits python by restarting the computer.",
-                    2: "Can write a for loop and copy-paste from GPT without syntax errors.",
-                    3: "Uses Pandas and NumPy. Understands the difference between a list and a dictionary (most of the time). Thinks the “environment” is comfortable and not too cool right now.",
-                    4: "Builds Kubernetes pipelines without crying and generates nested list comprehensions with ease.",
-                    5: "8+ years. Dreams in Python. Can talk to snakes. Still reads the “docs”."
-                },
-                sql: {
-                    1: "Selects all from a table and crashes the database.",
-                    2: "Can do basic SELECT and WHERE queries. Still thinks JOIN is a magic spell and always forgets the ON clause.",
-                    3: "Joins multiple tables and groups by columns. Can debug a slow query with index usage.",
-                    4: "Writes complex recursive CTEs and window functions. Knows how to bring back the data they accidentally wrote over.",
-                    5: "Where 1=1. Uses QUALIFY and loves BigQuery's geography functions. Can sprinkle in AI or ML functions as needed because; Did you know you can do that in BigQuery?."
-                },
-                genai: {
-                    1: "Thinks LLM is a typo for HTML. Uses ChatGPT to write basic emails.",
-                    2: "Prompt engineer apprentice. Knows what temperature does but keeps it at 0.7 anyway.",
-                    3: "Prompts models so well they think we're best friends and always says Please and Thank you.",
-                    4: "Integrates Gemini/GPT APIs into scripts. Knows how to prevent prompt injection.",
-                    5: "Builds multi-agent systems, implements RAG, runs batch jobs, and fine-tunes embeddings. Remembers GPT-1"
-                },
-                stats: {
-                    1: "Calculates the mean, median, and mode (if they are all the same number).",
-                    2: "Knows what p-value means but secretly hopes it's just magic.",
-                    3: "Fits linear regressions and understands frequentist hypothesis testing.",
-                    4: "Builds hierarchical Bayesian models and understands MCMC sampling.",
-                    5: "95% credible interval that I know exactly what I'm doing. Updates prior beliefs daily based on new data. Loves LaTeX."
-                },
-                mlops: {
-                    1: "Thinks Docker is a brand of pants. 'It worked on my machine' is my default defense.",
-                    2: "Thinks Docker is a pair of jeans. Can spin up a VM and deploy a simple script. Knows how to turn it off to save money.",
-                    3: "Builds Kubernetes pipelines and sets up basic CI/CD pipelines to deploy models. Uses uv and has never leaked a secret to GitHub.",
-                    4: "Deploys robust, auto-scaling inference pipelines. Orchestrates model tracking and monitoring.",
-                    5: "Automates everything so well they haven't touched a server in years. Terraform is their native language."
-                },
-                experimentation: {
-                    1: "A/B tests by changing a button color and hoping for the best.",
-                    2: "Runs basic experiments. Understands sample size but not statistical power.",
-                    3: "Designs randomized controlled trials. Detects and corrects selection bias.",
-                    4: "Applies propensity score matching, diff-in-diff, and instrumental variables. Always excited to try a new library. Has read Judea Pearl.",
-                    5: "Treats statistical significance like a sacred text. Will run an A/B experiment on whether this text is funny."
-                }
-            };
+            // // Interactive Skills Rating Logic
+            // const SKILLS_HUMOR = {
+            //     python: {
+            //         1: "Knows how to write print('Hello World') and exits python by restarting the computer.",
+            //         2: "Can write a for loop and copy-paste from GPT without syntax errors.",
+            //         3: "Uses Pandas and NumPy. Understands the difference between a list and a dictionary (most of the time). Thinks the “environment” is comfortable and not too cool right now.",
+            //         4: "Builds Kubernetes pipelines without crying and generates nested list comprehensions with ease.",
+            //         5: "8+ years. Dreams in Python. Can talk to snakes. Still reads the “docs”."
+            //     },
+            //     sql: {
+            //         1: "Selects all from a table and crashes the database.",
+            //         2: "Can do basic SELECT and WHERE queries. Still thinks JOIN is a magic spell and always forgets the ON clause.",
+            //         3: "Joins multiple tables and groups by columns. Can debug a slow query with index usage.",
+            //         4: "Writes complex recursive CTEs and window functions. Knows how to bring back the data they accidentally wrote over.",
+            //         5: "Where 1=1. Uses QUALIFY and loves BigQuery's geography functions. Can sprinkle in AI or ML functions as needed because; Did you know you can do that in BigQuery?."
+            //     },
+            //     genai: {
+            //         1: "Thinks LLM is a typo for HTML. Uses ChatGPT to write basic emails.",
+            //         2: "Prompt engineer apprentice. Knows what temperature does but keeps it at 0.7 anyway.",
+            //         3: "Prompts models so well they think we're best friends and always says Please and Thank you.",
+            //         4: "Integrates Gemini/GPT APIs into scripts. Knows how to prevent prompt injection.",
+            //         5: "Builds multi-agent systems, implements RAG, runs batch jobs, and fine-tunes embeddings. Remembers GPT-1"
+            //     },
+            //     stats: {
+            //         1: "Calculates the mean, median, and mode (if they are all the same number).",
+            //         2: "Knows what p-value means but secretly hopes it's just magic.",
+            //         3: "Fits linear regressions and understands frequentist hypothesis testing.",
+            //         4: "Builds hierarchical Bayesian models and understands MCMC sampling.",
+            //         5: "95% credible interval that I know exactly what I'm doing. Updates prior beliefs daily based on new data. Loves LaTeX."
+            //     },
+            //     mlops: {
+            //         1: "Thinks Docker is a brand of pants. 'It worked on my machine' is my default defense.",
+            //         2: "Thinks Docker is a pair of jeans. Can spin up a VM and deploy a simple script. Knows how to turn it off to save money.",
+            //         3: "Builds Kubernetes pipelines and sets up basic CI/CD pipelines to deploy models. Uses uv and has never leaked a secret to GitHub.",
+            //         4: "Deploys robust, auto-scaling inference pipelines. Orchestrates model tracking and monitoring.",
+            //         5: "Automates everything so well they haven't touched a server in years. Terraform is their native language."
+            //     },
+            //     experimentation: {
+            //         1: "A/B tests by changing a button color and hoping for the best.",
+            //         2: "Runs basic experiments. Understands sample size but not statistical power.",
+            //         3: "Designs randomized controlled trials. Detects and corrects selection bias.",
+            //         4: "Applies propensity score matching, diff-in-diff, and instrumental variables. Always excited to try a new library. Has read Judea Pearl.",
+            //         5: "Treats statistical significance like a sacred text. Will run an A/B experiment on whether this text is funny."
+            //     }
+            // };
 
-            // Interactive Footer Inline Skills Logic
-            document.querySelectorAll('.skills-footer-row').forEach(row => {
-                const skill = row.dataset.skill;
-                const defaultRating = parseInt(row.dataset.defaultRating, 10);
-                const stars = row.querySelectorAll('.star-icon');
-                const textEl = row.querySelector('.skills-footer-desc');
+            // // Interactive Footer Inline Skills Logic
+            // document.querySelectorAll('.skills-footer-row').forEach(row => {
+            //     const skill = row.dataset.skill;
+            //     const defaultRating = parseInt(row.dataset.defaultRating, 10);
+            //     const stars = row.querySelectorAll('.star-icon');
+            //     const textEl = row.querySelector('.skills-footer-desc');
 
-                function updateStars(rating, isHover = false) {
-                    stars.forEach(star => {
-                        const val = parseInt(star.dataset.value, 10);
-                        if (val <= rating) {
-                            star.classList.add('filled');
-                            if (isHover) {
-                                star.classList.add('hovered');
-                            } else {
-                                star.classList.remove('hovered');
-                            }
-                        } else {
-                            star.classList.remove('filled', 'hovered');
-                        }
-                    });
-                }
+            //     function updateStars(rating, isHover = false) {
+            //         stars.forEach(star => {
+            //             const val = parseInt(star.dataset.value, 10);
+            //             if (val <= rating) {
+            //                 star.classList.add('filled');
+            //                 if (isHover) {
+            //                     star.classList.add('hovered');
+            //                 } else {
+            //                     star.classList.remove('hovered');
+            //                 }
+            //             } else {
+            //                 star.classList.remove('filled', 'hovered');
+            //             }
+            //         });
+            //     }
 
-                stars.forEach(star => {
-                    star.addEventListener('mouseenter', () => {
-                        const rating = parseInt(star.dataset.value, 10);
-                        updateStars(rating, true);
-                        if (SKILLS_HUMOR[skill] && SKILLS_HUMOR[skill][rating]) {
-                            textEl.textContent = SKILLS_HUMOR[skill][rating];
-                        }
-                    });
-                });
+            //     stars.forEach(star => {
+            //         star.addEventListener('mouseenter', () => {
+            //             const rating = parseInt(star.dataset.value, 10);
+            //             updateStars(rating, true);
+            //             if (SKILLS_HUMOR[skill] && SKILLS_HUMOR[skill][rating]) {
+            //                 textEl.textContent = SKILLS_HUMOR[skill][rating];
+            //             }
+            //         });
+            //     });
 
-                const starsContainer = row.querySelector('.skills-footer-stars');
-                starsContainer.addEventListener('mouseleave', () => {
-                    updateStars(defaultRating, false);
-                    if (SKILLS_HUMOR[skill] && SKILLS_HUMOR[skill][defaultRating]) {
-                        textEl.textContent = SKILLS_HUMOR[skill][defaultRating];
-                    }
-                });
-            });
+            //     const starsContainer = row.querySelector('.skills-footer-stars');
+            //     starsContainer.addEventListener('mouseleave', () => {
+            //         updateStars(defaultRating, false);
+            //         if (SKILLS_HUMOR[skill] && SKILLS_HUMOR[skill][defaultRating]) {
+            //             textEl.textContent = SKILLS_HUMOR[skill][defaultRating];
+            //         }
+                // });
+            // });
         });
     </script>
 </body>
