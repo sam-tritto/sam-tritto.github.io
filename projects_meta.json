@@ -7,6 +7,14 @@
     "filename": "2026.html"
   },
   {
+    "title": "Enterprise AI Confidence Calibration: Benchmarking 9 LLM Confidence Scoring Engines",
+    "slug": "ai-confidence-scores-framework.html",
+    "snippet": "Production-grade evaluation, calibration, and benchmarking of 9 distinct LLM confidence score frameworks for multimodal PDF resume classification using Google's google-genai SDK. Pits token logprob margins, Platt scaling, and temperature scaling against NLI grounding alignment and LLM-as-a-Judge.",
+    "image": "AI Confidence Scores/radar_metrics_comparison.png",
+    "filename": "ai-confidence-scores-framework.html",
+    "date": "August 2026"
+  },
+  {
     "title": "GCP Certification Exam Knowledge Graph & GraphRAG Chatbot with Adaptive Bayesian Learning",
     "slug": "gcp-certification-graphrag-bayesian-learning.html",
     "snippet": "An interactive GCP study assistant that pairs a Neo4j knowledge graph of exam blueprints with an adaptive Bayesian Belief Network. Tracks student mastery in real time, guides learning via Shannon-entropy active learning, and triggers graph-traversed RAG context for personalized tutoring.",

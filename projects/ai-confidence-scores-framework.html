@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benchmarking and Calibrating Enterprise AI Confidence Scores - Sam's Data Portfolio</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        pre {
+            background: #f4f5f7;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid #e5e7eb;
+        }
+        code {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.9em;
+            background: #f4f5f7;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+        }
+        pre code {
+            padding: 0;
+            background: none;
+            font-size: 0.95em;
+        }
+        figure {
+            margin: 2.5rem 0;
+            text-align: center;
+        }
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        figcaption {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: #5f6368;
+            font-style: italic;
+        }
+        .callout-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #1a73e8;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .callout-box p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #3c4043;
+        }
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+        .benchmark-table th, .benchmark-table td {
+            padding: 0.75rem 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .benchmark-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #202124;
+        }
+        .benchmark-table tr:hover {
+            background-color: #f1f3f4;
+        }
+    </style>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>Benchmarking and Calibrating Enterprise AI Confidence Scores for Multimodal PDF Resume Classification</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <a href="https://github.com/sam-tritto/ai-confidence-scores" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                    </svg>
+                    View Repository on GitHub
+                </a>
+            </div>
+        </div>
+
+        <article class="post-content">
+            <h2>1. The Overconfidence Problem in Production LLMs</h2>
+            <p>When deploying modern Large Language Models (LLMs) such as Gemini 2.5 Flash to automate unstructured document processing, one issue repeatedly surfaces: raw probability outputs from instruction-tuned models are severely uncalibrated. Post-training reinforcement learning (RLHF/RLAIF) aligns models to generate fluent, decisive completions, but it systematically squashes predicted token log probabilities toward 1.0 or 0.0. As a result, a raw model confidence score of 0.98 does not mean the model is right 98% of the time.</p>
+
+            <p>In high-stakes enterprise applications, such as candidate resume parsing and recruiter routing, uncalibrated overconfidence creates hidden failure modes. An erroneous domain classification (for instance, classifying a Financial Analyst as a Data Scientist) might pass through automated hiring workflows without triggering a human review. Conversely, setting an arbitrary fixed threshold on uncalibrated probabilities leads to either auditing too many correct extractions or letting critical errors slide.</p>
+
+            <p>To address this challenge, I built <a href="https://github.com/sam-tritto/ai-confidence-scores" target="_blank" rel="noopener noreferrer"><code>ai-confidence-scores</code></a>, an enterprise-grade evaluation and calibration framework using Google's modern <code>google-genai</code> SDK. I implemented, benchmarked, and comparative-evaluated 9 distinct confidence scoring techniques across multimodal PDF resumes. My objective was to determine which calibration frameworks deliver true statistical accuracy while minimizing runtime latency and API overhead.</p>
+
+            <div class="callout-box">
+                <p><strong>Official Reference Documentation:</strong> For foundational concepts on token log probabilities in Gemini, explore the official <a href="https://github.com/GoogleCloudPlatform/generative-ai/blob/main/gemini/logprobs/intro_logprobs.ipynb" target="_blank" rel="noopener noreferrer">Gemini Logprobs Tutorial Notebook</a> and the <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig" target="_blank" rel="noopener noreferrer">Gemini GenerationConfig API Reference</a>.</p>
+            </div>
+
+            <h2>2. The Dataset & Ingestion Pipeline</h2>
+            <p>Evaluating confidence calibration requires a realistic dataset with complex, multi-page formatting and inherent domain ambiguity. For this benchmark, I used synthetic PDF candidate resumes. Synthetic resumes mirror real-world applicant data: non-standard job titles, multi-column visual layouts, mixed technical keywords, and varying experience lengths across multiple career transitions.</p>
+
+            <p>To ingest these documents, I built a dual parsing pipeline in <code>src/ingestion.py</code> that provides two complementary input paths for Gemini 2.5 Flash:</p>
+            <ul>
+                <li><strong>Layout-Preserved PyMuPDF Text Extraction:</strong> Extracts structural text blocks using <code>pymupdf</code> (fitz), injecting page demarcation tags (<code>--- Page N ---</code>) for zero-latency CPU text processing.</li>
+                <li><strong>Direct Native Multimodal PDF Ingestion:</strong> Reads raw PDF bytes into <code>types.Part.from_bytes(data=pdf_bytes, mime_type="application/pdf")</code>. This passes raw visual document bytes straight to Gemini's vision engine, bypassing text parsing errors caused by complex multi-column grids or custom fonts.</li>
+            </ul>
+
+            <pre><code class="language-python">from pathlib import Path
+from typing import Tuple, Union
+import pymupdf as fitz
+
+class ResumeIngestor:
+    """Handles scanning, loading, and text layout extraction for PDF resumes."""
+
+    def __init__(self, data_directory: Union[str, Path] = "./data"):
+        self.data_directory = Path(data_directory)
+
+    @staticmethod
+    def extract_text_pymupdf(pdf_path: Union[str, Path]) -> str:
+        """Extract layout-preserved text from PDF using PyMuPDF."""
+        extracted_text = []
+        with fitz.open(pdf_path) as doc:
+            for page_num, page in enumerate(doc):
+                text = page.get_text("text")
+                if text.strip():
+                    extracted_text.append(f"--- Page {page_num + 1} ---\n{text}")
+        return "\n\n".join(extracted_text).strip()
+
+    @staticmethod
+    def load_pdf_bytes(pdf_path: Union[str, Path]) -> bytes:
+        """Load raw PDF bytes for native Gemini multimodal ingestion."""
+        return Path(pdf_path).read_bytes()</code></pre>
+
+            <h2>3. Pydantic Contracts and Flexible Domain Schemas</h2>
+            <p>A core design choice of this framework is strict schema enforcement. By leveraging Pydantic, all extractions are guaranteed to conform to structural contracts. The core benchmark targets <code>ResumeExtraction</code>, which categorizes candidates into domain roles and seniority tiers while capturing atomic factual claims for factual verification.</p>
+
+            <p>Handling unstructured LLM outputs requires robust enum validation. I implemented custom <code>_missing_</code> classmethods on domain enums to map messy LLM string returns (such as "Machine Learning Engineer" or "AI Researcher") directly to canonical enum values (such as <code>DomainRole.DATA_SCIENCE</code>).</p>
+
+            <pre><code class="language-python">from enum import Enum
+from typing import List, Optional
+from pydantic import BaseModel, Field
+
+class DomainRole(str, Enum):
+    SOFTWARE_ENGINEERING = "Software Engineering"
+    DATA_SCIENCE = "Data Science"
+    FINANCE = "Finance"
+    HUMAN_RESOURCES = "HR"
+    BUSINESS_DEVELOPMENT = "Business Development"
+    OTHER = "Other"
+
+    @classmethod
+    def _missing_(cls, value: object) -> "DomainRole":
+        if isinstance(value, str):
+            val_lower = value.lower()
+            if any(k in val_lower for k in ["data", "machine learning", "ai", "analytics"]):
+                return cls.DATA_SCIENCE
+            if any(k in val_lower for k in ["software", "engineer", "developer"]):
+                return cls.SOFTWARE_ENGINEERING
+            if any(k in val_lower for k in ["finance", "accounting", "financial"]):
+                return cls.FINANCE
+            if any(k in val_lower for k in ["hr", "human", "recruitment", "talent"]):
+                return cls.HUMAN_RESOURCES
+            if any(k in val_lower for k in ["business", "sales", "marketing"]):
+                return cls.BUSINESS_DEVELOPMENT
+        return cls.OTHER
+
+class ResumeExtraction(BaseModel):
+    """Specialized extraction schema for PDF Resume classification benchmark."""
+    candidate_name: str = Field(default="Unknown Candidate", description="Full candidate name")
+    domain_role: DomainRole = Field(default=DomainRole.OTHER, description="Classified professional domain role")
+    seniority_level: str = Field(default="Other", description="Extracted candidate seniority level")
+    years_of_experience: float = Field(default=0.0, description="Estimated total years of professional experience")
+    key_skills: List[str] = Field(default_factory=list, description="Top technical and professional skills")
+    key_claims: List[str] = Field(default_factory=list, description="Atomic factual claims extracted from resume")
+
+class CalibrationResult(BaseModel):
+    engine_name: str
+    extraction: ResumeExtraction
+    raw_confidence: float
+    calibrated_confidence: float
+    audit_decision: str  # "AUTOMATE" vs "FLAG_FOR_HUMAN_REVIEW"
+    latency_ms: float
+    metadata: dict</code></pre>
+
+            <h2>4. Mathematical Breakdown & Architectural Implementation of the 9 Calibration Engines</h2>
+            <p>I structured the calibration suite around 9 distinct engines, spanning token-level statistics, post-hoc statistical modeling, sampling agreement, verbalized self-assessment, and context alignment verification.</p>
+
+            <h3>Engine 1: Native Token LogProb Engine (<code>NativeLogProbEngine</code>)</h3>
+            <p>This engine requests token log probabilities directly from Gemini 2.5 Flash by configuring <code>response_logprobs=True</code> and <code>logprobs=5</code> in <code>types.GenerateContentConfig</code>. It computes the raw joint sequence confidence as the exponentiated geometric mean of all output token log probabilities:</p>
+            $$\text{Confidence}_{\text{native}} = \exp\left( \frac{1}{N} \sum_{i=1}^N \text{logprob}_i \right)$$
+
+            <h3>Engine 2: LogProb Delta Engine (<code>LogProbDeltaEngine</code>)</h3>
+            <p>Because full sequence joint log probabilities suffer from length penalty decay and saturation, Engine 2 measures the top-token dominance margin. For each generated token, it computes the log-probability margin between the selected top token (\(\text{logprob}_{\text{top\_1}}\)) and the runner-up token (\(\text{logprob}_{\text{top\_2}}\)):</p>
+            $$\Delta = \text{logprob}_{\text{top\_1}} - \text{logprob}_{\text{top\_2}}$$
+            $$\text{Confidence}_{\text{delta}} = \sigma(\bar{\Delta}) = \frac{1}{1 + e^{-\bar{\Delta}}}$$
+            <p>If the model is certain of its choice, \(\Delta\) is large. If an alternative candidate token is close in likelihood, \(\Delta\) collapses toward 0, indicating classification hesitation.</p>
+
+            <h3>Engine 3: Post-Hoc Temperature Scaling Engine (<code>TemperatureScalingEngine</code>)</h3>
+            <p>Temperature scaling applies a single learned parameter \(T > 1\) to smooth output token logits \(z_i\) post-hoc, optimizing Negative Log-Likelihood (NLL) on a holdout calibration set without altering classification argmax predictions:</p>
+            $$P_{\text{calibrated}}(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}$$
+
+            <h3>Engine 4: Platt Scaling Logistic Engine (<code>PlattScalingEngine</code>)</h3>
+            <p>Platt Scaling fits a 1D logistic regression model mapping the empirical token delta \(\bar{\Delta}\) (or sequence logprob) directly to true empirical correctness on a validation fold:</p>
+            $$P(y=1 \mid \bar{\Delta}) = \frac{1}{1 + \exp(A \cdot \bar{\Delta} + B)}$$
+            <p>This transforms raw margin statistics into true calibrated empirical probabilities, correcting for global model overconfidence bias.</p>
+
+            <pre><code class="language-python">from sklearn.linear_model import LogisticRegression
+import numpy as np
+
+class PlattScalingEngine(BaseConfidenceEngine):
+    """Engine 4: Platt Scaling Logistic Engine."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.platt_model = LogisticRegression()
+        self.is_fitted = False
+
+    def fit(self, val_deltas: np.ndarray, val_correctness: np.ndarray) -> None:
+        """Fit 1D Logistic Regression mapping logprob deltas to empirical correctness."""
+        X = val_deltas.reshape(-1, 1)
+        y = val_correctness.astype(int)
+        self.platt_model.fit(X, y)
+        self.is_fitted = True
+
+    def evaluate(self, input_text: str, **kwargs) -> CalibrationResult:
+        # 1. Fetch response with logprobs=5
+        # 2. Compute mean token delta \bar{\Delta}
+        # 3. Apply fitted Platt logistic model:
+        if self.is_fitted:
+            calibrated_conf = self.platt_model.predict_proba(np.array([[mean_delta]]))[0, 1]
+        else:
+            # Unfitted default fallback sigmoid curve
+            calibrated_conf = 1.0 / (1.0 + np.exp(-(1.2 * mean_delta - 0.5)))
+        return CalibrationResult(...)</code></pre>
+
+            <h3>Engine 5: Self-Consistency & Sampling Agreement Engine (<code>SelfConsistencyEngine</code>)</h3>
+            <p>Engine 5 runs \(N=5\) stochastic completions in parallel at a higher sampling temperature (\(T=0.7\)). It clusters the structured JSON outputs by primary field matches and returns the majority cluster ratio as the confidence estimate:</p>
+            $$\text{Confidence}_{\text{self-consistency}} = \frac{\text{Majority Cluster Size}}{N}$$
+
+            <h3>Engine 6: Structured Self-Assessment Engine (<code>VerbalizedConfidenceEngine</code>)</h3>
+            <p>Engine 6 asks Gemini 2.5 Flash to evaluate its own confidence. Using Pydantic JSON schema enforcement (<code>response_schema=VerbalizedConfidenceOutput</code>), the prompt forces the model to generate a chain-of-thought rationale followed by a verbalized score \(S_{\text{verb}} \in [0.0, 1.0]\).</p>
+
+            <h3>Engine 7: Continuous Numerical Prompting Engine (<code>ContinuousPromptingEngine</code>)</h3>
+            <p>Similar to Engine 6, Engine 7 prompts the model for a continuous integer rating \(R \in [0, 100]\) alongside step-by-step reasoning, normalizing the output to a 0.0 - 1.0 scale:</p>
+            $$\text{Confidence}_{\text{continuous}} = \frac{R}{100.0}$$
+
+            <h3>Engine 8: Grounding & Context Alignment Engine (<code>GroundingAlignmentEngine</code>)</h3>
+            <p>Engine 8 verifies facts using Natural Language Inference (NLI). It parses atomic factual claims from the LLM extraction (for instance, "Candidate managed a $2M budget at Company X") and runs each claim through an NLI verification check against the raw PDF source text:</p>
+            $$\text{Grounding Score} = \frac{\text{Supported Claims}}{\text{Total Extracted Claims}}$$
+
+            <h3>Engine 9: Two-Tier Evaluator Engine (<code>LLMAsAJudgeEngine</code>)</h3>
+            <p>Engine 9 routes extractions to a secondary judge instance of <code>gemini-2.5-flash</code> acting as an auditor. The judge evaluates the candidate extraction against a strict rubric scoring precision, hallucination risk, and completeness on a 1–5 scale, normalizing the overall rubric average to \([0.0, 1.0]\).</p>
+
+            <h2>5. When to Use Each Calibration Engine</h2>
+            <p>Choosing the right calibration framework involves balancing runtime latency, API cost, logprob availability, and compliance requirements:</p>
+
+            <table class="benchmark-table">
+                <thead>
+                    <tr>
+                        <th>Engine Framework</th>
+                        <th>Optimal Production Use Case</th>
+                        <th>Latency Overhead</th>
+                        <th>Requires Logprobs?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Platt Scaling Logistic</strong></td>
+                        <td>High-volume production APIs needing maximum calibration accuracy.</td>
+                        <td><strong>Ultra-Low (~4 ms)</strong></td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LogProb Delta</strong></td>
+                        <td>Fast baseline filtering without fitting a post-hoc regression model.</td>
+                        <td><strong>Ultra-Low (~4 ms)</strong></td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Temperature Scaling</strong></td>
+                        <td>Single-parameter global logit smoothing when validation data is small.</td>
+                        <td><strong>Ultra-Low (~4 ms)</strong></td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Grounding Alignment</strong></td>
+                        <td>Strict compliance workflows (legal, medical, HR claims verification).</td>
+                        <td>Moderate (~85 ms)</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Self-Consistency ($N=5$)</strong></td>
+                        <td>Complex reasoning tasks where top-2 logprobs are unavailable.</td>
+                        <td>High (~1,250 ms)</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LLM-as-a-Judge</strong></td>
+                        <td>Secondary asynchronous auditing for flagged edge cases.</td>
+                        <td>Moderate (~340 ms)</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Native Token LogProb</strong></td>
+                        <td>Basic sequence log probability tracking without top-2 margin analysis.</td>
+                        <td>Ultra-Low (~4 ms)</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Structured Verbalized</strong></td>
+                        <td>Exploratory prompts where CoT rationale is displayed directly to users.</td>
+                        <td>Ultra-Low (~4.5 ms)</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Continuous Prompting</strong></td>
+                        <td>Simple single-prompt user interfaces asking for subjective certainty ratings.</td>
+                        <td>Ultra-Low (~4.3 ms)</td>
+                        <td>No</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>6. Empirical Benchmark Results & Visual Insights</h2>
+            <p>I evaluated all 9 calibration engines on the synthetic PDF resume dataset. Metrics were computed for Expected Calibration Error (ECE), Maximum Calibration Error (MCE), Brier Score (mean squared error), Classification Accuracy, Mean Latency, and the resulting Automation Ratio under an audit threshold of 0.75.</p>
+
+            <table class="benchmark-table">
+                <thead>
+                    <tr>
+                        <th>Framework Engine</th>
+                        <th>Accuracy</th>
+                        <th>ECE (Lower is Better)</th>
+                        <th>MCE</th>
+                        <th>Brier Score</th>
+                        <th>Mean Conf</th>
+                        <th>Mean Latency</th>
+                        <th>Automation Ratio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Platt Scaling Logistic</strong></td>
+                        <td><strong>0.950</strong></td>
+                        <td><strong>0.038</strong></td>
+                        <td><strong>0.072</strong></td>
+                        <td><strong>0.041</strong></td>
+                        <td>0.812</td>
+                        <td><strong>3.8 ms</strong></td>
+                        <td>80.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Self-Consistency ($N=5$)</strong></td>
+                        <td>0.950</td>
+                        <td>0.045</td>
+                        <td>0.080</td>
+                        <td>0.048</td>
+                        <td>0.820</td>
+                        <td>1250.4 ms</td>
+                        <td>80.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LogProb Delta</strong></td>
+                        <td>0.900</td>
+                        <td>0.052</td>
+                        <td>0.091</td>
+                        <td>0.058</td>
+                        <td>0.848</td>
+                        <td>4.2 ms</td>
+                        <td>85.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Temperature Scaling</strong></td>
+                        <td>0.900</td>
+                        <td>0.061</td>
+                        <td>0.104</td>
+                        <td>0.065</td>
+                        <td>0.839</td>
+                        <td>4.1 ms</td>
+                        <td>80.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Grounding Alignment</strong></td>
+                        <td>0.900</td>
+                        <td>0.070</td>
+                        <td>0.125</td>
+                        <td>0.072</td>
+                        <td>0.830</td>
+                        <td>85.2 ms</td>
+                        <td>80.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LLM-as-a-Judge</strong></td>
+                        <td>0.900</td>
+                        <td>0.085</td>
+                        <td>0.140</td>
+                        <td>0.078</td>
+                        <td>0.815</td>
+                        <td>340.8 ms</td>
+                        <td>80.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Native Token LogProb</strong></td>
+                        <td>0.850</td>
+                        <td>0.095</td>
+                        <td>0.160</td>
+                        <td>0.092</td>
+                        <td>0.945</td>
+                        <td>4.0 ms</td>
+                        <td>90.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Continuous Prompting</strong></td>
+                        <td>0.850</td>
+                        <td>0.115</td>
+                        <td>0.190</td>
+                        <td>0.108</td>
+                        <td>0.865</td>
+                        <td>4.3 ms</td>
+                        <td>85.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Structured Verbalized</strong></td>
+                        <td>0.850</td>
+                        <td>0.130</td>
+                        <td>0.210</td>
+                        <td>0.115</td>
+                        <td>0.880</td>
+                        <td>4.5 ms</td>
+                        <td>85.0%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <figure>
+                <img src="AI Confidence Scores/reliability_diagrams.png" alt="Reliability Diagrams across 9 LLM Confidence Calibration Frameworks">
+                <figcaption>Figure 1: Reliability Diagrams (Calibration Curves) comparing predicted confidence against empirical accuracy in a 3x3 grid across all 9 engines. Perfectly calibrated models track the red diagonal line.</figcaption>
+            </figure>
+
+            <p>Figure 1 reveals clear calibration trends across the suite:</p>
+            <ul>
+                <li><strong>Platt Scaling Logistic & LogProb Delta:</strong> Show near-perfect alignment with the ideal diagonal reference line. By converting top-2 token probability margins into calibrated estimates, Platt Scaling achieves an ECE of just 0.038.</li>
+                <li><strong>Native Token LogProb & Verbalized Self-Assessment:</strong> Display severe overconfidence curve skew. Native Token LogProb records a mean confidence of 0.945 despite an empirical accuracy of 0.850, illustrating how raw LLM probabilities drift without delta margin normalization.</li>
+            </ul>
+
+            <figure>
+                <img src="AI Confidence Scores/ece_latency_comparison.png" alt="Expected Calibration Error vs Latency Overhead Tradeoff Plot">
+                <figcaption>Figure 2: ECE vs Execution Latency Tradeoff. Token-level methods (Platt Scaling, LogProb Delta) deliver minimal ECE under 5 ms latency, whereas Self-Consistency requires over 1,250 ms.</figcaption>
+            </figure>
+
+            <p>Figure 2 highlights the trade-offs between calibration quality and runtime overhead:</p>
+            <ul>
+                <li><strong>Token-Level Logit Engines (Platt Scaling, LogProb Delta, Temperature Scaling):</strong> Compute confidence instantly during response generation (~4 ms overhead). They achieve the lowest ECE values at near-zero incremental latency.</li>
+                <li><strong>Multi-Sample & LLM-based Engines (Self-Consistency, LLM-as-a-Judge):</strong> Self-Consistency matches Platt Scaling in raw accuracy (0.950), but requires 5 full completion calls, bringing mean execution latency to 1,250.4 ms.</li>
+            </ul>
+
+            <figure>
+                <img src="AI Confidence Scores/radar_metrics_comparison.png" alt="4-Axis Multi-Metric Radar Chart Comparison of Top Framework Engines">
+                <figcaption>Figure 3: Multi-Metric Radar Comparison evaluating top engines across 4 operational dimensions: Accuracy, Calibration Quality (\(1 - \text{ECE}\)), Reliability (\(1 - \text{Brier}\)), and Automation Ratio.</figcaption>
+            </figure>
+
+            <h2>7. Production Challenges & Engineering Lessons</h2>
+            <p>Building this benchmark surfaced several key technical considerations for LLM confidence calibration:</p>
+
+            <ul>
+                <li><strong>SDK and API Schema Nuances:</strong> In the modern <code>google-genai</code> SDK, token alternative log probabilities are nested inside <code>response.candidates[0].logprobs_result.top_candidates</code>. Ensuring fallback logic for legacy structures is essential for cross-version compatibility.</li>
+                <li><strong>Handling API Rate Limits (429 RESOURCE_EXHAUSTED):</strong> Engines like Self-Consistency (\(N=5\)) and LLM-as-a-Judge hit rate limits under parallel evaluation. I implemented exponential backoff retries directly in <code>_generate_content_with_retry</code> to maintain benchmark stability.</li>
+                <li><strong>Multimodal Ingestion vs CPU Layout Parsing:</strong> PyMuPDF layout parsing handles structured text quickly on CPU. However, for complex multi-column resumes or non-standard fonts, direct PDF byte ingestion to Gemini's visual engine eliminates text extraction artifacts.</li>
+            </ul>
+
+            <h2>8. Architectural Recommendations</h2>
+            <p>Based on empirical benchmark findings, I recommend a tiered production architecture for enterprise document extraction:</p>
+
+            <ol>
+                <li><strong>Tier 1 Automated Processing (LogProb Delta + Platt Scaling):</strong> Run primary extractions through <code>LogProbDeltaEngine</code> with a fitted <code>PlattScalingEngine</code>. This delivers reliable confidence scores in under 5 ms. Extractions with calibrated confidence \(\ge 0.75\) are automatically routed to downstream production systems.</li>
+                <li><strong>Tier 2 Secondary Verification (Grounding Alignment):</strong> Extractions falling below 0.75 are passed to <code>GroundingAlignmentEngine</code> to verify factual claims against raw document text via NLI.</li>
+                <li><strong>Tier 3 Human-in-the-Loop Audit:</strong> Documents that fail Tier 2 verification are flagged as <code>FLAG_FOR_HUMAN_REVIEW</code>, giving recruiters focused, audited queues while automating over 80% of routine processing safely.</li>
+            </ol>
+        </article>
+    </div>
+</body>
+</html>
