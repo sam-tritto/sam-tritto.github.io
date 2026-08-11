@@ -199,21 +199,29 @@ class CalibrationResult(BaseModel):
             <h3>Engine 1: Native Token LogProb Engine (<code>NativeLogProbEngine</code>)</h3>
             <p>This engine requests token log probabilities directly from Gemini 2.5 Flash by configuring <code>response_logprobs=True</code> and <code>logprobs=5</code> in <code>types.GenerateContentConfig</code>. It computes the raw joint sequence confidence as the exponentiated geometric mean of all output token log probabilities:</p>
             $$\text{Confidence}_{\text{native}} = \exp\left( \frac{1}{N} \sum_{i=1}^N \text{logprob}_i \right)$$
+            <p><strong>Simple Explanation:</strong> Think of this like taking the average grade the AI gives itself for every single word it generates. If the AI feels confident about every word in its answer, the overall score stays high.</p>
+            <p><strong>Practical Example:</strong> Useful as a fast, lightweight baseline check in high-throughput text pipelines when you want a quick raw measurement of output stability without setting up external post-processing tools.</p>
 
             <h3>Engine 2: LogProb Delta Engine (<code>LogProbDeltaEngine</code>)</h3>
             <p>Because full sequence joint log probabilities suffer from length penalty decay and saturation, Engine 2 measures the top-token dominance margin. For each generated token, it computes the log-probability margin between the selected top token (\(\text{logprob}_{\text{top\_1}}\)) and the runner-up token (\(\text{logprob}_{\text{top\_2}}\)):</p>
             $$\Delta = \text{logprob}_{\text{top\_1}} - \text{logprob}_{\text{top\_2}}$$
             $$\text{Confidence}_{\text{delta}} = \sigma(\bar{\Delta}) = \frac{1}{1 + e^{-\bar{\Delta}}}$$
             <p>If the model is certain of its choice, \(\Delta\) is large. If an alternative candidate token is close in likelihood, \(\Delta\) collapses toward 0, indicating classification hesitation.</p>
+            <p><strong>Simple Explanation:</strong> Imagine asking someone to pick between Option A and Option B. If Option A is a clear winner and Option B is nowhere close, their confidence gap (delta) is huge. But if Option A and B are almost tied, they hesitate. This engine measures that exact margin between the AI's top choice and its runner-up.</p>
+            <p><strong>Practical Example:</strong> Perfect for automated candidate resume screening where applicants list hybrid job titles (such as "Financial Data Analyst"). If the AI hesitates between classifying them under "Finance" vs "Data Science", the confidence margin shrinks instantly, flagging the resume for recruiter review.</p>
 
             <h3>Engine 3: Post-Hoc Temperature Scaling Engine (<code>TemperatureScalingEngine</code>)</h3>
             <p>Temperature scaling applies a single learned parameter \(T > 1\) to smooth output token logits \(z_i\) post-hoc, optimizing Negative Log-Likelihood (NLL) on a holdout calibration set without altering classification argmax predictions:</p>
             $$P_{\text{calibrated}}(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}$$
+            <p><strong>Simple Explanation:</strong> Imagine an overly enthusiastic teacher who gives almost every student an A+. Temperature scaling is like applying a gentle curve to the test scores after grading, cooling down overly optimistic estimates without changing who actually placed first.</p>
+            <p><strong>Practical Example:</strong> Ideal when you have a small dataset of human-verified resumes and need a fast global adjustment to temper overconfident predictions across all job categories without training a complex machine learning model.</p>
 
             <h3>Engine 4: Platt Scaling Logistic Engine (<code>PlattScalingEngine</code>)</h3>
             <p>Platt Scaling fits a 1D logistic regression model mapping the empirical token delta \(\bar{\Delta}\) (or sequence logprob) directly to true empirical correctness on a validation fold:</p>
             $$P(y=1 \mid \bar{\Delta}) = \frac{1}{1 + \exp(A \cdot \bar{\Delta} + B)}$$
             <p>This transforms raw margin statistics into true calibrated empirical probabilities, correcting for global model overconfidence bias.</p>
+            <p><strong>Simple Explanation:</strong> This engine compares the AI's internal certainty against a historical report card. It trains a statistical model that learns, for example: "Whenever the AI exhibits a token delta margin of 3.0, it is historically accurate 92% of the time." It converts raw AI signals into real-world historical probabilities.</p>
+            <p><strong>Practical Example:</strong> The gold standard for enterprise production hiring portals. If an automated system must process 50,000 applicant resumes per day under a strict 95% precision SLA, Platt Scaling maps raw model logprobs into calibrated real-world probabilities in under 4 milliseconds.</p>
 
             <pre><code class="language-python">from sklearn.linear_model import LogisticRegression
 import numpy as np
@@ -247,20 +255,30 @@ class PlattScalingEngine(BaseConfidenceEngine):
             <h3>Engine 5: Self-Consistency & Sampling Agreement Engine (<code>SelfConsistencyEngine</code>)</h3>
             <p>Engine 5 runs \(N=5\) stochastic completions in parallel at a higher sampling temperature (\(T=0.7\)). It clusters the structured JSON outputs by primary field matches and returns the majority cluster ratio as the confidence estimate:</p>
             $$\text{Confidence}_{\text{self-consistency}} = \frac{\text{Majority Cluster Size}}{N}$$
+            <p><strong>Simple Explanation:</strong> Think of asking 5 independent human experts the same question. If all 5 give the exact same answer, you can be extremely confident. If 3 experts say one thing and 2 say another, there is room for doubt. This engine measures how often multiple independent AI runs agree with one another.</p>
+            <p><strong>Practical Example:</strong> Excellent for parsing senior executive resumes with ambiguous career histories. When low-level token probabilities are unavailable or restricted by an API endpoint, generating 5 parallel extractions and checking for majority consensus provides a strong reliability metric.</p>
 
             <h3>Engine 6: Structured Self-Assessment Engine (<code>VerbalizedConfidenceEngine</code>)</h3>
             <p>Engine 6 asks Gemini 2.5 Flash to evaluate its own confidence. Using Pydantic JSON schema enforcement (<code>response_schema=VerbalizedConfidenceOutput</code>), the prompt forces the model to generate a chain-of-thought rationale followed by a verbalized score \(S_{\text{verb}} \in [0.0, 1.0]\).</p>
+            <p><strong>Simple Explanation:</strong> This is like asking a student to explain their thought process step-by-step on an exam, and then write down a percentage score at the bottom showing how sure they feel about their own answer.</p>
+            <p><strong>Practical Example:</strong> Great for internal HR dashboards where recruiters want to read the AI's step-by-step reasoning alongside a self-rated confidence score before deciding whether to invite a candidate to interview.</p>
 
             <h3>Engine 7: Continuous Numerical Prompting Engine (<code>ContinuousPromptingEngine</code>)</h3>
             <p>Similar to Engine 6, Engine 7 prompts the model for a continuous integer rating \(R \in [0, 100]\) alongside step-by-step reasoning, normalizing the output to a 0.0 - 1.0 scale:</p>
             $$\text{Confidence}_{\text{continuous}} = \frac{R}{100.0}$$
+            <p><strong>Simple Explanation:</strong> Instead of analyzing raw token math or probability curves, this asks the AI directly: "On a scale from 0 to 100, how sure are you about this extraction?" and converts the number into a decimal score.</p>
+            <p><strong>Practical Example:</strong> Useful for rapid prototyping in low-code platforms or basic prompt engineering workflows where developers cannot configure low-level model logprob parameters.</p>
 
             <h3>Engine 8: Grounding & Context Alignment Engine (<code>GroundingAlignmentEngine</code>)</h3>
             <p>Engine 8 verifies facts using Natural Language Inference (NLI). It parses atomic factual claims from the LLM extraction (for instance, "Candidate managed a $2M budget at Company X") and runs each claim through an NLI verification check against the raw PDF source text:</p>
             $$\text{Grounding Score} = \frac{\text{Supported Claims}}{\text{Total Extracted Claims}}$$
+            <p><strong>Simple Explanation:</strong> Imagine a meticulous fact-checker cross-examining every single sentence in a summary against the original document. If the summary claims "Managed a $5M budget" but the original PDF only says "Supported budget tracking", the fact-checker flags the claim as unsupported.</p>
+            <p><strong>Practical Example:</strong> Crucial for compliance-heavy background verification (such as confirming professional certifications, security clearances, or university degrees) to guarantee zero hallucinations before updating HR databases.</p>
 
             <h3>Engine 9: Two-Tier Evaluator Engine (<code>LLMAsAJudgeEngine</code>)</h3>
             <p>Engine 9 routes extractions to a secondary judge instance of <code>gemini-2.5-flash</code> acting as an auditor. The judge evaluates the candidate extraction against a strict rubric scoring precision, hallucination risk, and completeness on a 1–5 scale, normalizing the overall rubric average to \([0.0, 1.0]\).</p>
+            <p><strong>Simple Explanation:</strong> This uses a second, independent "senior manager" AI to review and grade the work of the first "worker" AI using a detailed rubric scoring completeness, precision, and accuracy from 1 to 5.</p>
+            <p><strong>Practical Example:</strong> Ideal for asynchronous auditing of flagged edge-case extractions. If the primary extraction engine is uncertain about a candidate's background, the resume is forwarded to a secondary AI Judge for a full audit before reaching human reviewers.</p>
 
             <h2>5. When to Use Each Calibration Engine</h2>
             <p>Choosing the right calibration framework involves balancing runtime latency, API cost, logprob availability, and compliance requirements:</p>
