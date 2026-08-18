@@ -168,6 +168,18 @@
                 <p><strong>Preferred Method for Gemini 3.0+ Models:</strong> Starting with Gemini 3.0 and greater (including Gemini 3.0 Flash, Gemini 3.5, and Gemini 3.6 Flash/Pro), token logprobabilities (<code>response_logprobs</code>) are unavailable or disabled in generation parameters. The <strong>Structured Self-Assessment + Platt Scaling Method (<code>StructuredSelfAssessmentPlattMethod</code>)</strong> is specifically engineered as the <em>preferred, flagship calibration solution for Gemini 3.0+</em>. By combining structured self-assessment (categorical and continuous confidence ratings) with post-hoc logistic Platt scaling, it delivers mathematically rigorous, logprob-independent confidence calibration for modern production pipelines.</p>
             </div>
 
+            <div class="callout-box" style="border-left-color: #6f42c1; background-color: #f8f5ff; margin: 1.5rem 0;">
+                <p><strong>Existing Ecosystem Alternatives (Cleanlab TLM & UQLM):</strong></p>
+                <ul style="margin: 0.5rem 0 0 1.25rem; padding: 0;">
+                    <li style="margin-bottom: 0.75rem;">
+                        <a href="https://cleanlab.ai/tlm/" target="_blank" rel="noopener noreferrer"><strong>Cleanlab TLM (Trustworthy Language Model & CONSTRUCT Framework):</strong></a> A prominent uncertainty estimation solution rooted in Confident Learning theory. Cleanlab TLM evaluates response consistency, semantic plausibility, and epistemic uncertainty to generate a calibrated trustworthiness score (0.0 to 1.0) for any black-box LLM output without requiring internal token logprobs. It provides real-time hallucination detection and explainable reliability scores out-of-the-box.
+                    </li>
+                    <li>
+                        <a href="https://github.com/cvs-health/uqlm" target="_blank" rel="noopener noreferrer"><strong>UQLM (Uncertainty Quantification for Language Models):</strong></a> An open-source Python library developed by CVS Health designed for zero-resource hallucination detection. UQLM unifies white-box token logprobs, black-box self-consistency agreement, and LLM-as-a-Judge evaluations into flexible ensemble scorers for production LLM guardrails.
+                    </li>
+                </ul>
+            </div>
+
             <h2>The Dataset & Ingestion Pipeline</h2>
             <p>Evaluating confidence calibration requires a realistic dataset with complex, multi-page formatting and inherent domain ambiguity. For this benchmark, I used synthetic PDF candidate resumes. Synthetic resumes mirror real-world applicant data: non-standard job titles, multi-column visual layouts, mixed technical keywords, and varying experience lengths across multiple career transitions.</p>
 
