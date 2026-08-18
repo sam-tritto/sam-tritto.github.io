@@ -9,7 +9,7 @@
   {
     "title": "Google Gemini AI Confidence Scores for Multimodal PDF Resume Classification",
     "slug": "ai-confidence-scores-framework.html",
-    "snippet": "Production-grade evaluation, calibration, and benchmarking of 9 distinct LLM confidence score frameworks for multimodal PDF resume classification using Google's google-genai SDK. Pits token logprob margins, Platt scaling, and temperature scaling against NLI grounding alignment and LLM-as-a-Judge.",
+    "snippet": "Functionalized Jupyter notebook evaluation, calibration, and benchmarking of 10 distinct LLM confidence score methods for multimodal PDF resume classification using Google's google-genai SDK. Pits token logprob margins, Platt scaling, and temperature scaling against NLI grounding alignment and LLM-as-a-Judge.",
     "image": "AI Confidence Scores/overconfident_gemini_thumb.jpg",
     "filename": "ai-confidence-scores-framework.html",
     "date": "August 2026"

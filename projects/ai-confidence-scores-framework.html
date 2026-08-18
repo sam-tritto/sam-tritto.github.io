@@ -158,7 +158,7 @@
 
             <p>In high-stakes enterprise applications, such as candidate resume parsing and recruiter routing, uncalibrated overconfidence creates hidden failure modes. An erroneous domain classification (for instance, classifying a Financial Analyst as a Data Scientist) might pass through automated hiring workflows without triggering a human review. Conversely, setting an arbitrary fixed threshold on uncalibrated probabilities leads to either auditing too many correct extractions or letting critical errors slide.</p>
 
-            <p>To address this challenge, I built <a href="https://github.com/sam-tritto/ai-confidence-scores" target="_blank" rel="noopener noreferrer"><code>ai-confidence-scores</code></a>, an enterprise-grade evaluation and calibration framework using Google's modern <code>google-genai</code> SDK. I implemented, benchmarked, and comparative-evaluated <strong>10 distinct confidence scoring methods</strong> across multimodal PDF resumes. My objective was to determine which calibration frameworks deliver true statistical accuracy while minimizing runtime latency and API overhead.</p>
+            <p>To address this challenge, I built <a href="https://github.com/sam-tritto/ai-confidence-scores" target="_blank" rel="noopener noreferrer"><code>ai-confidence-scores</code></a>, an evaluation and calibration suite structured as a functionalized Jupyter notebook using Google's modern <code>google-genai</code> SDK. I implemented, benchmarked, and comparative-evaluated <strong>10 distinct confidence scoring methods</strong> across multimodal PDF resumes directly within the notebook. My objective was to determine which calibration frameworks deliver true statistical accuracy while minimizing runtime latency and API overhead.</p>
 
             <div class="callout-box">
                 <p><strong>Official Reference Documentation:</strong> For foundational concepts on token log probabilities in Gemini, explore the official <a href="https://github.com/GoogleCloudPlatform/generative-ai/blob/main/gemini/logprobs/intro_logprobs.ipynb" target="_blank" rel="noopener noreferrer">Gemini Logprobs Tutorial Notebook</a> and the <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig" target="_blank" rel="noopener noreferrer">Gemini GenerationConfig API Reference</a>.</p>
@@ -171,7 +171,7 @@
             <h2>The Dataset & Ingestion Pipeline</h2>
             <p>Evaluating confidence calibration requires a realistic dataset with complex, multi-page formatting and inherent domain ambiguity. For this benchmark, I used synthetic PDF candidate resumes. Synthetic resumes mirror real-world applicant data: non-standard job titles, multi-column visual layouts, mixed technical keywords, and varying experience lengths across multiple career transitions.</p>
 
-            <p>To ingest these documents, I built a dual parsing pipeline in <code>src/ingestion.py</code> that provides two complementary input paths for Gemini 2.5 Flash:</p>
+            <p>To ingest these documents, I built dual ingestion helper functions in the notebook that provide two complementary input paths for Gemini 2.5 Flash:</p>
             <ul>
                 <li><strong>Layout-Preserved PyMuPDF Text Extraction:</strong> Extracts structural text blocks using <code>pymupdf</code> (fitz), injecting page demarcation tags (<code>--- Page N ---</code>) for zero-latency CPU text processing.</li>
                 <li><strong>Direct Native Multimodal PDF Ingestion:</strong> Reads raw PDF bytes into <code>types.Part.from_bytes(data=pdf_bytes, mime_type="application/pdf")</code>. This passes raw visual document bytes straight to Gemini's vision engine, bypassing text parsing errors caused by complex multi-column grids or custom fonts.</li>
@@ -204,7 +204,7 @@ class ResumeIngestor:
         return Path(pdf_path).read_bytes()</code></pre>
 
             <h2>Pydantic Contracts and Flexible Domain Schemas</h2>
-            <p>A core design choice of this framework is strict schema enforcement. By leveraging Pydantic, all extractions are guaranteed to conform to structural contracts. The core benchmark targets <code>ResumeExtraction</code>, which categorizes candidates into domain roles and seniority tiers while capturing atomic factual claims for factual verification.</p>
+            <p>A core design choice of this notebook setup is strict schema enforcement. By leveraging Pydantic, all extractions are guaranteed to conform to structural contracts. The core benchmark targets <code>ResumeExtraction</code>, which categorizes candidates into domain roles and seniority tiers while capturing atomic factual claims for factual verification.</p>
 
             <p>Handling unstructured LLM outputs requires robust enum validation. I implemented custom <code>_missing_</code> classmethods on domain enums to map messy LLM string returns (such as "Machine Learning Engineer" or "AI Researcher") directly to canonical enum values (such as <code>DomainRole.DATA_SCIENCE</code>).</p>
 
@@ -255,7 +255,7 @@ class CalibrationResult(BaseModel):
     metadata: dict</code></pre>
 
             <h2>Mathematical Breakdown & Architectural Implementation of the Calibration Methods</h2>
-            <p>I structured the calibration suite around specialized calibration methods, spanning token-level statistics, post-hoc statistical modeling, sampling agreement, verbalized self-assessment, and context alignment verification.</p>
+            <p>I structured the notebook around specialized, functionalized calibration methods and classes, spanning token-level statistics, post-hoc statistical modeling, sampling agreement, verbalized self-assessment, and context alignment verification.</p>
 
             <h3>Method 1: Native Token LogProb Method (<code>NativeLogProbMethod</code>)</h3>
             <p>This method requests token log probabilities directly from Gemini 2.5 Flash by configuring <code>response_logprobs=True</code> and <code>logprobs=5</code> in <code>types.GenerateContentConfig</code>. It computes the raw joint sequence confidence as the exponentiated geometric mean of all output token log probabilities:</p>
@@ -369,7 +369,7 @@ class PlattScalingMethod(BaseConfidenceMethod):
                         <br>
                         <em>Mechanism:</em> Extracts the mean token log-probability (\(\bar{\log P} = \frac{1}{N}\sum \log P(t_i)\)).
                         <br>
-                        <em>Default Prior:</em> Uses an initial temperature parameter \(T = 1.2\) (<code>temperature_scaling.py:L30</code>).
+                        <em>Default Prior:</em> Uses an initial temperature parameter \(T = 1.2\) (configured in the notebook class).
                         $$\text{Logit}_{\text{scaled}} = \frac{\bar{\log P}}{\max(T, 0.01)}$$
                         $$\text{Calibrated Confidence} = \exp(\text{Logit}_{\text{scaled}})$$
                         <em>Effect:</em> Since LLMs are notoriously overconfident (\(T > 1\)), scaling down the logit by \(T = 1.2\) softens raw probabilities slightly downward toward realistic expectations.
@@ -379,7 +379,7 @@ class PlattScalingMethod(BaseConfidenceMethod):
                         <br>
                         <em>Mechanism:</em> Computes the mean margin/delta between top token choice (\(p_1\)) and runner-up alternative (\(p_2\)): \(\bar{\Delta} = \frac{1}{N}\sum |p_1 - p_2|\).
                         <br>
-                        <em>Default Prior:</em> Applies a standard logistic sigmoid prior with slope \(A = 1.2\) and intercept \(B = -0.5\) (<code>platt_scaling.py:L158</code>):
+                        <em>Default Prior:</em> Applies a standard logistic sigmoid prior with slope \(A = 1.2\) and intercept \(B = -0.5\) (configured in the notebook class):
                         $$\text{Calibrated Confidence} = \sigma(1.2 \cdot \bar{\Delta} - 0.5) = \frac{1}{1 + e^{-(1.2 \bar{\Delta} - 0.5)}}$$
                         <em>Effect:</em> Maps the raw logprob margin \(\bar{\Delta}\) onto a \([0.0, 1.0]\) probability curve without requiring prior training data.
                     </li>
@@ -391,14 +391,14 @@ class PlattScalingMethod(BaseConfidenceMethod):
                     <li style="margin-bottom: 1rem;">
                         <strong>Fitting Temperature Scaling (<code>method.fit(val_logits, val_labels)</code>):</strong>
                         <br>
-                        Accepts a set of validation logits (\(\bar{\log P}_i\)) and binary correctness labels (\(y_i \in \{0, 1\}\)). Uses <code>scipy.optimize.minimize</code> (<code>temperature_scaling.py:L58</code>) to find the exact temperature \(T^*\) that minimizes Negative Log-Likelihood (NLL) loss:
+                        Accepts a set of validation logits (\(\bar{\log P}_i\)) and binary correctness labels (\(y_i \in \{0, 1\}\)). Uses <code>scipy.optimize.minimize</code> (in the notebook implementation) to find the exact temperature \(T^*\) that minimizes Negative Log-Likelihood (NLL) loss:
                         $$\mathcal{L}(T) = -\frac{1}{M}\sum_{i=1}^M \left[ y_i \log \sigma\left(\frac{\text{logit}_i}{T}\right) + (1 - y_i) \log\left(1 - \sigma\left(\frac{\text{logit}_i}{T}\right)\right) \right]$$
                         Sets <code>is_fitted = True</code>. All subsequent evaluations scale logits by \(T^*\).
                     </li>
                     <li>
                         <strong>Fitting Platt Scaling (<code>method.fit(val_deltas, val_correctness)</code>):</strong>
                         <br>
-                        Accepts validation logprob deltas (\(\bar{\Delta}_i\)) and ground-truth correctness labels (\(y_i \in \{0, 1\}\)). Trains a <code>sklearn.linear_model.LogisticRegression</code> model (<code>platt_scaling.py:L51</code>) to learn optimal slope \(A^*\) and intercept \(B^*\):
+                        Accepts validation logprob deltas (\(\bar{\Delta}_i\)) and ground-truth correctness labels (\(y_i \in \{0, 1\}\)). Trains a <code>sklearn.linear_model.LogisticRegression</code> model (in the notebook implementation) to learn optimal slope \(A^*\) and intercept \(B^*\):
                         $$P(Y=1 \mid \bar{\Delta}) = \frac{1}{1 + e^{-(A^* \bar{\Delta} + B^*)}}$$
                         Sets <code>is_fitted = True</code>. All subsequent evaluations predict probabilities using <code>platt_model.predict_proba([[mean_delta]])</code>.
                     </li>
