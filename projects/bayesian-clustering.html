@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non-Parametric Bayesian Clustering & Hierarchy Discovery - Sam's Data Portfolio</title>
+    <meta name="description" content="A comprehensive research tutorial on non-parametric Bayesian clustering, exploring Dirichlet Process Gaussian Mixture Models (DP-GMM) in PyMC and Scikit-Learn alongside Hierarchical Dirichlet Processes (HDP) in Tomotopy.">
+    <link rel="stylesheet" href="../style.css">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* OneDark Pro / VS Code Dark Code Block Styling */
+        pre {
+            background-color: #21252b !important;
+            background: #21252b !important;
+            color: #abb2bf !important;
+            padding: 1.25rem !important;
+            border-radius: 8px !important;
+            overflow-x: auto !important;
+            margin: 1.75rem 0 !important;
+            border: 1px solid #282c34 !important;
+            position: relative !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25) !important;
+            font-size: 0.92rem !important;
+            line-height: 1.6 !important;
+        }
+        code {
+            font-family: 'JetBrains Mono', SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace !important;
+            font-size: 0.88em !important;
+            background-color: #282c34 !important;
+            background: #282c34 !important;
+            color: #e06c75 !important;
+            padding: 0.2em 0.4em !important;
+            border-radius: 4px !important;
+        }
+        pre code {
+            padding: 0 !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            color: inherit !important;
+            font-size: 1em !important;
+            border-radius: 0 !important;
+        }
+        /* Custom OneDark Pro Syntax Highlighting Token Tweaks */
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #5c6370 !important; font-style: italic !important; }
+        .token.function, .token.class-name { color: #61afef !important; }
+        .token.keyword { color: #c678dd !important; font-weight: 600 !important; }
+        .token.string, .token.char, .token.attr-value { color: #98c379 !important; }
+        .token.number, .token.boolean { color: #d19a66 !important; }
+        .token.operator, .token.entity, .token.url { color: #56b6c2 !important; }
+        .token.decorator, .token.builtin { color: #e5c07b !important; }
+        .token.property, .token.tag, .token.symbol { color: #e06c75 !important; }
+
+        /* Interactive Copy Button */
+        .copy-btn {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            background: #282c34;
+            color: #abb2bf;
+            border: 1px solid #3e4451;
+            border-radius: 6px;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .copy-btn:hover {
+            background: #3e4451 !important;
+            color: #ffffff !important;
+            border-color: #4b5263 !important;
+            transform: translateY(-1px);
+        }
+        .copy-btn.copied {
+            background: #98c379 !important;
+            color: #1e1e2e !important;
+            border-color: #98c379 !important;
+            font-weight: 600;
+        }
+
+        figure {
+            margin: 2.5rem 0;
+            text-align: center;
+        }
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        figcaption {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: #5f6368;
+            font-style: italic;
+        }
+        .callout-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #1a73e8;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .callout-box p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #3c4043;
+        }
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.92rem;
+        }
+        .benchmark-table th, .benchmark-table td {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        .benchmark-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .benchmark-table tr:hover {
+            background-color: #fcfcfd;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>Non-Parametric Bayesian Clustering &amp; Hierarchy Discovery</h1>
+        </header>
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <div style="display: flex; gap: 1.2rem; align-items: center;">
+                <a href="https://github.com/sam-tritto/bayesian-clustering" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <svg class="octicon octicon-mark-github" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true" fill="currentColor" style="vertical-align: middle;">
+                        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+
+        <article class="post-content">
+            <figure style="margin-top: 1.5rem; text-align: center;">
+                <img src="Bayesian Clustering/all_phases_comparison.png" alt="Benchmark Summary Across All Clustering Paradigms" fetchpriority="high">
+                <figcaption>Benchmark overview comparing Leaf V-Measure and Adjusted Rand Index across classical heuristics, continuous DP-GMMs, and discrete HDP topic modeling.</figcaption>
+            </figure>
+
+            <h2>1. The Fundamental Dilemma: Why Guessing \(K\) Breaks Down</h2>
+            <p>Every data scientist who has used clustering in production has encountered the same bottleneck: standard algorithms like \(k\)-means or classic Expectation-Maximization Gaussian Mixture Models (GMM) force you to fix the number of clusters \(K\) before seeing the data. In exploratory data analysis, biological taxonomy, or unstructured text mining, \(K\) is almost never known in advance. Real-world semantic data is inherently unbounded, continuous, and multi-layered.</p>
+            
+            <p>To choose \(K\), standard practitioner workflows resort to semi-automated heuristics. You run an <em>Inertia Elbow</em> sweep, pick an inflection point, and then fine-tune it with localized <em>Silhouette Scores</em>. While convenient, these heuristics suffer from severe drawbacks:</p>
+            <ul>
+                <li><strong>Computational Redundancy:</strong> You are forced to fit dozens of separate models (e.g., 20 or more independent \(k\)-means runs) just to find a candidate \(K\).</li>
+                <li><strong>Brittleness to Embedding Geometry:</strong> In high-dimensional representation spaces, distance metrics warp, causing silhouette scores to prefer small, arbitrary numbers of clusters.</li>
+                <li><strong>Lack of Uncertainty and Structure:</strong> Classical heuristics return hard cluster memberships without posterior probabilities, component mixing weights, or parent-child hierarchical trees.</li>
+            </ul>
+
+            <div class="callout-box">
+                <p><strong>The Non-Parametric Bayesian Alternative:</strong> Instead of guessing \(K\), I place an infinite-dimensional prior (a <strong>Dirichlet Process</strong>) over the mixture components. By setting a generous upper truncation bound (such as \(K=30\)), the prior penalizes redundant clusters, automatically shrinking unneeded component weights to zero in a <strong>single unified fit</strong>.</p>
+            </div>
+
+            <hr/>
+
+            <h2>2. The Benchmark Dataset &amp; Ground-Truth Semantic Hierarchy</h2>
+            <p>To rigorously test these methods, I extracted a curated subset from the canonical <strong>20 Newsgroups</strong> corpus (available via <code>scikit-learn.datasets.fetch_20newsgroups</code>). To examine both fine-grained topic resolution and macro-hierarchy discovery, I selected 9 subcategories partitioned across 3 distinct supercategory families:</p>
+
+            <ul>
+                <li><strong><code>comp.*</code> (Computer Systems):</strong> <code>comp.graphics</code>, <code>comp.os.ms-windows.misc</code>, <code>comp.sys.mac.hardware</code></li>
+                <li><strong><code>rec.*</code> (Recreation &amp; Sports):</strong> <code>rec.autos</code>, <code>rec.motorcycles</code>, <code>rec.sport.baseball</code></li>
+                <li><strong><code>sci.*</code> (Science &amp; Technology):</strong> <code>sci.crypt</code>, <code>sci.med</code>, <code>sci.space</code></li>
+            </ul>
+
+            <p>To avoid trivial data leakage, I stripped all newsgroup email headers, signatures, and quoting footers during extraction. This ensures models cluster documents based purely on topical semantic content rather than poster names, server routing paths, or institutional domains.</p>
+
+            <figure>
+                <img src="Bayesian Clustering/notebook_cell5_umap_ground_truth.png" alt="2D UMAP Projection of the 20 Newsgroups Dataset">
+                <figcaption>Figure 1: 2D UMAP projection of the curated 20 Newsgroups subset, colored by 3 macro parent categories (left) and 9 ground-truth leaf subcategories (right).</figcaption>
+            </figure>
+
+            <p>This design gives an objective ground truth: exactly <strong>3 parent clusters</strong> at the macro level and <strong>9 leaf clusters</strong> at the subcategory level. We can now evaluate whether our models uncover both granular topics and high-level families without supervision.</p>
+
+            <hr/>
+
+            <h2>3. Mathematical Challenges: The Curse of Dimensionality &amp; Likelihood Underflow</h2>
+            <p>To represent raw documents as continuous numerical features, I encoded each post using the <code>sentence-transformers</code> model <code>all-MiniLM-L6-v2</code>, which produces dense 384-dimensional semantic vectors. However, fitting a Gaussian mixture model directly in 384 dimensions is mathematically ill-posed due to two fundamental hurdles:</p>
+
+            <h3>The Curse of Dimensionality &amp; Distance Concentration</h3>
+            <p>As the dimensionality \(D\) grows large, the volume of the space grows exponentially, and Euclidean distances between data points concentrate. For independent, identically distributed features:</p>
+
+            $$\lim_{D \to \infty} \frac{\text{dist}_{\max} - \text{dist}_{\min}}{\text{dist}_{\min}} \to 0$$
+
+            <p>In 384 continuous dimensions, almost every point is equidistant from every other point (with normalized cosine distances concentrating tightly around \(\sqrt{2}\)), robbing distance-based clustering algorithms of geometric contrast.</p>
+
+            <h3>Catastrophic Floating-Point Underflow</h3>
+            <p>The probability density function of a \(D\)-dimensional multivariate Gaussian distribution is given by:</p>
+
+            $$p(x \mid \mu, \Sigma) = (2\pi)^{-\frac{D}{2}} |\Sigma|^{-\frac{1}{2}} \exp\left(-\frac{1}{2}(x-\mu)^T \Sigma^{-1} (x-\mu)\right)$$
+
+            <p>The normalizer prefactor \((2\pi)^{-\frac{D}{2}}\) causes severe numerical collapse. When \(D = 384\):</p>
+
+            $$(2\pi)^{-\frac{384}{2}} = (2\pi)^{-192} \approx 10^{-153}$$
+
+            <p>In standard 64-bit IEEE floating-point arithmetic, computing this product alongside small exponential distance penalties results in immediate underflow to <code>0.0</code>. Furthermore, inverting a full \(384 \times 384\) empirical covariance matrix requires \(\mathcal{O}(D^3)\) operations and is almost always singular or ill-conditioned when clusters contain few points.</p>
+
+            <h3>The Architectural Solution: 12D UMAP Manifold Projection</h3>
+            <p>To overcome both issues, I used <code>umap-learn</code> to project the 384-dimensional Sentence Transformer embeddings down to \(D = 12\) dimensions using a cosine metric. UMAP preserves both local nearest-neighbor graphs and global cluster separation. At \(D=12\), Gaussian components remain well-conditioned, normalizers do not underflow, and spherical covariance constraints (\(\Sigma_k = \sigma_k^2 \mathbf{I}\)) remain numerically robust.</p>
+
+            <pre><code class="language-python">from sentence_transformers import SentenceTransformer
+import umap
+
+# 1. Generate dense continuous sentence representations (D = 384)
+embedder = SentenceTransformer("all-MiniLM-L6-v2")
+raw_embeddings = embedder.encode(cleaned_documents, show_progress_bar=True)
+
+# 2. Non-linear manifold dimension reduction to D = 12 for GMM stability
+reducer_12d = umap.UMAP(
+    n_components=12,
+    metric="cosine",
+    n_neighbors=15,
+    min_dist=0.1,
+    random_state=42,
+)
+umap_embeddings_12d = reducer_12d.fit_transform(raw_embeddings)</code></pre>
+
+            <hr/>
+
+            <h2>4. The Frequentist Baseline: Yellowbrick Two-Step Heuristic Sweeps</h2>
+            <p>Before implementing Bayesian models, I established a baseline using the conventional two-step heuristic workflow via the <code>yellowbrick</code> library. This approach consists of two distinct stages:</p>
+            <ol>
+                <li><strong>Pass 1 (Distortion Elbow):</strong> Train \(k\)-means models across \(K \in [2, 16]\) and identify the point of maximum curvature in the within-cluster sum of squares.</li>
+                <li><strong>Pass 2 (Silhouette Score Fine-Tuning):</strong> Sweep a localized window around the elbow candidate \(K_{\text{elbow}} \pm 3\) to select the \(K\) that maximizes average silhouette width.</li>
+            </ol>
+
+            <pre><code class="language-python">from sklearn.cluster import KMeans
+from yellowbrick.cluster import KElbowVisualizer
+
+# Pass 1: Inertia Elbow across K in [2, 16] on 12D UMAP embeddings
+fig, axes = plt.subplots(1, 2, figsize=(18, 5))
+viz_elbow = KElbowVisualizer(
+    KMeans(random_state=42, n_init=10),
+    k=(2, 17),
+    metric="distortion",
+    ax=axes[0],
+)
+viz_elbow.fit(umap_embeddings_12d)
+
+# Pass 2: Localized Silhouette Score sweep around the candidate elbow
+k_candidate = viz_elbow.elbow_value_
+viz_silhouette = KElbowVisualizer(
+    KMeans(random_state=42, n_init=10),
+    k=(max(2, k_candidate - 3), k_candidate + 4),
+    metric="silhouette",
+    ax=axes[1],
+)
+viz_silhouette.fit(umap_embeddings_12d)</code></pre>
+
+            <figure>
+                <img src="Bayesian Clustering/notebook_cell8_yellowbrick_umap_elbow.png" alt="Yellowbrick Elbow and Silhouette Analysis on UMAP">
+                <figcaption>Figure 2: Yellowbrick two-step heuristic on 12D UMAP embeddings. The distortion elbow identified \(K=7\), and the subsequent silhouette sweep chose \(K=5\).</figcaption>
+            </figure>
+
+            <figure>
+                <img src="Bayesian Clustering/notebook_cell9_yellowbrick_umap_clusters.png" alt="Discovered Yellowbrick Clusters vs Ground Truth on UMAP">
+                <figcaption>Figure 3: Predicted \(K=5\) cluster assignments from Yellowbrick (left) compared against the 9 ground-truth subcategories (right). Fine-grained distinctions inside <code>comp</code> and <code>rec</code> are merged.</figcaption>
+            </figure>
+
+            <p>I also repeated this heuristic workflow on linear PCA embeddings (selecting 31 components to preserve 95% variance). PCA selected \(K=7\), but produced blurry boundaries with significant overlap.</p>
+
+            <figure>
+                <img src="Bayesian Clustering/notebook_cell10_yellowbrick_pca_elbow.png" alt="Yellowbrick Elbow and Silhouette Analysis on PCA">
+                <figcaption>Figure 4: Yellowbrick two-step heuristic on PCA representations, selecting an elbow at \(K=7\).</figcaption>
+            </figure>
+
+            <figure>
+                <img src="Bayesian Clustering/notebook_cell11_yellowbrick_pca_clusters.png" alt="Discovered Yellowbrick Clusters on PCA vs Ground Truth">
+                <figcaption>Figure 5: PCA-based cluster assignments (left) compared against ground truth (right), illustrating severe overlap caused by linear projection.</figcaption>
+            </figure>
+
+            <p><strong>The Core Shortcoming:</strong> The two-step heuristic required training <strong>22 separate \(k\)-means models</strong>. More importantly, it chose \(K=5\) on UMAP, collapsing the 9 true subtopics into 5 clusters and failing to uncover the macro-hierarchy.</p>
+
+            <hr/>
+
+            <h2>5. Phase 2: Continuous DP-GMM &amp; Hierarchy Discovery in Scikit-Learn</h2>
+            <p>To eliminate the need for heuristic sweeping, I implemented a <strong>Dirichlet Process Gaussian Mixture Model (DP-GMM)</strong> using <code>scikit-learn</code>'s <code>BayesianGaussianMixture</code>. Rather than fixing \(K\), I initialized the model with a high truncation limit of \(K = 30\) and a Dirichlet Process prior on the mixing proportions:</p>
+
+            <pre><code class="language-python">from sklearn.mixture import BayesianGaussianMixture
+from scipy.cluster.hierarchy import linkage, fcluster
+
+# Single unified fit with high truncation bound K=30
+dpgmm = BayesianGaussianMixture(
+    n_components=30,
+    weight_concentration_prior_type="dirichlet_process",
+    weight_concentration_prior=1.0,
+    covariance_type="spherical",
+    max_iter=300,
+    random_state=42,
+)
+dpgmm.fit(umap_embeddings_12d)</code></pre>
+
+            <p>Using <code>covariance_type="spherical"</code> restricts each cluster's covariance to \(\Sigma_k = \sigma_k^2 \mathbf{I}\). This avoids singular matrix inversions in 12D space while allowing Variational EM to converge in 123 iterations.</p>
+
+            <figure>
+                <img src="Bayesian Clustering/phase2_dpgmm_weights.png" alt="Scikit-Learn DP-GMM Component Weight Distribution">
+                <figcaption>Figure 6: Component weight distribution after DP-GMM fitting. The Dirichlet Process automatically allocates probability mass across granular sub-modes while driving inactive components toward zero.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="Bayesian Clustering/phase2_clusters_vs_truth.png" alt="Scikit-Learn DP-GMM Predictions vs Ground Truth">
+                <figcaption>Figure 7: Scikit-learn DP-GMM cluster assignments (left) compared against ground-truth subcategories (right). The model identifies distinct local modes across all 9 classes.</figcaption>
+            </figure>
+
+            <h3>Automated Macro-Hierarchy Recovery via Ward Agglomeration</h3>
+            <p>While DP-GMM models fine-grained leaf topics, real-world data often possesses higher-level taxonomy. Rather than training a second model, I extracted the active component centroids (\(\mu_k \in \mathbb{R}^{12}\)) and performed <strong>Agglomerative Hierarchical Clustering</strong> using Ward's minimum-variance criterion:</p>
+
+            $$d_{\text{Ward}}(A, B) = \frac{n_A n_B}{n_A + n_B} \|\mu_A - \mu_B\|^2$$
+
+            <pre><code class="language-python"># 1. Extract active centroids from DP-GMM
+active_centroids = dpgmm.means_[active_indices]
+
+# 2. Build agglomerative tree on active centroids using Ward linkage
+Z = linkage(active_centroids, method="ward")
+
+# 3. Cut the tree at 3 macro parent clusters
+pred_parent_clusters = fcluster(Z, t=3, criterion="maxclust")
+document_parent_labels = pred_parent_clusters[point_cluster_assignments]</code></pre>
+
+            <figure>
+                <img src="Bayesian Clustering/notebook_cell16_dpgmm_dendrogram.png" alt="Dendrogram of Active DP-GMM Centroids">
+                <figcaption>Figure 8: Ward linkage dendrogram built directly on the active DP-GMM centroids. The tree cleanly branches into the 3 macro families: Computer Systems, Recreation, and Science.</figcaption>
+            </figure>
+
+            <p>This automated hierarchy achieved a <strong>Parent V-Measure of 0.5403</strong> and an <strong>Adjusted Rand Index of 0.4625</strong>, successfully grouping fine subtopics back into their parent families without supervision.</p>
+
+            <hr/>
+
+            <h2>6. Phase 3: Native Stick-Breaking DP-GMM in PyMC with ADVI</h2>
+            <p>To inspect the underlying probability mechanics without relying on closed-source black boxes, I built the Dirichlet Process mixture model from first principles using <strong>PyMC</strong> and <strong>PyTensor</strong>.</p>
+
+            <h3>The Sethuraman Stick-Breaking Process</h3>
+            <p>The constructive definition of the Dirichlet Process (Sethuraman, 1994) models the mixture weights as breaking successive fractions off a unit stick:</p>
+
+            $$\alpha \sim \text{Gamma}(1.0, 1.0)$$
+            $$v_k \sim \text{Beta}(1, \alpha), \quad k = 0, \dots, K-2$$
+            $$w_0 = v_0, \quad w_k = v_k \prod_{j < k} (1 - v_j), \quad w_{K-1} = \prod_{j < K-1} (1 - v_j)$$
+
+            <p>Because \(\sum_{k=0}^{K-1} w_k = 1\), this ensures a valid probability simplex over an unbounded component space.</p>
+
+            <h3>The Complete PyMC Model Specification</h3>
+            <pre><code class="language-python">import pymc as pm
+import pytensor.tensor as pt
+
+K = 30
+N, D = umap_embeddings_12d.shape
+
+with pm.Model() as pymc_dpgmm:
+    # 1. Concentration parameter governing cluster dispersion
+    alpha = pm.Gamma("alpha", alpha=1.0, beta=1.0)
+    
+    # 2. Stick fractions v ~ Beta(1, alpha)
+    v = pm.Beta("v", alpha=1.0, beta=alpha, shape=K - 1)
+    
+    # 3. Deterministic stick-breaking mixture proportions
+    one_minus_v = 1.0 - v
+    cumprod = pt.cumprod(one_minus_v)
+    w_0 = v[0:1]
+    w_rest = v[1:] * cumprod[:-1]
+    w_last = cumprod[-1:]
+    w = pm.Deterministic("w", pt.concatenate([w_0, w_rest, w_last]))
+    
+    # 4. Component Centroids and Spherical Variances
+    x_mean = np.mean(umap_embeddings_12d, axis=0)
+    x_std = np.std(umap_embeddings_12d, axis=0)
+    mu = pm.Normal("mu", mu=x_mean, sigma=x_std * 2.5, shape=(K, D))
+    sigma = pm.HalfNormal("sigma", sigma=2.0, shape=K)
+    
+    # 5. Spherical Gaussian Mixture Likelihood
+    comp_dists = [
+        pm.Normal.dist(mu=mu[k], sigma=sigma[k], shape=(D,))
+        for k in range(K)
+    ]
+    pm.Mixture("obs", w=w, comp_dists=comp_dists, observed=umap_embeddings_12d)</code></pre>
+
+            <h3>Why ADVI Over MCMC (NUTS)?</h3>
+            <p>Exact Markov Chain Monte Carlo (MCMC) sampling on mixture distributions suffers from <strong>label switching</strong>: permuting cluster labels leaves the likelihood unchanged, leading to non-identifiable posterior modes and poor mixing across chains. Instead, I used <strong>Automatic Differentiation Variational Inference (ADVI)</strong> to fit a mean-field approximation in under 60 seconds.</p>
+            
+            <p>To break symmetry between the 30 initial components, I initialized the variational centroid parameters with \(k\)-means centers, preventing components from collapsing into the global dataset mean.</p>
+
+            <pre><code class="language-python"># Symmetry-breaking initialization via KMeans centers
+kmeans_init = KMeans(n_clusters=K, n_init=1, random_state=42).fit(umap_embeddings_12d)
+start_vals = {"mu": kmeans_init.cluster_centers_}
+
+with pymc_dpgmm:
+    approx = pm.fit(
+        n=2500,
+        method="advi",
+        start=start_vals,
+        random_seed=42,
+        progressbar=True,
+    )
+    trace = approx.sample(draws=500, random_seed=42)</code></pre>
+
+            <figure>
+                <img src="Bayesian Clustering/phase3_advi_elbo.png" alt="Evidence Lower Bound (ELBO) Optimization Curve">
+                <figcaption>Figure 9: Evidence Lower Bound (ELBO) convergence trajectory during ADVI optimization, stabilizing smoothly within 2,500 iterations.</figcaption>
+            </figure>
+
+            <h3>Numerically Stable Posterior Responsibilities (Log-Sum-Exp Trick)</h3>
+            <p>After sampling the posterior trace, assigning documents to clusters requires computing posterior responsibilities \(\gamma_{ik} = p(z_i = k \mid x_i)\). Doing this naively in linear probability space risks dividing zero by zero when Gaussian densities underflow. I solved this by evaluating assignments strictly in log-space:</p>
+
+            $$\log p(x_i, z_i = k) = \log w_k - \frac{D}{2}\log(2\pi) - D \log \sigma_k - \frac{\|x_i - \mu_k\|^2}{2\sigma_k^2}$$
+            $$\log \gamma_{ik} = \log p(x_i, z_i = k) - \text{logsumexp}_{j}\left(\log p(x_i, z_i = j)\right)$$
+
+            <pre><code class="language-python">from src.utils.math_utils import logsumexp
+
+def compute_posthoc_cluster_responsibilities(X, trace, threshold=0.01):
+    # Extract posterior mean parameters
+    post_w = np.mean(trace.posterior["w"].values.reshape(-1, K), axis=0)
+    post_mu = np.mean(trace.posterior["mu"].values.reshape(-1, K, D), axis=0)
+    post_sigma = np.mean(trace.posterior["sigma"].values.reshape(-1, K), axis=0)
+    
+    # Prune inactive components (weight < 1%)
+    act_idx = np.where(post_w >= threshold)[0]
+    act_w, act_mu, act_sigma = post_w[act_idx], post_mu[act_idx], post_sigma[act_idx]
+    
+    # Evaluate joint log-densities
+    diff = X[:, np.newaxis, :] - act_mu[np.newaxis, :, :]  # (N, K_act, D)
+    sq_dist = np.sum(diff ** 2, axis=-1)                   # (N, K_act)
+    log_gauss = -0.5 * D * np.log(2 * np.pi) - D * np.log(act_sigma) - 0.5 * sq_dist / (act_sigma ** 2)
+    log_joint = np.log(act_w) + log_gauss
+    
+    # Stable normalization via Log-Sum-Exp
+    log_resp = log_joint - logsumexp(log_joint, axis=-1, keepdims=True)
+    cluster_assignments = np.argmax(log_resp, axis=-1)
+    return cluster_assignments, act_idx, act_w</code></pre>
+
+            <figure>
+                <img src="Bayesian Clustering/notebook_cell21_pymc_weights_clusters.png" alt="PyMC Stick-Breaking Posterior Weights and Clusters">
+                <figcaption>Figure 10: PyMC results. Left: Posterior mixture weights \(w_k\), demonstrating that the stick-breaking prior pruned the 30 initial components down to 7 active clusters. Right: Discovered clusters in 2D UMAP space.</figcaption>
+            </figure>
+
+            <p><strong>PyMC Benchmark Performance:</strong> The native PyMC DP-GMM achieved the highest leaf-level clustering quality across the entire benchmark, delivering a <strong>V-Measure of 0.6077</strong> and an <strong>Adjusted Rand Index of 0.4355</strong>.</p>
+
+            <hr/>
+
+            <h2>7. Phase 4: Discrete Hierarchical Dirichlet Process (HDP) in Tomotopy</h2>
+            <p>Both previous phases operated on continuous sentence embeddings. However, text in its raw form is a sequence of discrete tokens. To test whether non-parametric Bayesian methods can discover semantic topics without pre-trained neural networks, I implemented a <strong>Hierarchical Dirichlet Process (HDP)</strong> using <code>tomotopy</code>.</p>
+
+            <h3>The Two-Level Dirichlet Hierarchy</h3>
+            <p>Formulated by Teh et al. (2006), HDP extends Latent Dirichlet Allocation (LDA) to an unknown number of topics by linking documents through a shared global base measure:</p>
+            <ul>
+                <li><strong>Corpus Base Measure:</strong> \(G_0 \sim \text{DP}(\gamma, H)\) defines an infinite pool of shared topics over vocabulary \(H\).</li>
+                <li><strong>Document Distribution:</strong> \(G_d \sim \text{DP}(\alpha, G_0)\) samples document-specific mixture proportions over the global topics.</li>
+            </ul>
+
+            <pre><code class="language-python">import tomotopy as tp
+
+# 1. Initialize HDP Model with Collapsed Gibbs Sampling
+hdp = tp.HDPModel(
+    tw=tp.TermWeight.IDF,
+    min_cf=3,
+    rm_top=5,
+    alpha=0.1,
+    gamma=1.0,
+    initial_k=30,
+    seed=42,
+)
+
+# 2. Add tokenized documents
+for doc_tokens in tokenized_corpus:
+    hdp.add_doc(doc_tokens)
+
+# 3. Train via Collapsed Gibbs Sampling (500 iterations)
+hdp.burn_in = 100
+for i in range(0, 500, 25):
+    hdp.train(25)
+    print(f"Iteration {i}: Perplexity={hdp.perplexity:.2f}, Live Topics={hdp.live_k}")</code></pre>
+
+            <figure>
+                <img src="Bayesian Clustering/phase4_hdp_training_curves.png" alt="HDP Perplexity and Active Topics over Gibbs Iterations">
+                <figcaption>Figure 11: Training trajectories for HDP Gibbs sampling: document perplexity converges downwards while the count of active topics stabilizes.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="Bayesian Clustering/notebook_cell24_hdp_prominent_topics.png" alt="Top Diagnostic Words for Prominent HDP Topics">
+                <figcaption>Figure 12: Top diagnostic words for prominent latent topics uncovered by HDP. Highly coherent semantic clusters emerge around space exploration, cryptography, and medical research.</figcaption>
+            </figure>
+
+            <p>Even without neural embeddings or pre-trained language models, HDP achieved a <strong>Parent ARI of 0.4329</strong>, confirming that discrete non-parametric Bayesian topic models can extract macro-hierarchical structure directly from raw word counts.</p>
+
+            <hr/>
+
+            <h2>8. Comprehensive Cross-Paradigm Benchmark</h2>
+            <p>To draw definitive conclusions, I evaluated all models on the identical 20 Newsgroups test split using standard clustering agreement metrics: <strong>V-Measure</strong> (harmonic mean of homogeneity and completeness) and <strong>Adjusted Rand Index (ARI)</strong>, calculated against both the 9 leaf subcategories and the 3 parent macro-families.</p>
+
+            <table class="benchmark-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Representation</th>
+                        <th>Inference Engine</th>
+                        <th>Discovered Clusters</th>
+                        <th>Leaf V-Measure</th>
+                        <th>Leaf ARI</th>
+                        <th>Parent V-Measure</th>
+                        <th>Parent ARI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Yellowbrick Heuristic</strong></td>
+                        <td>12D UMAP Embeddings</td>
+                        <td>Two-Pass \(k\)-Means Sweep</td>
+                        <td>5 (fixed by elbow)</td>
+                        <td>0.6253</td>
+                        <td>0.4530</td>
+                        <td>N/A (hard clusters)</td>
+                        <td>N/A (hard clusters)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DP-GMM (Scikit-Learn)</strong></td>
+                        <td>12D UMAP Embeddings</td>
+                        <td>Variational EM</td>
+                        <td>30 (fine modes)</td>
+                        <td>0.5801</td>
+                        <td>0.3901</td>
+                        <td><strong>0.5403</strong></td>
+                        <td><strong>0.4625</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>DP-GMM (PyMC)</strong></td>
+                        <td>12D UMAP Embeddings</td>
+                        <td>ADVI + Log-Sum-Exp</td>
+                        <td><strong>7</strong> (pruned from 30)</td>
+                        <td><strong>0.6077</strong></td>
+                        <td><strong>0.4355</strong></td>
+                        <td>N/A (flat mixture)</td>
+                        <td>N/A (flat mixture)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HDP (Tomotopy)</strong></td>
+                        <td>Discrete BoW Tokens</td>
+                        <td>Collapsed Gibbs Sampling</td>
+                        <td>165 (6 dominant)</td>
+                        <td>0.4962</td>
+                        <td>0.3751</td>
+                        <td>0.4299</td>
+                        <td>0.4329</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <figure>
+                <img src="Bayesian Clustering/notebook_cell26_all_phases_comparison.png" alt="Grouped Bar Chart Benchmark across Models">
+                <figcaption>Figure 13: Comparative clustering performance across all models. PyMC DP-GMM leads in leaf agreement, while Scikit-Learn DP-GMM paired with Ward linkage achieves superior macro-hierarchy discovery.</figcaption>
+            </figure>
+
+            <hr/>
+
+            <h2>9. Practical Engineering Guidelines &amp; Conclusion</h2>
+            <p>This research demonstrates that non-parametric Bayesian clustering is not merely a theoretical curiosity; it offers concrete advantages over classical heuristic sweeps when working with complex, high-dimensional datasets. Here are the core engineering takeaways:</p>
+
+            <ol>
+                <li><strong>When to Use Yellowbrick Heuristics:</strong> Fast exploratory analysis on low-dimensional tabular data when you want an immediate visual intuition and do not need posterior probabilities or hierarchical parent trees.</li>
+                <li><strong>When to Use Scikit-Learn DP-GMM:</strong> Production pipelines where computational speed is paramount. Running Variational EM on 12D continuous embeddings takes less than 2 seconds, and coupling active centroids with Ward linkage provides an automated, multi-scale hierarchical tree.</li>
+                <li><strong>When to Use Native PyMC DP-GMM:</strong> Custom statistical architectures where you require explicit control over concentration priors, isotropic noise scales, or full posterior uncertainty quantification. Initializing ADVI with \(k\)-means centroids breaks permutation symmetry, while the Log-Sum-Exp trick prevents numerical underflow.</li>
+                <li><strong>When to Use Tomotopy HDP:</strong> Pure text environments where neural embeddings are unavailable, too heavy, or when word-level topic interpretability is mandatory.</li>
+            </ol>
+
+            <p>By moving beyond rigid \(k\)-means heuristics and embracing non-parametric priors, we allow our models to discover the natural granularity of the underlying data.</p>
+
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </article>
+    </div>
+
+    <!-- Syntax Highlighting (PrismJS) & Copy Button Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('pre').forEach((preBlock) => {
+                if (preBlock.querySelector('.copy-btn')) return;
+
+                const button = document.createElement('button');
+                button.className = 'copy-btn';
+                button.type = 'button';
+                button.setAttribute('aria-label', 'Copy code to clipboard');
+                button.innerHTML = `
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg> Copy`;
+
+                button.addEventListener('click', async () => {
+                    const code = preBlock.querySelector('code');
+                    const text = code ? code.innerText : preBlock.innerText;
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        button.classList.add('copied');
+                        button.innerHTML = `
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg> Copied!`;
+                        setTimeout(() => {
+                            button.classList.remove('copied');
+                            button.innerHTML = `
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg> Copy`;
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                    }
+                });
+
+                preBlock.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>

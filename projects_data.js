@@ -7,6 +7,14 @@ window.PROJECTS_DATA = [
     "filename": "2026.html"
   },
   {
+    "title": "Non-Parametric Bayesian Clustering & Hierarchy Discovery",
+    "slug": "bayesian-clustering.html",
+    "snippet": "An end-to-end framework and research tutorial comparing Dirichlet Process Gaussian Mixture Models (DP-GMM) and Hierarchical Dirichlet Processes (HDP) against classical Yellowbrick elbow heuristics. Solves high-dimensional likelihood underflow via 12D UMAP projections, derives Sethuraman stick-breaking priors natively in PyMC with ADVI, and automates macro-hierarchy discovery using Ward agglomerative linkage on 20 Newsgroups.",
+    "image": "Bayesian Clustering/all_phases_comparison.png",
+    "filename": "bayesian-clustering.html",
+    "date": "September 2026"
+  },
+  {
     "title": "Google Gemini AI Confidence Scores for Multimodal PDF Resume Classification",
     "slug": "ai-confidence-scores-framework.html",
     "snippet": "Functionalized Jupyter notebook evaluation, calibration, and benchmarking of 10 distinct LLM confidence score methods for multimodal PDF resume classification using Google's google-genai SDK. Pits token logprob margins, Platt scaling, and temperature scaling against NLI grounding alignment and LLM-as-a-Judge.",
@@ -145,7 +153,7 @@ window.PROJECTS_DATA = [
   {
     "title": "Grouped LOO Z-Scores: Ranking World Cup Players Like a Pro",
     "slug": "world-cup-grouped-loo-z-scores.html",
-    "snippet": "With the World Cup 2026 underway, this tutorial applies Grouped Leave-One-Out Z-Scores to FIFA World Cup 2018 & 2022 StatsBomb data. We build from z-score fundamentals up to a full multi-metric composite ranking engine \u2014 evaluating 1,092 players across 6 peer-grouping strategies, possession chain LOO influence deltas, and position-aware weighted composites. A reusable framework for any domain where fair cross-group comparison matters.",
+    "snippet": "With the World Cup 2026 underway, this tutorial applies Grouped Leave-One-Out Z-Scores to FIFA World Cup 2018 & 2022 StatsBomb data. We build from z-score fundamentals up to a full multi-metric composite ranking engine; evaluating 1,092 players across 6 peer-grouping strategies, possession chain LOO influence deltas, and position-aware weighted composites. A reusable framework for any domain where fair cross-group comparison matters.",
     "image": "World Cup z-Scores/thumbnail.webp",
     "filename": "world-cup-grouped-loo-z-scores.html",
     "date": "June 2026"
