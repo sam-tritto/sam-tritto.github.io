@@ -7,6 +7,14 @@
     "filename": "2026.html"
   },
   {
+    "title": "Advanced Feature Engineering for People Analytics: 20 Production-Grade Formulations",
+    "slug": "advanced-people-analytics-features.html",
+    "snippet": "A comprehensive mathematical and engineering framework implementing 20 advanced People Analytics features. Spans empirical Bayes shrinkage, fractional differencing, Hawkes process absence contagion, Gaussian HMM operational regimes, PyTorch autoencoder structural anomaly detection, and SHAP zero-crossing inflection thresholds.",
+    "image": "advanced-people-analytics-features/thumbnail.png",
+    "filename": "advanced-people-analytics-features.html",
+    "date": "October 2026"
+  },
+  {
     "title": "Non-Parametric Bayesian Clustering & Hierarchy Discovery",
     "slug": "bayesian-clustering.html",
     "snippet": "An end-to-end framework and research tutorial comparing Dirichlet Process Gaussian Mixture Models (DP-GMM) and Hierarchical Dirichlet Processes (HDP) against classical Yellowbrick elbow heuristics. Solves high-dimensional likelihood underflow via 12D UMAP projections, derives Sethuraman stick-breaking priors natively in PyMC with ADVI, and automates macro-hierarchy discovery using Ward agglomerative linkage on 20 Newsgroups.",

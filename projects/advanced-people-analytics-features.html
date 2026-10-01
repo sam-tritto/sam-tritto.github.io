@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Feature Engineering for People Analytics: 20 Production-Grade Formulations - Sam's Data Portfolio</title>
+    <meta name="description" content="A comprehensive mathematical and engineering tutorial covering 20 advanced People Analytics feature formulations, from empirical Bayes shrinkage and GARCH volatility to Hawkes contagion, PyTorch autoencoders, and SHAP zero-crossing inflection thresholds.">
+    <meta property="og:image" content="advanced-people-analytics-features/thumbnail.png">
+    <meta name="twitter:image" content="advanced-people-analytics-features/thumbnail.png">
+    <link rel="stylesheet" href="../style.css">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* OneDark Pro / VS Code Dark Code Block Styling */
+        pre {
+            background-color: #21252b !important;
+            background: #21252b !important;
+            color: #abb2bf !important;
+            padding: 1.25rem !important;
+            border-radius: 8px !important;
+            overflow-x: auto !important;
+            margin: 1.75rem 0 !important;
+            border: 1px solid #282c34 !important;
+            position: relative !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25) !important;
+            font-size: 0.92rem !important;
+            line-height: 1.6 !important;
+        }
+        code {
+            font-family: 'JetBrains Mono', SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace !important;
+            font-size: 0.88em !important;
+            background-color: #282c34 !important;
+            background: #282c34 !important;
+            color: #e06c75 !important;
+            padding: 0.2em 0.4em !important;
+            border-radius: 4px !important;
+        }
+        pre code {
+            padding: 0 !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            color: inherit !important;
+            font-size: 1em !important;
+            border-radius: 0 !important;
+        }
+        /* Custom OneDark Pro Syntax Highlighting Token Tweaks */
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #5c6370 !important; font-style: italic !important; }
+        .token.function, .token.class-name { color: #61afef !important; }
+        .token.keyword { color: #c678dd !important; font-weight: 600 !important; }
+        .token.string, .token.char, .token.attr-value { color: #98c379 !important; }
+        .token.number, .token.boolean { color: #d19a66 !important; }
+        .token.operator, .token.entity, .token.url { color: #56b6c2 !important; }
+        .token.decorator, .token.builtin { color: #e5c07b !important; }
+        .token.property, .token.tag, .token.symbol { color: #e06c75 !important; }
+
+        /* Interactive Copy Button */
+        .copy-btn {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            background: #282c34;
+            color: #abb2bf;
+            border: 1px solid #3e4451;
+            border-radius: 6px;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .copy-btn:hover {
+            background: #3e4451 !important;
+            color: #ffffff !important;
+            border-color: #4b5263 !important;
+            transform: translateY(-1px);
+        }
+        .copy-btn.copied {
+            background: #98c379 !important;
+            color: #1e1e2e !important;
+            border-color: #98c379 !important;
+            font-weight: 600;
+        }
+
+        figure {
+            margin: 2.5rem 0;
+            text-align: center;
+        }
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        figcaption {
+            margin-top: 0.75rem;
+            font-size: 0.88rem;
+            color: var(--text-muted, #64748b);
+            font-style: italic;
+        }
+        .taxonomy-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.92rem;
+        }
+        .taxonomy-table th, .taxonomy-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .taxonomy-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+        }
+        .tag-pill {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            margin-right: 0.35rem;
+        }
+        .callout-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 1.25rem 1.5rem;
+            margin: 1.75rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .callout-box.synthetic {
+            border-left-color: #10b981;
+            background-color: #f0fdf4;
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <header class="post-header-area">
+            <h1>Advanced Feature Engineering for People Analytics: 20 Production-Grade Formulations</h1>
+            <div style="font-size: 0.95rem; color: #64748b; margin-top: 0.5rem;">
+                <span>Published October 2026</span> &bull; 
+                <span>Codebase: <a href="https://github.com/sam-tritto/advanced-people-analytics-features" target="_blank" rel="noopener noreferrer">github.com/sam-tritto/advanced-people-analytics-features</a></span>
+            </div>
+        </header>
+
+        <div class="post-back-container">
+            <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+        </div>
+
+        <article class="post-content">
+            <p>Workforce data presents unique statistical challenges that standard machine learning pipelines fail to handle. Human behavior inside organizations does not follow independent and identically distributed (i.i.d.) assumptions. Departures and call-outs exhibit contagion, schedule volatility clusters into turbulent operational regimes, and extreme outliers inside small localized cohorts distort traditional scaling metrics. Furthermore, career development progresses along directed transition trajectories rather than static job categories, and executive decisions require exact zero-residual accounting rather than black-box approximations.</p>
+
+            <p>To address these realities, I built an end-to-end Python framework encompassing 20 advanced feature engineering techniques designed specifically for organizational, store, and workforce dynamics. The complete implementation, unit tests, and interactive research notebooks are open-sourced in the GitHub repository <a href="https://github.com/sam-tritto/advanced-people-analytics-features" target="_blank" rel="noopener noreferrer"><strong>sam-tritto/advanced-people-analytics-features</strong></a>.</p>
+
+            <div class="callout-box synthetic">
+                <strong>Data Architecture &amp; Synthetic Generation:</strong>
+                <p>Because real enterprise human resources and operational rosters contain sensitive personal information (PII) and strict confidentiality constraints, all demonstrations, tests, and visual benchmarks in this project are executed on mathematically calibrated <strong>synthetic data</strong>. I implemented dedicated data generation routines in <code>data/synthetic_generators.py</code> that simulate enterprise store rosters, longitudinal overtime records, tiered recognition logs, and multi-year career transitions. These generators use mixture Weibull distributions for early tenure cliffs, Dirichlet distributions for store headcount allocations, log-normal overtime shocks, and controlled non-linear synergies. This approach ensures reproducible, mathematically rigorous validation while maintaining complete privacy.</p>
+            </div>
+
+            <h2>The Technical Ecosystem &amp; Libraries</h2>
+            <p>Rather than relying solely on generic tabular preprocessing tools, this suite bridges specialized statistical physics, econometrics, survival analysis, and deep learning libraries:</p>
+            <ul>
+                <li><code>arch</code>: Implements Generalized Autoregressive Conditional Heteroskedasticity (GARCH) models to quantify dynamic conditional volatility in scheduling variance shocks.</li>
+                <li><code>hmmlearn</code>: Fits Gaussian Hidden Markov Models to decode unobserved latent organizational operational regimes from continuous multivariate emissions.</li>
+                <li><code>lifelines</code>: Estimates non-parametric Kaplan-Meier survival curves and Nelson-Aalen cumulative hazard curves to transform raw integer tenure into empirical behavioral coordinates.</li>
+                <li><code>lightgbm</code>: Fits gradient boosted decision trees to extract 2D non-linear feature interaction matrices via TreeSHAP.</li>
+                <li><code>pyod</code>: Powers Local Outlier Factor (LOF) models to evaluate compensation growth and promotion velocity against localized peer density.</li>
+                <li><code>shap</code>: Decomposes model predictions into main effects versus pairwise interaction synergies, and pairs with 1D surrogate regression models to pinpoint exact zero-crossing inflection tipping points.</li>
+                <li><code>statsmodels</code>: Executes Augmented Dickey-Fuller (ADF) tests to verify stationarity in fractionally differenced time series.</li>
+                <li><code>torch</code>: Powers bottleneck neural autoencoders that compute feature-level reconstruction error to detect organizational structural dysfunction ("The Weirdness Index").</li>
+                <li><code>scipy</code> &amp; <code>numpy</code>: Handle numerical optimization for Hawkes process Maximum Likelihood Estimation (MLE), dynamic programming for Dynamic Time Warping (DTW) and Longest Common Subsequence (LCSS), and singular value decomposition (SVD) for career transition graph embeddings.</li>
+            </ul>
+
+            <h2>Systematic Taxonomy of the 20 Features</h2>
+            <table class="taxonomy-table">
+                <thead>
+                    <tr>
+                        <th>Functional Domain</th>
+                        <th>Feature Formulations</th>
+                        <th>Primary Problem Solved</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. High Cardinality &amp; Cohorts</strong></td>
+                        <td>Bayesian Target Encoding, Grouped LOO Z-Scores, Leave-One-Out Expected Differential (LOO-ED)</td>
+                        <td>Small-sample overfitting in micro-cohorts, outlier self-masking, and separating external shift advantages from manager alpha.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Memory &amp; Time Decay</strong></td>
+                        <td>Fractional Differencing, Weighted Weeks Since, EWMA Smoothing, Hazard Embeddings</td>
+                        <td>Balancing time series stationarity with long-range memory, modeling continuous event decay, and non-linear tenure cliffs.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Chaos, Volatility &amp; Regimes</strong></td>
+                        <td>Rolling Shannon Entropy, GARCH(1,1) Volatility, Hawkes Contagion, HMM Latent Regimes</td>
+                        <td>Measuring schedule unpredictability, volatility clustering, unscheduled absence contagion waves, and operational crisis states.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. Anomalies &amp; Sequences</strong></td>
+                        <td>Autoencoder Weirdness Index, PyOD Local Outlier Factor, KL Divergence Drift, DTW Distance, LCSS / EDR Sequences</td>
+                        <td>Multivariate structural decoupling, local peer compensation anomalies, staffing distribution drift, and gap-tolerant schedule matching.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. Attribution &amp; Interactions</strong></td>
+                        <td>Log-Mean Decomposition (LMDI-I), SHAP 2D Interaction Matrix</td>
+                        <td>Zero-residual executive turnover rate vs mix attribution, and detecting non-linear workforce risk synergies.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. Mobility &amp; Tipping Points</strong></td>
+                        <td>Movement Embeddings (Career Trajectory), SHAP Inflection Thresholds</td>
+                        <td>Latent cross-functional succession discovery, and empirical zero-crossing tipping points for voluntary attrition.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Part 1: High Cardinality &amp; Hierarchical Cohorts</h2>
+
+            <h3>Feature 1: Bayesian Target Encoding (Empirical Bayes Shrinkage)</h3>
+            <p><strong>The Operational Challenge:</strong> In enterprise retail or logistics, crossing organizational dimensions like <code>STORE_ID &times; DEPT_CODE</code> produces hundreds of micro-cohorts. Newly opened stores or specialized departments may only have 3 to 5 associates. If one associate departs, naive target encoding registers a catastrophic 33% or 100% turnover rate, leading gradient boosted trees to severely overfit to small-sample noise.</p>
+            <p><strong>Mathematical Formulation:</strong> I implemented an Empirical Bayes shrinkage target encoder with an \(m\)-estimate prior:</p>
+            $$\hat{S}_i = \frac{n_i \cdot \bar{y}_i + m \cdot \bar{y}_{\text{global}}}{n_i + m}$$
+            <p>Where \(n_i\) is the category sample size, \(\bar{y}_i\) is the sample mean turnover rate of cohort \(i\), \(\bar{y}_{\text{global}}\) is the enterprise baseline, and \(m\) is the pseudo-count smoothing parameter. When sample sizes are small (\(n_i \ll m\)), the estimate shrinks toward the global baseline; as sample sizes expand (\(n_i \gg m\)), the estimate converges to the observed cohort rate. To eliminate target leakage during training, out-of-fold (K-Fold) estimation is enforced.</p>
+
+            <pre><code class="language-python"># Bayesian Target Encoding with Out-Of-Fold (OOF) K-Fold regularization
+from src.cardinality import BayesianTargetEncoder
+
+bte = BayesianTargetEncoder(m=15.0, cv_folds=5, seed=42)
+roster_df["turnover_encoded_oof"] = bte.fit_transform_oof(
+    roster_df, group_col="store_dept", target_col="turnover_event"
+)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_01_bayesian_target_encoding.png" alt="Bayesian Target Encoding Empirical Bayes Shrinkage Curve">
+                <figcaption>Figure 1: Empirical Bayes shrinkage. High-volume cohorts retain empirical turnover rates, while low-volume cohorts shrink smoothly toward the global mean (horizontal dashed line).</figcaption>
+            </figure>
+
+            <h3>Feature 2: Grouped Leave-One-Out (LOO) Z-Scores</h3>
+            <p><strong>The Operational Challenge:</strong> Standard Z-scores evaluate an employee relative to their localized group mean and standard deviation: \(Z_i = (x_i - \mu) / \sigma\). However, in small cohorts (such as a 6-person department), an extreme outlier (e.g. logging 45 weekly overtime hours) directly pulls \(\mu\) upward and inflates \(\sigma\). As a result, the outlier masks itself, producing an artificially deflated Z-score.</p>
+            <p><strong>Mathematical Formulation:</strong> The Leave-One-Out (LOO) Z-Score recalculates cohort statistics excluding observation \(i\):</p>
+            $$\mu_{-i} = \frac{\sum_{j \neq i} x_j}{N - 1} = \frac{N \bar{x} - x_i}{N - 1}, \quad \sigma_{-i} = \sqrt{\frac{\sum_{j \neq i} (x_j - \mu_{-i})^2}{N - 2}}$$
+            $$Z_{\text{LOO}, i} = \frac{x_i - \mu_{-i}}{\max(\sigma_{-i}, \epsilon)}$$
+
+            <pre><code class="language-python"># Grouped Leave-One-Out (LOO) Z-Score calculation
+from src.cardinality import GroupedLOOZScore
+
+loo_scorer = GroupedLOOZScore(group_col="store_dept", val_col="weekly_overtime_hours")
+cohort_df = loo_scorer.transform(cohort_df)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_02_grouped_loo_zscores.png" alt="Grouped LOO Z-Score vs Standard Z-Score Overtime Tracking">
+                <figcaption>Figure 2: Longitudinal tracking of an exemplar associate. During project crunches, the standard Z-score (orange) is suppressed due to self-inflation of the cohort variance, whereas the LOO Z-score (blue) reveals the true localized magnitude.</figcaption>
+            </figure>
+
+            <h3>Feature 3: Leave-One-Out Expected Differential (LOO-ED Manager Alpha)</h3>
+            <p><strong>The Operational Challenge:</strong> Assessing store managers or department supervisors on raw metrics (such as shift throughput or sales volume) conflates managerial capability with exogenous shift advantages. A manager assigned to a flagship airport location during peak Saturday foot traffic will always record superior output compared to a talented manager assigned to an off-peak suburban location on Tuesday morning.</p>
+            <p><strong>Mathematical Formulation:</strong> Inspired by Expected Goal Differential metrics in sports analytics, LOO-ED models expected shift output \(\hat{y}_s^{\text{counterfactual}}\) using strictly external contextual drivers (store classification, day of week, foot traffic volume, staffing hours). The manager's marginal alpha is then isolated as the residual between realized output and counterfactual expectation:</p>
+            $$\text{LOO-ED}_{s, m} = y_s - \hat{y}_s^{\text{counterfactual}}, \quad \text{Alpha}_m = \frac{1}{|S_m|} \sum_{s \in S_m} \text{LOO-ED}_{s, m}$$
+
+            <pre><code class="language-python">from src.attribution import LeaveOneOutExpectedDifferential
+
+loo_ed = LeaveOneOutExpectedDifferential(ridge_alpha=1.0)
+shift_df, mgr_alpha_summary = loo_ed.fit_transform(
+    shift_data,
+    entity_col="manager_id",
+    target_col="observed_throughput",
+    context_cols=["store_id", "is_weekend", "foot_traffic", "staff_hours"]
+)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_03_loo_expected_differential.png" alt="LOO-ED Manager Alpha Disentangling External Shift Foot Traffic">
+                <figcaption>Figure 3: Managerial attribution via LOO-ED. Stripping out foot traffic and shift hours reveals the true net productivity added or lost per hour by supervisor leadership.</figcaption>
+            </figure>
+
+            <h2>Part 2: Preserving Memory, Lifecycles &amp; Time Decay</h2>
+
+            <h3>Feature 4: Fractional Differencing</h3>
+            <p><strong>The Operational Challenge:</strong> Macro workforce metrics (such as enterprise headcount or weekly labor hours) exhibit persistent non-stationary trends. Traditional time series modeling applies integer differencing (\(d=1\)), which guarantees stationarity but erases all multi-year organizational memory, converting long-range headcount accumulation into isolated white-noise shocks.</p>
+            <p><strong>Mathematical Formulation:</strong> Using real-valued orders \(d \in (0, 1)\) via binomial series expansion of the lag operator \((1 - L)^d\):</p>
+            $$(1 - L)^d = \sum_{k=0}^{\infty} w_k L^k, \quad w_0 = 1, \quad w_k = -w_{k-1} \frac{d - k + 1}{k}$$
+            <p>I implemented an automated grid search that evaluates Augmented Dickey-Fuller (ADF) \(p\)-values across \(d \in [0, 1]\). The system identifies the minimal order \(d^*\) that achieves stationarity (\(p &lt; 0.05\)) while maximizing the Pearson correlation with the original raw series.</p>
+
+            <pre><code class="language-python">from src.memory import scan_fractional_differencing, fractional_difference
+
+# Scan candidate differencing orders to find optimal memory preservation
+scan_results = scan_fractional_differencing(headcount_series)
+optimal_d = scan_results[scan_results["is_stationary"]].iloc[0]["d"]
+stationary_memory_series = fractional_difference(headcount_series, d=optimal_d)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_04_fractional_differencing.png" alt="Fractional Differencing Memory Retention and ADF Stationarity Boundary">
+                <figcaption>Figure 4: Fractional differencing grid scan. At \(d^* = 0.35\), the headcount series crosses the ADF stationarity threshold (\(p &lt; 0.05\)) while retaining over 88% correlation with the original trend.</figcaption>
+            </figure>
+
+            <h3>Feature 5: Weighted Weeks Since (Continuous Event-Decay Features)</h3>
+            <p><strong>The Operational Challenge:</strong> Human resource systems often store employee recognitions as static flags (e.g. <code>Received_Award_This_Year = 1</code>). This treats an award received yesterday identically to an award received 11 months ago, while completely ignoring whether the recognition was a bronze peer badge or an executive leadership medal.</p>
+            <p><strong>Mathematical Formulation:</strong> I formulated a continuous exponential decay pulse function that integrates tiered award weights and recency:</p>
+            $$S(t) = \sum_{e \in \text{events}} w_e \cdot \exp\left(-\frac{\ln(2)}{\tau} \cdot (t - t_e)\right) \cdot \mathbb{I}(t \ge t_e)$$
+            <p>Where \(\tau\) is the half-life in weeks, \(w_e\) reflects the award tier (Gold = 1.0, Silver = 0.5, Bronze = 0.25), and \(t - t_e\) is elapsed time. This produces a continuous, responsive morale momentum signal.</p>
+
+            <pre><code class="language-python">from src.memory import weighted_weeks_since
+
+rewards_signal = weighted_weeks_since(
+    rewards_df,
+    current_week=52,
+    half_life_weeks=8.0,
+    tier_col="award_tier"
+)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_05_weighted_weeks_since.png" alt="Continuous Exponential Event Decay of Tiered Recognition Awards">
+                <figcaption>Figure 5: Event pulses and continuous decay across Gold, Silver, and Bronze recognition tiers over a 52-week period.</figcaption>
+            </figure>
+
+            <h3>Feature 6: Exponentially Weighted Moving Average (EWMA)</h3>
+            <p><strong>The Operational Challenge:</strong> Simple Moving Averages (e.g. 12-week SMA) suffer from "ghost drops": when a past demand surge falls outside the trailing window, the rolling average suddenly drops, even if current demand is stable. Furthermore, SMAs introduce significant phase lag during operational inflection points.</p>
+            <p><strong>Mathematical Formulation:</strong> Recursive exponential smoothing assigns exponentially declining weights to historical values:</p>
+            $$y_t = \alpha x_t + (1 - \alpha) y_{t-1}, \quad \alpha = \frac{2}{\text{span} + 1}$$
+
+            <pre><code class="language-python">from src.memory import calculate_ewma
+
+labor_df["ewma_12"] = calculate_ewma(labor_df["weekly_hours"], span=12)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_06_ewma_smoothing.png" alt="EWMA vs SMA Labor Demand Smoothing and Ghost Drop Elimination">
+                <figcaption>Figure 6: EWMA tracking (green) responds immediately to operational shifts without the delayed step drops characteristic of rectangular SMA windows (red).</figcaption>
+            </figure>
+
+            <h3>Feature 7: Kaplan-Meier &amp; Nelson-Aalen Hazard Embeddings</h3>
+            <p><strong>The Operational Challenge:</strong> Passing tenure into regression or tree models as a raw linear integer (e.g. <code>tenure_weeks = 14</code>) forces the algorithm to assume risk changes uniformly over time. In reality, employee attrition exhibits steep non-linear drop-offs at early onboarding (the 90-day cliff) and annual contract milestones.</p>
+            <p><strong>Mathematical Formulation:</strong> Using the <code>lifelines</code> library, I fit non-parametric Kaplan-Meier survival curves \(\hat{S}(t)\) and Nelson-Aalen cumulative hazard curves \(\hat{H}(t)\):</p>
+            $$\hat{S}(t) = \prod_{t_i \le t} \left(1 - \frac{d_i}{n_i}\right), \quad \hat{H}(t) = \sum_{t_i \le t} \frac{d_i}{n_i}$$
+            <p>Each associate's raw tenure is mapped to empirical survival probability and cumulative hazard coordinates, providing downstream models with calibrated actuarial features.</p>
+
+            <pre><code class="language-python">from src.memory import fit_hazard_embeddings
+
+embedded_df, hazard_models = fit_hazard_embeddings(
+    roster_df, tenure_col="tenure_weeks", event_col="turnover_event"
+)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_07_kaplan_meier_nelson_aalen.png" alt="Kaplan-Meier Survival Curve and Nelson-Aalen Hazard Function">
+                <figcaption>Figure 7: Empirical survival curve (blue) and cumulative hazard function (orange), highlighting the steep attrition hazard in the initial 13 weeks of employment.</figcaption>
+            </figure>
+
+            <h2>Part 3: Capturing Chaos, Volatility &amp; Regimes</h2>
+
+            <h3>Feature 8: Rolling Shannon Entropy (The "Chaos Index")</h3>
+            <p><strong>The Operational Challenge:</strong> Two store departments can log the exact same average weekly labor hours per associate (e.g. 38 hours), but exhibit vastly different workplace experiences. One department maintains predictable 8-hour morning shifts, while the other relies on erratic split shifts, short call-ins, and fragmented schedules, accelerating employee burnout.</p>
+            <p><strong>Mathematical Formulation:</strong> Over trailing rolling windows of scheduled shift categories, I compute Shannon information entropy:</p>
+            $$H(X) = -\sum_{i=1}^K p(x_i) \log_2 p(x_i)$$
+            <p>A score near zero indicates a calm, predictable schedule distribution, while higher scores indicate operational schedule fragmentation.</p>
+
+            <pre><code class="language-python">from src.chaos import rolling_shannon_entropy
+
+schedules_df["shift_chaos_index"] = rolling_shannon_entropy(
+    schedules_df, val_col="shift_type", window=14, group_col="store_id"
+)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_08_rolling_shannon_entropy.png" alt="Rolling Shannon Entropy Shift Chaos Index Tracking">
+                <figcaption>Figure 8: Rolling Shannon entropy across store locations. Spikes directly quantify schedule instability leading into seasonal transitions.</figcaption>
+            </figure>
+
+            <h3>Feature 9: GARCH(1,1) Dynamic Volatility Index</h3>
+            <p><strong>The Operational Challenge:</strong> Scheduling variance is rarely homoskedastic. A chaotic holiday week with large schedule discrepancies often sparks operational turbulence in subsequent weeks. Modeling this requires tracking volatility clustering over time.</p>
+            <p><strong>Mathematical Formulation:</strong> Using the <code>arch</code> library, I fit a GARCH(1,1) model to the unexpected scheduling shocks \(\epsilon_t = x_t - \hat{x}_t\):</p>
+            $$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$$
+            <p>This extracts a continuous index of operational instability, allowing labor forecasting systems to adjust buffer staffing dynamically.</p>
+
+            <pre><code class="language-python">from src.chaos import fit_garch_volatility
+
+garch_vol, garch_meta = fit_garch_volatility(
+    schedule_variance_series, p=1, q=1
+)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_09_garch_volatility.png" alt="GARCH Conditional Volatility Modeling Scheduling Heteroskedasticity">
+                <figcaption>Figure 9: GARCH(1,1) conditional volatility (orange) tracking shifts in variance clustering across 104 weeks of labor scheduling.</figcaption>
+            </figure>
+
+            <h3>Feature 10: Hawkes Process Intensity (The "Contagion" Feature)</h3>
+            <p><strong>The Operational Challenge:</strong> Unscheduled absences, call-outs, and resignations cluster in time. When an associate abruptly calls out, the added burden on remaining staff increases the probability of subsequent call-outs, creating an organizational contagion wave.</p>
+            <p><strong>Mathematical Formulation:</strong> I modeled absence timestamps using a self-exciting Hawkes point process with an exponential decay kernel:</p>
+            $$\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta (t - t_i)}$$
+            <p>Where \(\mu\) is baseline exogenous absence intensity, \(\alpha\) is the contagion jump magnitude, and \(\beta\) is the recovery rate. I implemented Maximum Likelihood Estimation (MLE) using <code>scipy.optimize.minimize</code> with bound constraints ensuring the branching ratio \(n = \alpha / \beta &lt; 1\).</p>
+
+            <pre><code class="language-python">from src.chaos import HawkesProcessContagion
+
+hawkes = HawkesProcessContagion()
+hawkes.fit(absence_event_timestamps)
+realtime_intensity = hawkes.predict_intensity(evaluation_timestamps)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_10_hawkes_contagion.png" alt="Hawkes Self-Exciting Process Absence Contagion Intensity">
+                <figcaption>Figure 10: Hawkes process excitation intensity. Event arrivals (rug plot) trigger immediate spikes in conditional contagion probability that decay over time.</figcaption>
+            </figure>
+
+            <h3>Feature 11: Hidden Markov Model (HMM) Latent Regimes</h3>
+            <p><strong>The Operational Challenge:</strong> Elevated weekly overtime can stem from two diametrically opposed realities: a planned seasonal rush with high morale and throughput, or an acute understaffed attrition spiral. Raw overtime hours cannot distinguish between the two.</p>
+            <p><strong>Mathematical Formulation:</strong> Using <code>hmmlearn</code>, I implemented a Gaussian Hidden Markov Model that decodes unobserved latent regimes from continuous emissions (overtime hours and absence rates):</p>
+            $$P(S_t = k \mid X_{1:t})$$
+            <p>The model decodes three distinct operational states: <em>State 0 (Baseline Operations)</em>, <em>State 1 (Planned Seasonal Surge)</em>, and <em>State 2 (Understaffed Attrition Spiral)</em>. Downstream predictive models ingest the posterior state probabilities rather than raw overtime hours.</p>
+
+            <pre><code class="language-python">from src.chaos import fit_workforce_hmm_regimes
+
+regime_df, state_profiles, hmm_meta = fit_workforce_hmm_regimes(
+    workforce_ts_df, emission_cols=["overtime_hours", "absence_rate"], n_components=3
+)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_11_hmm_regimes.png" alt="Hidden Markov Model Latent Operational Regimes Decoding">
+                <figcaption>Figure 11: Decoded HMM states across 104 operational weeks, isolating baseline periods (blue) from seasonal surges (green) and crisis attrition spirals (red).</figcaption>
+            </figure>
+
+            <h2>Part 4: Structural Anomalies, Density &amp; Sequences</h2>
+
+            <h3>Feature 12: Autoencoder Reconstruction Error (The "Weirdness" Index)</h3>
+            <p><strong>The Operational Challenge:</strong> Traditional rule-based alerts (e.g. <code>overtime &gt; 20% AND turnover &gt; 15%</code>) miss subtle, systemic dysfunctions that manifest across 20+ correlated operational dimensions (training completion, audit scores, supervisor check-ins, inventory shrinkage).</p>
+            <p><strong>Mathematical Formulation:</strong> I designed a bottleneck neural autoencoder in PyTorch that compresses normalized store profiles into a low-dimensional latent bottleneck. Stores whose operational ecosystem structurally decouples from peer correlations incur high Mean Squared Reconstruction Error (MSE):</p>
+            $$\text{Weirdness}(x) = \frac{1}{D} \sum_{j=1}^D (x_j - \hat{x}_j)^2$$
+            <p>The detector also returns a feature-level error breakdown to diagnose the specific drivers of operational abnormality.</p>
+
+            <pre><code class="language-python">from src.anomalies import AutoencoderWeirdnessDetector
+
+ae_detector = AutoencoderWeirdnessDetector(latent_dim=4, hidden_dim=12, epochs=150)
+ae_detector.fit(healthy_store_profiles)
+weirdness_scores, feature_breakdown = ae_detector.transform(all_store_profiles)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_12_autoencoder_weirdness.png" alt="PyTorch Autoencoder Multivariate Reconstruction Error Weirdness Index">
+                <figcaption>Figure 12: Autoencoder reconstruction error distribution. Structurally compromised stores exhibit error scores far beyond the healthy operational baseline.</figcaption>
+            </figure>
+
+            <h3>Feature 13: Local Outlier Factor (LOF via PyOD)</h3>
+            <p><strong>The Operational Challenge:</strong> Global anomaly detection models evaluate employees against the entire enterprise. A 14% salary increase is completely routine for an entry-level associate transitioning out of an apprenticeship. However, for an 8-year tenured associate in a mature band receiving a standard 3% merit increase, that same 14% bump represents an extreme local anomaly.</p>
+            <p><strong>Mathematical Formulation:</strong> Utilizing the <code>pyod</code> library, I implemented Local Outlier Factor (LOF), which computes the local reachability density of each employee relative to their \(k\)-nearest peers:</p>
+            $$LOF_k(p) = \frac{\sum_{o \in N_k(p)} \frac{\text{lrd}(o)}{\text{lrd}(p)}}{|N_k(p)|}$$
+            <p>This flags localized compensation discrepancies and unusual promotion velocities that global checks overlook.</p>
+
+            <pre><code class="language-python">from src.anomalies import fit_pyod_local_outlier_factor
+
+lof_scores, is_peer_outlier, lof_meta = fit_pyod_local_outlier_factor(
+    compensation_df,
+    feature_cols=["tenure_years", "performance_rating", "salary_growth_pct", "promotion_velocity"],
+    n_neighbors=20,
+    contamination=0.04
+)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_13_pyod_local_outlier_factor.png" alt="PyOD Local Outlier Factor Compensation Velocity Anomaly Detection">
+                <figcaption>Figure 13: Local Outlier Factor scores across salary growth and tenure, surfacing isolated peer anomalies (red) while preserving standard cohort distributions.</figcaption>
+            </figure>
+
+            <h3>Feature 14: Kullback-Leibler (KL) Divergence (The "Drift" Index)</h3>
+            <p><strong>The Operational Challenge:</strong> Corporate operations establishes benchmark staffing distributions across store roles (e.g. 40% Sales, 25% Stocking, 20% Cashiers, 15% Customer Service). Over time, store managers informally reallocate hours, causing silent labor model drift.</p>
+            <p><strong>Mathematical Formulation:</strong> I formulated relative entropy calculations measuring the divergence between the observed store distribution \(P\) and corporate target distribution \(Q\):</p>
+            $$D_{\text{KL}}(P \parallel Q) = \sum_{x \in \mathcal{X}} P(x) \ln\left(\frac{P(x)}{Q(x) + \epsilon}\right)$$
+            <p>To ensure numerical symmetry and stability, I also integrated Jensen-Shannon Divergence (JSD), which produces a bounded drift index in \([0, 1]\).</p>
+
+            <pre><code class="language-python">from src.anomalies import calculate_kl_divergence, calculate_jensen_shannon_divergence
+
+kl_drift = calculate_kl_divergence(store_role_counts, corporate_target_distribution)
+jsd_drift = calculate_jensen_shannon_divergence(store_role_counts, corporate_target_distribution)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_14_kl_divergence_drift.png" alt="Kullback-Leibler and Jensen-Shannon Divergence Role Mix Drift">
+                <figcaption>Figure 14: Measuring departmental staffing distribution drift against the corporate benchmark across 50 store locations.</figcaption>
+            </figure>
+
+            <h3>Feature 15: Dynamic Time Warping (DTW) Distance</h3>
+            <p><strong>The Operational Challenge:</strong> Evaluating store annual demand curves using standard Euclidean distance falsely flags southern stores whose spring garden and outdoor peaks arrive 4 weeks earlier than northern stores. Euclidean distance penalizes this temporal offset as structural dissimilarity.</p>
+            <p><strong>Mathematical Formulation:</strong> Dynamic Time Warping finds the optimal non-linear warping path \(W\) that minimizes cumulative distance between two series:</p>
+            $$D(i, j) = |x_i - y_j| + \min\left(D(i-1, j), D(i, j-1), D(i-1, j-1)\right)$$
+            <p>This allows regional labor profiles to be clustered based on underlying shape and amplitude regardless of local phase shifts.</p>
+
+            <pre><code class="language-python">from src.anomalies import compute_dtw_distance
+
+total_dist, warping_path, cost_matrix = compute_dtw_distance(store_series, benchmark_series)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_15_dynamic_time_warping.png" alt="Dynamic Time Warping Non-Linear Seasonal Curve Alignment">
+                <figcaption>Figure 15: DTW alignment between a benchmark demand curve and a phase-shifted regional store curve, illustrating optimal warping paths.</figcaption>
+            </figure>
+
+            <h3>Feature 16: Longest Common Subsequence (LCSS) &amp; Edit Distance on Real Sequences (EDR)</h3>
+            <p><strong>The Operational Challenge:</strong> DTW aligns every point and is vulnerable to localized missing data or temporal gaps. In career pathing and shift schedule analysis, an associate taking a 2-week leave of absence causes DTW distance to distort significantly.</p>
+            <p><strong>Mathematical Formulation:</strong> Longest Common Subsequence (LCSS) matches real values within spatial tolerance \(\epsilon\) and temporal window \(\delta\):</p>
+            $$\text{LCSS}(i, j) = 1 + \text{LCSS}(i-1, j-1) \quad \text{if match}, \quad \text{else } \max(\text{LCSS}(i-1, j), \text{LCSS}(i, j-1))$$
+            $$D_{\text{LCSS}}(X, Y) = 1 - \frac{\text{LCSS}(X, Y)}{\min(|X|, |Y|)}$$
+            <p>Similarly, Edit Distance on Real Sequences (EDR) penalizes unmatched elements with a constant unit cost rather than raw Euclidean distance, making both algorithms robust to leaves of absence.</p>
+
+            <pre><code class="language-python">from src.anomalies import compute_lcss_distance, compute_edr_distance
+
+lcss_len, lcss_dist = compute_lcss_distance(seq_a, seq_b, epsilon=2.5, delta=4)
+edr_dist = compute_edr_distance(seq_a, seq_b, epsilon=2.5)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_16_lcss_edr_sequences.png" alt="LCSS and EDR Sequence Alignment Tolerating Career Leave Gaps">
+                <figcaption>Figure 16: Trajectory alignment comparing an associate with a 2-week leave of absence against a standard career path, demonstrating gap tolerance.</figcaption>
+            </figure>
+
+            <h2>Part 5: Attribution, Interactions &amp; Accounting</h2>
+
+            <h3>Feature 17: Log-Mean Decomposition (LMDI-I)</h3>
+            <p><strong>The Operational Challenge:</strong> When annual company-wide turnover drops from 22% to 18%, leadership faces an attribution question: did employee retention initiatives succeed (Rate Effect), or did historically high-turnover departments downsize relative to the rest of the enterprise (Structural Mix Effect)? Traditional index methods leave unexplained residual errors.</p>
+            <p><strong>Mathematical Formulation:</strong> I implemented an additive Logarithmic Mean Divisia Index (LMDI-I) decomposition that guarantees zero residuals:</p>
+            $$\Delta R = R^1 - R^0 = \Delta R_{\text{rate}} + \Delta R_{\text{mix}}$$
+            $$\Delta R_{\text{rate}} = \sum_i L(w_i^1, w_i^0) \ln\left(\frac{r_i^1}{r_i^0}\right), \quad \Delta R_{\text{mix}} = \sum_i L(w_i^1, w_i^0) \ln\left(\frac{s_i^1}{s_i^0}\right)$$
+            <p>Where \(L(a, b) = (a - b) / (\ln a - \ln b)\) is the logarithmic mean weight, \(r_i\) is departmental turnover rate, and \(s_i\) is departmental headcount share. Residual error: \(\Delta R_{\text{rate}} + \Delta R_{\text{mix}} - \Delta R \equiv 0.000000\).</p>
+
+            <pre><code class="language-python">from src.attribution import lmdi_rate_mix_decomposition
+
+decomposed_df, lmdi_summary = lmdi_rate_mix_decomposition(
+    turnover_summary_df,
+    h0_col="headcount_y0", r0_col="turnover_y0",
+    h1_col="headcount_y1", r1_col="turnover_y1"
+)
+print(f"Mathematical Residual: {lmdi_summary['residual']:.10f}")  # Returns 0.0000000000</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_17_lmdi_rate_mix_decomposition.png" alt="Log-Mean Divisia Index Rate vs Mix Zero-Residual Attribution">
+                <figcaption>Figure 17: Waterfall breakdown of enterprise turnover change into pure Rate Effect vs Headcount Mix Effect with zero residuals.</figcaption>
+            </figure>
+
+            <h3>Feature 18: SHAP Interaction Values (2D Non-Linear Feature Interactions)</h3>
+            <p><strong>The Operational Challenge:</strong> Standard feature importance evaluates variables in isolation. However, workplace safety incidents and operational errors are often driven by 2D synergies. An inexperienced associate working under an experienced manager is safe; an experienced associate working under a new manager is safe. But an inexperienced associate teamed with a novice manager produces a compounding risk surge.</p>
+            <p><strong>Mathematical Formulation:</strong> Using TreeSHAP on gradient boosted trees, I extracted the \(M \times M\) pairwise interaction matrix:</p>
+            $$\Phi_{i, j} = \sum_{S \subseteq N \setminus \{i, j\}} \frac{|S|!(M - |S| - 2)!}{2(M - 1)!} \left[ f(S \cup \{i, j\}) - f(S \cup \{i\}) - f(S \cup \{j\}) + f(S) \right]$$
+            <p>The diagonal captures pure main effects, while off-diagonal elements isolate pure non-linear risk synergies.</p>
+
+            <pre><code class="language-python">from src.attribution import compute_shap_interaction_matrix
+
+shap_inter_matrix, summary_df = compute_shap_interaction_matrix(
+    tree_model, X_train, feature_names=features
+)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_18_shap_interaction_matrix.png" alt="SHAP 2D Interaction Matrix Heatmap for Safety Incidents">
+                <figcaption>Figure 18: SHAP 2D interaction matrix heatmap, highlighting the powerful non-linear interaction between early associate tenure and novice manager tenure.</figcaption>
+            </figure>
+
+            <h2>Part 6: Career Mobility, Succession &amp; Behavioral Tipping Points</h2>
+
+            <h3>Feature 19: Movement Embeddings (Career Trajectory &amp; Graph Embeddings)</h3>
+            <p><strong>The Operational Challenge:</strong> Succession planning often treats job titles as static, isolated categories, relying strictly on traditional vertical feeder ladders (e.g. Sales Associate &rarr; Department Supervisor). This overlooks lateral talent acquired across operational and inventory roles.</p>
+            <p><strong>Mathematical Formulation:</strong> I modeled organizational career mobility as a directed transition graph. By computing multi-step transition diffusion with decay factor \(\gamma\):</p>
+            $$\mathbf{M} = \sum_{k=1}^K \gamma^{k-1} \mathbf{P}^k$$
+            $$\mathbf{M}_{\text{sym}} = \frac{1}{2}(\mathbf{M} + \mathbf{M}^T) + 0.1 \cdot \mathbf{I} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^T \implies \mathbf{Z} = \mathbf{U}_d \mathbf{\Sigma}_d^{1/2}$$
+            <p>Role vectors are normalized to unit spheres (\(\|\mathbf{z}_r\| = 1\)). Associate career histories are embedded via recency-decayed historical vectors, allowing succession candidates to be ranked using cosine similarity and directional reachability.</p>
+
+            <pre><code class="language-python">from src.mobility import CareerMovementEmbeddings
+
+movement_model = CareerMovementEmbeddings(embedding_dim=8, max_steps=3, decay_factor=0.6)
+movement_model.fit(historical_career_sequences)
+
+succession_rankings = movement_model.recommend_succession_candidates(
+    target_role="Department_Supervisor",
+    associates_df=candidate_pool_df
+)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_19_career_movement_embeddings.png" alt="Career Movement Graph Embeddings and Succession Candidate Discovery">
+                <figcaption>Figure 19: 2D spectral projection of organizational role embeddings alongside candidate career histories, surfacing non-obvious cross-functional succession pathways.</figcaption>
+            </figure>
+
+            <h3>Feature 20: SHAP Inflection Thresholds for Term Rates</h3>
+            <p><strong>The Operational Challenge:</strong> Operational leaders need actionable tipping points rather than black-box probabilities (e.g. "At what overtime hour does retention flip into flight risk?").</p>
+            <p><strong>Mathematical Formulation:</strong> On observed feature values versus Shapley contributions, I fit a continuous 1D surrogate regression model \(\hat{g}_j(x_j) \approx \phi_j\). The model evaluates predictions across a dense uniform grid and identifies exact zero-crossings \(\Phi_j(x) = 0\) via sign changes and linear interpolation:</p>
+            $$x^* = x_k - \hat{g}_j(x_k) \frac{x_{k+1} - x_k}{\hat{g}_j(x_{k+1}) - \hat{g}_j(x_k)}$$
+            <p>This delineates protective regions (\(\text{SHAP} &lt; 0\)) from hazard regions (\(\text{SHAP} &gt; 0\)) across metrics like overtime hours, comp-ratios, commute duration, and manager 1-on-1 frequency.</p>
+
+            <pre><code class="language-python">from src.attribution import (
+    extract_shap_inflection_thresholds,
+    calculate_retained_vs_terminated_shap_contributions
+)
+
+thresholds, summary_df = extract_shap_inflection_thresholds(X_turnover, shap_values)
+cohort_contributions = calculate_retained_vs_terminated_shap_contributions(
+    X_turnover, shap_values, y_turnover
+)</code></pre>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_20_shap_inflection_thresholds.png" alt="Zero-Crossing SHAP Inflection Curves for Voluntary Turnover Risk">
+                <figcaption>Figure 20: 1D surrogate regression identifying zero-crossing tipping points: weekly overtime above 15 hours, comp-ratio below 0.93, commute above 30 minutes, and manager check-ins below 1.8 monthly.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="advanced-people-analytics-features/feature_20_cohort_shap_breakdown.png" alt="Retained vs Terminated Cohort SHAP Attribution Breakdown">
+                <figcaption>Figure 21: Directional SHAP attribution breakdown contrasting the retained cohort (green) against the voluntary termination cohort (orange).</figcaption>
+            </figure>
+
+            <h2>Verification &amp; Test Suite Execution</h2>
+            <p>To ensure mathematical and statistical integrity, the codebase includes 21 comprehensive automated unit tests in <code>tests/test_features.py</code>. The suite tests:</p>
+            <ul>
+                <li>Exact zero residuals for LMDI Divisia decomposition (\(|\text{residual}| &lt; 10^{-9}\)).</li>
+                <li>Grouped LOO Z-Score sensitivity to severe localized outliers without self-masking.</li>
+                <li>Empirical Bayes shrinkage bounds on high-cardinality sparse cohorts.</li>
+                <li>Fractional differencing binomial weight convergence and ADF stationarity.</li>
+                <li>Shannon entropy bounds (\(0 \le H \le \log_2 K\)).</li>
+                <li>Hawkes process excitation intensity updates under Maximum Likelihood Estimation.</li>
+                <li>Dynamic Time Warping invariance to temporal phase shifts.</li>
+                <li>Gap robustness of LCSS and EDR sequence metrics over leave intervals.</li>
+                <li>PyOD Local Outlier Factor localized density score separation.</li>
+                <li>Unit-norm geometry of spectral graph movement embeddings and candidate succession scoring.</li>
+            </ul>
+
+            <pre><code class="language-bash"># Run all 21 automated unit tests via uv
+uv run pytest tests/ -v</code></pre>
+
+            <h2>Summary &amp; Engineering Recommendations</h2>
+            <p>Moving beyond standard tabular defaults allows People Analytics teams to reflect the true structural reality of human organizations. By handling small-cohort sample noise via Bayesian shrinkage, preserving multi-year organizational memory via fractional differencing, modeling absenteeism contagion via Hawkes processes, and extracting actionable tipping points via surrogate SHAP regressions, this framework bridges the gap between machine learning capability and operational leadership decisions.</p>
+
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+                <a href="../more-projects.html" class="more-projects-btn">More Projects</a>
+            </div>
+        </article>
+    </div>
+
+    <!-- Syntax Highlighting (PrismJS) & Copy Button Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('pre').forEach((preBlock) => {
+                if (preBlock.querySelector('.copy-btn')) return;
+
+                const button = document.createElement('button');
+                button.className = 'copy-btn';
+                button.type = 'button';
+                button.setAttribute('aria-label', 'Copy code to clipboard');
+                button.innerHTML = `
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg> Copy`;
+
+                button.addEventListener('click', async () => {
+                    const code = preBlock.querySelector('code');
+                    const text = code ? code.innerText : preBlock.innerText;
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        button.classList.add('copied');
+                        button.innerHTML = `
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg> Copied!`;
+                        setTimeout(() => {
+                            button.classList.remove('copied');
+                            button.innerHTML = `
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg> Copy`;
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                    }
+                });
+
+                preBlock.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
