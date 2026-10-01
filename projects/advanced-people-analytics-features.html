@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced Feature Engineering for People Analytics: 20 Production-Grade Formulations - Sam's Data Portfolio</title>
-    <meta name="description" content="A comprehensive mathematical and engineering tutorial covering 20 advanced People Analytics feature formulations, from empirical Bayes shrinkage and GARCH volatility to Hawkes contagion, PyTorch autoencoders, and SHAP zero-crossing inflection thresholds.">
+    <meta name="description" content="A comprehensive mathematical and engineering tutorial covering 20 advanced People Analytics feature formulations, complete implementation snapshots, empirical Bayes shrinkage, GARCH volatility, Hawkes contagion, PyTorch autoencoders, and SHAP zero-crossing inflection thresholds.">
     <meta property="og:image" content="advanced-people-analytics-features/thumbnail.png">
     <meta name="twitter:image" content="advanced-people-analytics-features/thumbnail.png">
     <link rel="stylesheet" href="../style.css">
@@ -18,11 +18,11 @@
             padding: 1.25rem !important;
             border-radius: 8px !important;
             overflow-x: auto !important;
-            margin: 1.75rem 0 !important;
+            margin: 1.5rem 0 !important;
             border: 1px solid #282c34 !important;
             position: relative !important;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25) !important;
-            font-size: 0.92rem !important;
+            font-size: 0.90rem !important;
             line-height: 1.6 !important;
         }
         code {
@@ -85,16 +85,23 @@
             font-weight: 600;
         }
 
+        /* Figures, Visualizations & Full-Window Click to Expand */
         figure {
             margin: 2.5rem 0;
             text-align: center;
         }
-        figure img {
+        figure img, .hero-thumbnail-img {
             max-width: 100%;
             height: auto;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
             border: 1px solid #e5e7eb;
+            cursor: zoom-in;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        figure img:hover, .hero-thumbnail-img:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
         }
         figcaption {
             margin-top: 0.75rem;
@@ -102,6 +109,56 @@
             color: var(--text-muted, #64748b);
             font-style: italic;
         }
+
+        /* Full Window Lightbox Modal */
+        #lightbox-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(15, 23, 42, 0.95);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        #lightbox-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+        #lightbox-modal img {
+            max-width: 95vw;
+            max-height: 92vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+        #lightbox-modal.active img {
+            transform: scale(1);
+        }
+        #lightbox-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            color: #ffffff;
+            font-size: 2.2rem;
+            font-weight: 300;
+            cursor: pointer;
+            line-height: 1;
+            user-select: none;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+        #lightbox-close:hover {
+            color: #98c379;
+            transform: scale(1.1);
+        }
+
         .taxonomy-table {
             width: 100%;
             border-collapse: collapse;
@@ -117,16 +174,6 @@
             background-color: #f8fafc;
             font-weight: 600;
         }
-        .tag-pill {
-            display: inline-block;
-            padding: 0.15rem 0.5rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background-color: #e0f2fe;
-            color: #0369a1;
-            margin-right: 0.35rem;
-        }
         .callout-box {
             background-color: #f8fafc;
             border-left: 4px solid #3b82f6;
@@ -137,6 +184,15 @@
         .callout-box.synthetic {
             border-left-color: #10b981;
             background-color: #f0fdf4;
+        }
+        .subheading-code {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #0284c7;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 1.5rem;
+            margin-bottom: 0.25rem;
         }
     </style>
 </head>
@@ -150,11 +206,25 @@
             </div>
         </header>
 
-        <div class="post-back-container">
+        <div class="post-back-container" style="display: flex; justify-content: space-between; align-items: center;">
             <a href="../index.html" class="post-back">&larr; Back to Portfolio</a>
+            <div>
+                <a href="https://github.com/sam-tritto/advanced-people-analytics-features" target="_blank" rel="noopener noreferrer" class="post-back" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <svg height="16" viewBox="0 0 16 16" width="16" fill="currentColor">
+                        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .67.01 1.3.01 1.49 0 .21-.15.47-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
         </div>
 
         <article class="post-content">
+            <!-- Hero Thumbnail with Full-Window Lightbox Expansion -->
+            <figure style="margin: 1.5rem 0 2.5rem 0; text-align: center;">
+                <img src="advanced-people-analytics-features/thumbnail.png" alt="Advanced Feature Engineering for People Analytics Suite" class="hero-thumbnail-img" style="width: 100%; border-radius: 8px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);" fetchpriority="high">
+                <figcaption>Figure 0: Organizational career movement embeddings and 20-feature analytics suite. Click any visualization or thumbnail to expand to the full window.</figcaption>
+            </figure>
+
             <p>Workforce data presents unique statistical challenges that standard machine learning pipelines fail to handle. Human behavior inside organizations does not follow independent and identically distributed (i.i.d.) assumptions. Departures and call-outs exhibit contagion, schedule volatility clusters into turbulent operational regimes, and extreme outliers inside small localized cohorts distort traditional scaling metrics. Furthermore, career development progresses along directed transition trajectories rather than static job categories, and executive decisions require exact zero-residual accounting rather than black-box approximations.</p>
 
             <p>To address these realities, I built an end-to-end Python framework encompassing 20 advanced feature engineering techniques designed specifically for organizational, store, and workforce dynamics. The complete implementation, unit tests, and interactive research notebooks are open-sourced in the GitHub repository <a href="https://github.com/sam-tritto/advanced-people-analytics-features" target="_blank" rel="noopener noreferrer"><strong>sam-tritto/advanced-people-analytics-features</strong></a>.</p>
@@ -229,6 +299,101 @@
             $$\hat{S}_i = \frac{n_i \cdot \bar{y}_i + m \cdot \bar{y}_{\text{global}}}{n_i + m}$$
             <p>Where \(n_i\) is the category sample size, \(\bar{y}_i\) is the sample mean turnover rate of cohort \(i\), \(\bar{y}_{\text{global}}\) is the enterprise baseline, and \(m\) is the pseudo-count smoothing parameter. When sample sizes are small (\(n_i \ll m\)), the estimate shrinks toward the global baseline; as sample sizes expand (\(n_i \gg m\)), the estimate converges to the observed cohort rate. To eliminate target leakage during training, out-of-fold (K-Fold) estimation is enforced.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/cardinality.py)</div>
+            <pre><code class="language-python">class BayesianTargetEncoder:
+    &quot;&quot;&quot;Empirical Bayes shrinkage target encoder with m-estimate smoothing.
+    
+    Formula:
+        S_i = (n_i * y_bar_i + m * y_bar_global) / (n_i + m)
+        
+    Where:
+        n_i = sample size for category i
+        y_bar_i = sample mean of the target in category i
+        m = smoothing parameter (effective prior pseudo-observations)
+        y_bar_global = global target mean across the entire dataset
+    &quot;&quot;&quot;
+    
+    def __init__(self, m: float = 10.0, cv_folds: Optional[int] = 5, seed: int = 42):
+        self.m = float(m)
+        self.cv_folds = cv_folds
+        self.seed = seed
+        self.global_mean_: float = 0.0
+        self.encoding_map_: dict = {}
+        self.counts_map_: dict = {}
+        
+    def fit(self, df: pd.DataFrame, group_col: Union[str, List[str]], target_col: str):
+        &quot;&quot;&quot;Fit global mean and shrinkage mapping on full dataset.&quot;&quot;&quot;
+        self.global_mean_ = float(df[target_col].mean())
+        
+        # If group_col is a list, create a composite key
+        if isinstance(group_col, list):
+            keys = df[group_col].astype(str).agg(&quot;_&quot;.join, axis=1)
+        else:
+            keys = df[group_col].astype(str)
+            
+        grouped = df.groupby(keys)[target_col].agg([&quot;count&quot;, &quot;mean&quot;])
+        
+        counts = grouped[&quot;count&quot;].to_numpy()
+        means = grouped[&quot;mean&quot;].to_numpy()
+        smoothed = (counts * means + self.m * self.global_mean_) / (counts + self.m)
+        
+        self.encoding_map_ = dict(zip(grouped.index, smoothed))
+        self.counts_map_ = dict(zip(grouped.index, counts))
+        return self
+        
+    def transform(self, df: pd.DataFrame, group_col: Union[str, List[str]]) -&gt; pd.Series:
+        &quot;&quot;&quot;Transform test/out-of-sample data using learned bayesian shrinkage values.&quot;&quot;&quot;
+        if isinstance(group_col, list):
+            keys = df[group_col].astype(str).agg(&quot;_&quot;.join, axis=1)
+        else:
+            keys = df[group_col].astype(str)
+            
+        return keys.map(self.encoding_map_).fillna(self.global_mean_)
+        
+    def fit_transform_oof(
+        self,
+        df: pd.DataFrame,
+        group_col: Union[str, List[str]],
+        target_col: str,
+    ) -&gt; pd.Series:
+        &quot;&quot;&quot;Fit-transform with K-Fold out-of-fold target encoding to eliminate target leakage.&quot;&quot;&quot;
+        if self.cv_folds is None or self.cv_folds &lt;= 1:
+            self.fit(df, group_col, target_col)
+            return self.transform(df, group_col)
+            
+        self.global_mean_ = float(df[target_col].mean())
+        oof_encoded = pd.Series(index=df.index, dtype=float)
+        
+        rng = np.random.default_rng(self.seed)
+        indices = np.arange(len(df))
+        rng.shuffle(indices)
+        folds = np.array_split(indices, self.cv_folds)
+        
+        if isinstance(group_col, list):
+            keys = df[group_col].astype(str).agg(&quot;_&quot;.join, axis=1)
+        else:
+            keys = df[group_col].astype(str)
+            
+        for fold_idx, val_idx in enumerate(folds):
+            train_idx = np.setdiff1d(indices, val_idx)
+            train_df = df.iloc[train_idx]
+            train_keys = keys.iloc[train_idx]
+            
+            fold_global_mean = float(train_df[target_col].mean())
+            grouped = train_df.groupby(train_keys)[target_col].agg([&quot;count&quot;, &quot;mean&quot;])
+            
+            counts = grouped[&quot;count&quot;].to_numpy()
+            means = grouped[&quot;mean&quot;].to_numpy()
+            smoothed = (counts * means + self.m * fold_global_mean) / (counts + self.m)
+            fold_map = dict(zip(grouped.index, smoothed))
+            
+            oof_encoded.iloc[val_idx] = keys.iloc[val_idx].map(fold_map).fillna(fold_global_mean)
+            
+        # Also fit full model for future transform calls
+        self.fit(df, group_col, target_col)
+        return oof_encoded</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python"># Bayesian Target Encoding with Out-Of-Fold (OOF) K-Fold regularization
 from src.cardinality import BayesianTargetEncoder
 
@@ -248,6 +413,98 @@ roster_df["turnover_encoded_oof"] = bte.fit_transform_oof(
             $$\mu_{-i} = \frac{\sum_{j \neq i} x_j}{N - 1} = \frac{N \bar{x} - x_i}{N - 1}, \quad \sigma_{-i} = \sqrt{\frac{\sum_{j \neq i} (x_j - \mu_{-i})^2}{N - 2}}$$
             $$Z_{\text{LOO}, i} = \frac{x_i - \mu_{-i}}{\max(\sigma_{-i}, \epsilon)}$$
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/cardinality.py)</div>
+            <pre><code class="language-python">class GroupedLOOZScore:
+    &quot;&quot;&quot;Grouped Leave-One-Out (LOO) Z-Score calculation.
+    
+    Standard Z-score:
+        Z_i = (x_i - mu) / sigma
+        Where mu and sigma include x_i. If x_i is a massive outlier, it inflates mu
+        and sigma, masking its own anomaly (especially in small cohorts).
+        
+    Leave-One-Out Z-score:
+        mu_{-i} = (sum_{j != i} x_j) / (N - 1)
+        sigma_{-i} = sqrt( sum_{j != i} (x_j - mu_{-i})^2 / (N - 2) )
+        Z_LOO_i = (x_i - mu_{-i}) / sigma_{-i}
+    &quot;&quot;&quot;
+    
+    @staticmethod
+    def compute(
+        df: pd.DataFrame,
+        group_col: Union[str, List[str]],
+        val_col: str,
+        min_cohort_size: int = 3,
+        epsilon: float = 1e-6,
+    ) -&gt; pd.DataFrame:
+        &quot;&quot;&quot;Compute standard Z-score and LOO Z-score for comparison.
+        
+        Returns a DataFrame with columns:
+        - standard_z_score
+        - loo_z_score
+        - cohort_size
+        - loo_cohort_mean
+        - loo_cohort_std
+        &quot;&quot;&quot;
+        result = df.copy()
+        
+        if isinstance(group_col, list):
+            group_keys = df[group_col].astype(str).agg(&quot;_&quot;.join, axis=1)
+        else:
+            group_keys = df[group_col]
+            
+        # Group metrics
+        def _calc_group(group: pd.DataFrame) -&gt; pd.DataFrame:
+            n = len(group)
+            vals = group[val_col].to_numpy(dtype=float)
+            
+            if n &lt; min_cohort_size:
+                # Insufficient sample size for reliable leave-one-out cohort variance
+                std_z = np.zeros(n)
+                loo_z = np.zeros(n)
+                loo_mu = np.full(n, np.mean(vals) if n &gt; 0 else 0.0)
+                loo_sigma = np.full(n, 0.0)
+            else:
+                total_sum = np.sum(vals)
+                
+                # Standard Z-score
+                full_mu = total_sum / n
+                full_sigma = np.std(vals, ddof=1)
+                full_diff = vals - full_mu
+                std_z = np.where(np.abs(full_diff) &lt; epsilon, 0.0, full_diff / np.maximum(full_sigma, epsilon))
+                
+                # Leave-one-out calculations
+                # For each observation i:
+                loo_mu = (total_sum - vals) / (n - 1)
+                
+                # Sum of squared deviations for all j != i:
+                sum_sq_total = np.sum(vals ** 2)
+                sum_sq_loo = sum_sq_total - (vals ** 2)
+                var_loo = (sum_sq_loo - (n - 1) * (loo_mu ** 2)) / (n - 2)
+                var_loo = np.maximum(var_loo, 0.0)
+                loo_sigma = np.sqrt(var_loo)
+                
+                loo_diff = vals - loo_mu
+                loo_z = np.where(np.abs(loo_diff) &lt; epsilon, 0.0, loo_diff / np.maximum(loo_sigma, epsilon))
+                
+            return pd.DataFrame({
+                &quot;cohort_size&quot;: n,
+                &quot;standard_z_score&quot;: std_z,
+                &quot;loo_cohort_mean&quot;: loo_mu,
+                &quot;loo_cohort_std&quot;: loo_sigma,
+                &quot;loo_z_score&quot;: loo_z,
+            }, index=group.index)
+            
+        try:
+            stats_df = df.groupby(group_keys, group_keys=False).apply(_calc_group, include_groups=False)
+        except TypeError:
+            stats_df = df.groupby(group_keys, group_keys=False).apply(_calc_group)
+            
+        for col in stats_df.columns:
+            result[col] = stats_df[col]
+            
+        return result</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python"># Grouped Leave-One-Out (LOO) Z-Score calculation
 from src.cardinality import GroupedLOOZScore
 
@@ -264,6 +521,66 @@ cohort_df = loo_scorer.transform(cohort_df)</code></pre>
             <p><strong>Mathematical Formulation:</strong> Inspired by Expected Goal Differential metrics in sports analytics, LOO-ED models expected shift output \(\hat{y}_s^{\text{counterfactual}}\) using strictly external contextual drivers (store classification, day of week, foot traffic volume, staffing hours). The manager's marginal alpha is then isolated as the residual between realized output and counterfactual expectation:</p>
             $$\text{LOO-ED}_{s, m} = y_s - \hat{y}_s^{\text{counterfactual}}, \quad \text{Alpha}_m = \frac{1}{|S_m|} \sum_{s \in S_m} \text{LOO-ED}_{s, m}$$
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/attribution.py)</div>
+            <pre><code class="language-python">class LeaveOneOutExpectedDifferential:
+    &quot;&quot;&quot;Leave-One-Out Expected Differential (LOO-ED).
+    
+    Adapted from sports analytics (Expected Goal Differential / plus-minus).
+    Isolates the marginal value (alpha) of a specific manager or supervisor by comparing
+    actual shift output against counterfactual expected output modeled without that manager&#x27;s identity.
+    
+    Strips away shift advantages (e.g. flagship store, prime Saturday traffic) to expose true on-floor impact.
+    &quot;&quot;&quot;
+    
+    def __init__(self, ridge_alpha: float = 1.0):
+        self.ridge_alpha = ridge_alpha
+        self.counterfactual_model_ = None
+        self.feature_columns_: List[str] = []
+        
+    def fit_transform(
+        self,
+        df: pd.DataFrame,
+        entity_col: str,
+        target_col: str,
+        context_cols: List[str],
+    ) -&gt; Tuple[pd.DataFrame, pd.DataFrame]:
+        &quot;&quot;&quot;Compute LOO-ED per shift and aggregate marginal alpha per entity (manager).
+        
+        Returns:
+            (shift_level_df_with_loo_ed, entity_summary_df)
+        &quot;&quot;&quot;
+        from sklearn.linear_model import Ridge
+        
+        # One-hot encode context features (store, day-of-week, traffic, staffing)
+        X_context = pd.get_dummies(df[context_cols], drop_first=True)
+        self.feature_columns_ = list(X_context.columns)
+        y = df[target_col].to_numpy(dtype=float)
+        
+        # Fit baseline model explaining output solely from external context
+        self.counterfactual_model_ = Ridge(alpha=self.ridge_alpha)
+        self.counterfactual_model_.fit(X_context, y)
+        
+        expected_output = self.counterfactual_model_.predict(X_context)
+        
+        result_df = df.copy()
+        result_df[&quot;expected_output_counterfactual&quot;] = expected_output
+        result_df[&quot;loo_expected_differential&quot;] = y - expected_output
+        
+        # Aggregate per manager
+        summary = result_df.groupby(entity_col).agg(
+            shifts_managed=(target_col, &quot;count&quot;),
+            raw_mean_output=(target_col, &quot;mean&quot;),
+            expected_mean_output=(&quot;expected_output_counterfactual&quot;, &quot;mean&quot;),
+            loo_expected_differential=(&quot;loo_expected_differential&quot;, &quot;mean&quot;),
+            loo_ed_std=(&quot;loo_expected_differential&quot;, &quot;std&quot;),
+        ).reset_index()
+        
+        # Sort by marginal value (LOO-ED)
+        summary = summary.sort_values(&quot;loo_expected_differential&quot;, ascending=False).reset_index(drop=True)
+        
+        return result_df, summary</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.attribution import LeaveOneOutExpectedDifferential
 
 loo_ed = LeaveOneOutExpectedDifferential(ridge_alpha=1.0)
@@ -287,6 +604,100 @@ shift_df, mgr_alpha_summary = loo_ed.fit_transform(
             $$(1 - L)^d = \sum_{k=0}^{\infty} w_k L^k, \quad w_0 = 1, \quad w_k = -w_{k-1} \frac{d - k + 1}{k}$$
             <p>I implemented an automated grid search that evaluates Augmented Dickey-Fuller (ADF) \(p\)-values across \(d \in [0, 1]\). The system identifies the minimal order \(d^*\) that achieves stationarity (\(p &lt; 0.05\)) while maximizing the Pearson correlation with the original raw series.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/memory.py)</div>
+            <pre><code class="language-python">def get_fractional_weights(d: float, length: int, threshold: float = 1e-4) -&gt; np.ndarray:
+    &quot;&quot;&quot;Compute binomial expansion weights for fractional differencing operator (1 - L)^d.
+    
+    Formula:
+        w_0 = 1.0
+        w_k = -w_{k-1} * (d - k + 1) / k
+    &quot;&quot;&quot;
+    weights = [1.0]
+    for k in range(1, length):
+        w_k = -weights[-1] * (d - k + 1) / k
+        if abs(w_k) &lt; threshold:
+            break
+        weights.append(w_k)
+    return np.array(weights)
+
+
+def fractional_difference(
+    series: Union[pd.Series, np.ndarray],
+    d: float,
+    threshold: float = 1e-4,
+) -&gt; pd.Series:
+    &quot;&quot;&quot;Apply fractional differencing of order d to a time series.
+    
+    Preserves historical memory while eliminating unit roots and non-stationarity.
+    &quot;&quot;&quot;
+    if isinstance(series, np.ndarray):
+        s = pd.Series(series)
+    else:
+        s = series.copy()
+        
+    n = len(s)
+    weights = get_fractional_weights(d, n, threshold=threshold)
+    k = len(weights)
+    
+    # Convolution with memory weights
+    diff_values = np.full(n, np.nan)
+    s_vals = s.to_numpy(dtype=float)
+    
+    # Reverse weights for dot product with trailing window
+    w_rev = weights[::-1]
+    for i in range(k - 1, n):
+        window = s_vals[i - k + 1 : i + 1]
+        diff_values[i] = np.dot(w_rev, window)
+        
+    return pd.Series(diff_values, index=s.index, name=f&quot;frac_diff_d_{d:.2f}&quot;)
+
+
+def scan_fractional_differencing(
+    series: pd.Series,
+    d_values: Optional[np.ndarray] = None,
+    threshold: float = 1e-4,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;Scan candidate d values in [0, 1] to identify the optimal d* for stationarity.
+    
+    Computes ADF test p-value and Pearson correlation with original raw series.
+    Optimal d* is the minimum d where p-value &lt; 0.05, maximizing memory retention.
+    &quot;&quot;&quot;
+    if d_values is None:
+        d_values = np.linspace(0.0, 1.0, 21)
+        
+    records = []
+    clean_series = series.dropna()
+    
+    for d in d_values:
+        if d == 0.0:
+            diff_s = clean_series.copy()
+            corr = 1.0
+        else:
+            diff_s = fractional_difference(clean_series, d=d, threshold=threshold).dropna()
+            # Align indices for correlation
+            common_idx = clean_series.index.intersection(diff_s.index)
+            corr = float(np.corrcoef(clean_series.loc[common_idx], diff_s.loc[common_idx])[0, 1])
+            
+        # ADF Test
+        try:
+            adf_res = adfuller(diff_s, maxlag=5, autolag=&quot;AIC&quot;)
+            adf_stat = float(adf_res[0])
+            p_val = float(adf_res[1])
+        except Exception:
+            adf_stat = np.nan
+            p_val = np.nan
+            
+        records.append({
+            &quot;d&quot;: round(float(d), 2),
+            &quot;adf_stat&quot;: adf_stat,
+            &quot;p_value&quot;: p_val,
+            &quot;is_stationary&quot;: bool(p_val &lt; 0.05) if not np.isnan(p_val) else False,
+            &quot;correlation_with_raw&quot;: corr,
+        })
+        
+    return pd.DataFrame(records)</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.memory import scan_fractional_differencing, fractional_difference
 
 # Scan candidate differencing orders to find optimal memory preservation
@@ -305,6 +716,47 @@ stationary_memory_series = fractional_difference(headcount_series, d=optimal_d)<
             $$S(t) = \sum_{e \in \text{events}} w_e \cdot \exp\left(-\frac{\ln(2)}{\tau} \cdot (t - t_e)\right) \cdot \mathbb{I}(t \ge t_e)$$
             <p>Where \(\tau\) is the half-life in weeks, \(w_e\) reflects the award tier (Gold = 1.0, Silver = 0.5, Bronze = 0.25), and \(t - t_e\) is elapsed time. This produces a continuous, responsive morale momentum signal.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/memory.py)</div>
+            <pre><code class="language-python">def weighted_weeks_since(
+    events_df: pd.DataFrame,
+    current_week: int,
+    half_life_weeks: float = 8.0,
+    employee_id_col: str = &quot;employee_id&quot;,
+    event_week_col: str = &quot;award_week&quot;,
+    tier_col: str = &quot;award_tier&quot;,
+    custom_tier_weights: Optional[Dict[str, float]] = None,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;Compute continuous time-decayed recognition feature from tiered awards.
+    
+    Tier default weights: Gold = 1.0 ($100), Silver = 0.5 ($50), Bronze = 0.25 ($25).
+    Decay formula:
+        S_e(t) = w_e * exp( - ln(2) / half_life * (t - t_e) )
+    &quot;&quot;&quot;
+    if custom_tier_weights is None:
+        weights_map = {&quot;Gold&quot;: 1.0, &quot;Silver&quot;: 0.5, &quot;Bronze&quot;: 0.25}
+    else:
+        weights_map = custom_tier_weights
+        
+    decay_rate = np.log(2.0) / half_life_weeks
+    
+    # Filter to events that occurred on or before current_week
+    past_events = events_df[events_df[event_week_col] &lt;= current_week].copy()
+    
+    past_events[&quot;elapsed_weeks&quot;] = current_week - past_events[event_week_col]
+    past_events[&quot;tier_weight&quot;] = past_events[tier_col].map(weights_map).fillna(0.25)
+    past_events[&quot;decayed_signal&quot;] = past_events[&quot;tier_weight&quot;] * np.exp(-decay_rate * past_events[&quot;elapsed_weeks&quot;])
+    
+    # Aggregate per employee
+    agg = past_events.groupby(employee_id_col).agg(
+        total_decayed_recognition_pulse=(&quot;decayed_signal&quot;, &quot;sum&quot;),
+        weeks_since_most_recent_award=(&quot;elapsed_weeks&quot;, &quot;min&quot;),
+        most_recent_award_tier=(&quot;award_tier&quot;, &quot;last&quot;),
+        total_awards_count=(event_week_col, &quot;count&quot;),
+    ).reset_index()
+    
+    return agg</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.memory import weighted_weeks_since
 
 rewards_signal = weighted_weeks_since(
@@ -324,6 +776,20 @@ rewards_signal = weighted_weeks_since(
             <p><strong>Mathematical Formulation:</strong> Recursive exponential smoothing assigns exponentially declining weights to historical values:</p>
             $$y_t = \alpha x_t + (1 - \alpha) y_{t-1}, \quad \alpha = \frac{2}{\text{span} + 1}$$
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/memory.py)</div>
+            <pre><code class="language-python">def calculate_ewma(
+    series: pd.Series,
+    span: Optional[int] = 12,
+    alpha: Optional[float] = None,
+    half_life: Optional[float] = None,
+) -&gt; pd.Series:
+    &quot;&quot;&quot;Calculate Exponentially Weighted Moving Average (EWMA).
+    
+    Avoids ghost drops caused by simple rolling windows and adapts smoothly to level shifts.
+    &quot;&quot;&quot;
+    return series.ewm(span=span, alpha=alpha, halflife=half_life, adjust=False).mean()</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.memory import calculate_ewma
 
 labor_df["ewma_12"] = calculate_ewma(labor_df["weekly_hours"], span=12)</code></pre>
@@ -339,6 +805,52 @@ labor_df["ewma_12"] = calculate_ewma(labor_df["weekly_hours"], span=12)</code></
             $$\hat{S}(t) = \prod_{t_i \le t} \left(1 - \frac{d_i}{n_i}\right), \quad \hat{H}(t) = \sum_{t_i \le t} \frac{d_i}{n_i}$$
             <p>Each associate's raw tenure is mapped to empirical survival probability and cumulative hazard coordinates, providing downstream models with calibrated actuarial features.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/memory.py)</div>
+            <pre><code class="language-python">def fit_hazard_embeddings(
+    roster_df: pd.DataFrame,
+    tenure_col: str = &quot;tenure_weeks&quot;,
+    event_col: str = &quot;turnover_event&quot;,
+) -&gt; Tuple[pd.DataFrame, Dict[str, pd.Series]]:
+    &quot;&quot;&quot;Fit Kaplan-Meier survival curves and Nelson-Aalen cumulative hazard.
+    
+    Embeds non-linear behavioral turnover risk coordinates directly into each employee row.
+    &quot;&quot;&quot;
+    from lifelines import KaplanMeierFitter, NelsonAalenFitter
+    
+    durations = roster_df[tenure_col].to_numpy()
+    events = roster_df[event_col].to_numpy()
+    
+    kmf = KaplanMeierFitter()
+    kmf.fit(durations, event_observed=events, label=&quot;Turnover_Survival&quot;)
+    
+    naf = NelsonAalenFitter()
+    naf.fit(durations, event_observed=events, label=&quot;Turnover_Hazard&quot;)
+    
+    # Lookup tables
+    max_tenure = int(durations.max())
+    tenure_grid = np.arange(1, max_tenure + 1)
+    
+    surv_probs = kmf.predict(tenure_grid)
+    cum_hazard = naf.predict(tenure_grid)
+    
+    # Add mapped embeddings to input dataframe
+    result_df = roster_df.copy()
+    surv_map = dict(zip(tenure_grid, surv_probs))
+    haz_map = dict(zip(tenure_grid, cum_hazard))
+    
+    result_df[&quot;survival_prob_embedding&quot;] = result_df[tenure_col].map(surv_map).fillna(float(surv_probs.iloc[-1]))
+    result_df[&quot;cumulative_hazard_embedding&quot;] = result_df[tenure_col].map(haz_map).fillna(float(cum_hazard.iloc[-1]))
+    
+    models = {
+        &quot;kmf&quot;: kmf,
+        &quot;naf&quot;: naf,
+        &quot;survival_table&quot;: surv_probs,
+        &quot;hazard_table&quot;: cum_hazard,
+    }
+    
+    return result_df, models</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.memory import fit_hazard_embeddings
 
 embedded_df, hazard_models = fit_hazard_embeddings(
@@ -358,6 +870,62 @@ embedded_df, hazard_models = fit_hazard_embeddings(
             $$H(X) = -\sum_{i=1}^K p(x_i) \log_2 p(x_i)$$
             <p>A score near zero indicates a calm, predictable schedule distribution, while higher scores indicate operational schedule fragmentation.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/chaos.py)</div>
+            <pre><code class="language-python">def calculate_shannon_entropy(series: Union[pd.Series, np.ndarray, list], base: float = 2.0) -&gt; float:
+    &quot;&quot;&quot;Calculate Shannon entropy of a discrete distribution: H(X) = -sum(p * log(p)).&quot;&quot;&quot;
+    if not isinstance(series, pd.Series):
+        s = pd.Series(series)
+    else:
+        s = series
+        
+    counts = s.value_counts()
+    if len(counts) &lt;= 1:
+        return 0.0
+        
+    probs = counts / counts.sum()
+    log_func = np.log2 if base == 2.0 else (np.log if base == np.e else lambda x: np.log(x) / np.log(base))
+    entropy = -float(np.sum(probs * log_func(probs)))
+    return max(0.0, entropy)
+
+
+def rolling_shannon_entropy(
+    df: pd.DataFrame,
+    val_col: str,
+    window: int = 14,
+    group_col: Optional[str] = None,
+    base: float = 2.0,
+    normalize: bool = False,
+) -&gt; pd.Series:
+    &quot;&quot;&quot;Compute rolling Shannon entropy (Chaos Index) over a moving window of categorical/binned shifts.
+    
+    Handles strings, categories, and numerical shift types robustly.
+    If normalize=True, scales H(X) by log2(K) so result lies in [0, 1].
+    &quot;&quot;&quot;
+    def _rolling_series_entropy(s: pd.Series) -&gt; pd.Series:
+        vals = s.tolist()
+        n = len(vals)
+        out = np.full(n, np.nan)
+        min_p = max(2, window // 2)
+        
+        for i in range(n):
+            start = max(0, i - window + 1)
+            chunk = vals[start : i + 1]
+            if len(chunk) &gt;= min_p:
+                h = calculate_shannon_entropy(chunk, base=base)
+                if normalize:
+                    k = max(2, len(set(chunk)))
+                    max_h = np.log2(k) if base == 2.0 else np.log(k)
+                    out[i] = h / max_h if max_h &gt; 0 else 0.0
+                else:
+                    out[i] = h
+        return pd.Series(out, index=s.index)
+
+    if group_col is not None:
+        return df.groupby(group_col, group_keys=False)[val_col].apply(_rolling_series_entropy)
+    else:
+        return _rolling_series_entropy(df[val_col])</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.chaos import rolling_shannon_entropy
 
 schedules_df["shift_chaos_index"] = rolling_shannon_entropy(
@@ -375,6 +943,42 @@ schedules_df["shift_chaos_index"] = rolling_shannon_entropy(
             $$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$$
             <p>This extracts a continuous index of operational instability, allowing labor forecasting systems to adjust buffer staffing dynamically.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/chaos.py)</div>
+            <pre><code class="language-python">def fit_garch_volatility(
+    series: pd.Series,
+    p: int = 1,
+    q: int = 1,
+    mean: str = &quot;Constant&quot;,
+) -&gt; Tuple[pd.Series, dict]:
+    &quot;&quot;&quot;Fit GARCH(p, q) model to estimate dynamic conditional volatility (heteroskedasticity).
+    
+    Formula:
+        sigma_t^2 = omega + alpha * epsilon_{t-1}^2 + beta * sigma_{t-1}^2
+    &quot;&quot;&quot;
+    from arch import arch_model
+    
+    # Scale series if values are large to ensure numerical stability in GARCH optimization
+    mean_val = series.mean()
+    detrended = series - mean_val
+    
+    model = arch_model(detrended, vol=&quot;Garch&quot;, p=p, q=q, mean=mean, rescale=True)
+    res = model.fit(disp=&quot;off&quot;)
+    
+    # Rescaled conditional volatility back to original units
+    scale_factor = res.scale
+    conditional_vol = res.conditional_volatility / scale_factor
+    
+    meta = {
+        &quot;summary&quot;: str(res.summary()),
+        &quot;aic&quot;: float(res.aic),
+        &quot;bic&quot;: float(res.bic),
+        &quot;params&quot;: res.params.to_dict(),
+        &quot;arch_result&quot;: res,
+    }
+    
+    return pd.Series(conditional_vol, index=series.index, name=&quot;garch_conditional_volatility&quot;), meta</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.chaos import fit_garch_volatility
 
 garch_vol, garch_meta = fit_garch_volatility(
@@ -392,6 +996,82 @@ garch_vol, garch_meta = fit_garch_volatility(
             $$\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta (t - t_i)}$$
             <p>Where \(\mu\) is baseline exogenous absence intensity, \(\alpha\) is the contagion jump magnitude, and \(\beta\) is the recovery rate. I implemented Maximum Likelihood Estimation (MLE) using <code>scipy.optimize.minimize</code> with bound constraints ensuring the branching ratio \(n = \alpha / \beta &lt; 1\).</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/chaos.py)</div>
+            <pre><code class="language-python">class HawkesProcessContagion:
+    &quot;&quot;&quot;Univariate Hawkes Self-Exciting Point Process with exponential decay kernel.
+    
+    Intensity equation:
+        lambda(t) = mu + sum_{t_i &lt; t} alpha * exp(-beta * (t - t_i))
+        
+    Where:
+        mu = baseline exogenous event intensity (background rate)
+        alpha = self-excitation jump size (contagion magnitude per event)
+        beta = exponential recovery rate (speed of mean reversion)
+        Branching ratio n = alpha / beta (must be &lt; 1 for stationarity)
+    &quot;&quot;&quot;
+    
+    def __init__(self, mu: float = 0.2, alpha: float = 0.5, beta: float = 1.0):
+        self.mu = mu
+        self.alpha = alpha
+        self.beta = beta
+        self.events_: List[float] = []
+        
+    def fit(self, events: List[float], max_t: Optional[float] = None):
+        &quot;&quot;&quot;Fit Hawkes process parameters (mu, alpha, beta) via Maximum Likelihood Estimation (MLE).&quot;&quot;&quot;
+        ev = np.sort(np.asarray(events, dtype=float))
+        self.events_ = ev.tolist()
+        T = max_t if max_t is not None else (ev[-1] + 1.0 if len(ev) &gt; 0 else 1.0)
+        n = len(ev)
+        
+        if n &lt; 3:
+            return self
+            
+        def neg_log_likelihood(params):
+            mu_val, alpha_val, beta_val = params
+            if mu_val &lt;= 1e-4 or alpha_val &lt; 0.0 or beta_val &lt;= 1e-4 or alpha_val &gt;= beta_val:
+                return 1e10
+                
+            # Log-intensity sum
+            log_lambda_sum = 0.0
+            r_matrix = np.zeros(n)
+            for i in range(1, n):
+                r_matrix[i] = np.exp(-beta_val * (ev[i] - ev[i - 1])) * (1.0 + r_matrix[i - 1])
+                
+            intensities = mu_val + alpha_val * r_matrix
+            if np.any(intensities &lt;= 0):
+                return 1e10
+                
+            log_lambda_sum = np.sum(np.log(intensities))
+            
+            # Integrated intensity compensation: mu * T + sum(alpha/beta * (1 - exp(-beta * (T - t_i))))
+            integral = mu_val * T + (alpha_val / beta_val) * np.sum(1.0 - np.exp(-beta_val * (T - ev)))
+            
+            return -(log_lambda_sum - integral)
+            
+        init_guess = [max(0.1, n / T * 0.4), 0.4, 1.0]
+        bounds = [(1e-3, 5.0), (1e-3, 5.0), (1e-2, 10.0)]
+        res = minimize(neg_log_likelihood, init_guess, bounds=bounds, method=&quot;L-BFGS-B&quot;)
+        
+        if res.success:
+            self.mu, self.alpha, self.beta = res.x
+            
+        return self
+        
+    def predict_intensity(self, time_points: Union[np.ndarray, List[float]]) -&gt; np.ndarray:
+        &quot;&quot;&quot;Evaluate Hawkes intensity lambda(t) at arbitrary query timestamps.&quot;&quot;&quot;
+        t_arr = np.asarray(time_points, dtype=float)
+        ev = np.asarray(self.events_, dtype=float)
+        intensities = np.full_like(t_arr, self.mu)
+        
+        for idx, t in enumerate(t_arr):
+            past = ev[ev &lt; t]
+            if len(past) &gt; 0:
+                jump_sum = np.sum(self.alpha * np.exp(-self.beta * (t - past)))
+                intensities[idx] += jump_sum
+                
+        return intensities</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.chaos import HawkesProcessContagion
 
 hawkes = HawkesProcessContagion()
@@ -409,6 +1089,80 @@ realtime_intensity = hawkes.predict_intensity(evaluation_timestamps)</code></pre
             $$P(S_t = k \mid X_{1:t})$$
             <p>The model decodes three distinct operational states: <em>State 0 (Baseline Operations)</em>, <em>State 1 (Planned Seasonal Surge)</em>, and <em>State 2 (Understaffed Attrition Spiral)</em>. Downstream predictive models ingest the posterior state probabilities rather than raw overtime hours.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/chaos.py)</div>
+            <pre><code class="language-python">def fit_workforce_hmm_regimes(
+    df: pd.DataFrame,
+    emission_cols: List[str],
+    n_components: int = 3,
+    seed: int = 42,
+) -&gt; Tuple[pd.DataFrame, pd.DataFrame, dict]:
+    &quot;&quot;&quot;Fit a Gaussian Hidden Markov Model (HMM) to extract latent operational regimes.
+    
+    Infers whether high overtime represents a benign planned seasonal surge or
+    an acute understaffed attrition spiral.
+    
+    Returns:
+        (df_with_posterior_regime_probs, regime_profile_summary, model_metadata)
+    &quot;&quot;&quot;
+    from hmmlearn.hmm import GaussianHMM
+    
+    X = df[emission_cols].to_numpy(dtype=float)
+    
+    model = GaussianHMM(
+        n_components=n_components,
+        covariance_type=&quot;diag&quot;,
+        n_iter=150,
+        random_state=seed,
+    )
+    model.fit(X)
+    
+    # Posterior probabilities of being in each hidden state at each time step
+    posteriors = model.predict_proba(X)
+    
+    # Sort states by first emission mean (e.g. weekly_overtime_hours) so State 0 is always lowest intensity
+    state_order = np.argsort(model.means_[:, 0])
+    # Mapping old state -&gt; sorted state
+    reorder_map = {old: new for new, old in enumerate(state_order)}
+    
+    # Reordered posteriors and parameters
+    sorted_posteriors = posteriors[:, state_order]
+    decoded_states = np.argmax(sorted_posteriors, axis=1)
+    
+    result_df = df.copy()
+    result_df[&quot;hmm_latent_state&quot;] = decoded_states
+    for state_idx in range(n_components):
+        result_df[f&quot;prob_latent_state_{state_idx}&quot;] = sorted_posteriors[:, state_idx]
+        
+    # State profiles
+    profile_records = []
+    for state_idx in range(n_components):
+        orig_idx = state_order[state_idx]
+        rec = {
+            &quot;latent_state&quot;: state_idx,
+            &quot;prevalence_pct&quot;: float(np.mean(decoded_states == state_idx) * 100.0),
+        }
+        for f_idx, col in enumerate(emission_cols):
+            rec[f&quot;mean_{col}&quot;] = float(model.means_[orig_idx, f_idx])
+            if model.covars_.ndim == 3:
+                var_val = model.covars_[orig_idx, f_idx, f_idx]
+            elif model.covars_.ndim == 2:
+                var_val = model.covars_[orig_idx, f_idx]
+            else:
+                var_val = model.covars_[orig_idx]
+            rec[f&quot;std_{col}&quot;] = float(np.sqrt(np.maximum(0.0, float(var_val))))
+        profile_records.append(rec)
+        
+    profile_df = pd.DataFrame(profile_records)
+    
+    meta = {
+        &quot;transition_matrix&quot;: model.transmat_[state_order, :][:, state_order],
+        &quot;means&quot;: model.means_[state_order],
+        &quot;model&quot;: model,
+    }
+    
+    return result_df, profile_df, meta</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.chaos import fit_workforce_hmm_regimes
 
 regime_df, state_profiles, hmm_meta = fit_workforce_hmm_regimes(
@@ -428,6 +1182,117 @@ regime_df, state_profiles, hmm_meta = fit_workforce_hmm_regimes(
             $$\text{Weirdness}(x) = \frac{1}{D} \sum_{j=1}^D (x_j - \hat{x}_j)^2$$
             <p>The detector also returns a feature-level error breakdown to diagnose the specific drivers of operational abnormality.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/anomalies.py)</div>
+            <pre><code class="language-python">class AutoencoderWeirdnessDetector:
+    &quot;&quot;&quot;PyTorch bottleneck autoencoder for operational anomaly scoring across multivariate metrics.
+    
+    Compresses high-dimensional store operational features into a lower-dimensional latent space.
+    Data points that structurally decouple from peer correlations incur high Reconstruction Error.
+    &quot;&quot;&quot;
+    
+    def __init__(
+        self,
+        latent_dim: int = 4,
+        hidden_dim: int = 12,
+        lr: float = 0.005,
+        epochs: int = 150,
+        seed: int = 42,
+    ):
+        self.latent_dim = latent_dim
+        self.hidden_dim = hidden_dim
+        self.lr = lr
+        self.epochs = epochs
+        self.seed = seed
+        self.model_ = None
+        self.mean_ = None
+        self.std_ = None
+        self.feature_names_: List[str] = []
+        
+    def fit(self, X: Union[pd.DataFrame, np.ndarray]):
+        &quot;&quot;&quot;Fit autoencoder on healthy reference dataset.&quot;&quot;&quot;
+        import torch
+        import torch.nn as nn
+        import torch.optim as optim
+        
+        torch.manual_seed(self.seed)
+        
+        if isinstance(X, pd.DataFrame):
+            self.feature_names_ = list(X.columns)
+            x_vals = X.to_numpy(dtype=np.float32)
+        else:
+            self.feature_names_ = [f&quot;feat_{i}&quot; for i in range(X.shape[1])]
+            x_vals = np.asarray(X, dtype=np.float32)
+            
+        # Z-score standardization
+        self.mean_ = np.mean(x_vals, axis=0, keepdims=True)
+        self.std_ = np.std(x_vals, axis=0, keepdims=True) + 1e-6
+        x_norm = (x_vals - self.mean_) / self.std_
+        
+        input_dim = x_vals.shape[1]
+        
+        class _Autoencoder(nn.Module):
+            def __init__(self, in_d, h_d, l_d):
+                super().__init__()
+                self.encoder = nn.Sequential(
+                    nn.Linear(in_d, h_d),
+                    nn.BatchNorm1d(h_d),
+                    nn.LeakyReLU(0.1),
+                    nn.Linear(h_d, l_d),
+                )
+                self.decoder = nn.Sequential(
+                    nn.Linear(l_d, h_d),
+                    nn.BatchNorm1d(h_d),
+                    nn.LeakyReLU(0.1),
+                    nn.Linear(h_d, in_d),
+                )
+                
+            def forward(self, x):
+                return self.decoder(self.encoder(x))
+                
+        self.model_ = _Autoencoder(input_dim, self.hidden_dim, self.latent_dim)
+        optimizer = optim.Adam(self.model_.parameters(), lr=self.lr, weight_decay=1e-5)
+        criterion = nn.MSELoss()
+        
+        tensor_x = torch.from_numpy(x_norm)
+        
+        self.model_.train()
+        for _ in range(self.epochs):
+            optimizer.zero_grad()
+            reconstructed = self.model_(tensor_x)
+            loss = criterion(reconstructed, tensor_x)
+            loss.backward()
+            optimizer.step()
+            
+        return self
+        
+    def transform(self, X: Union[pd.DataFrame, np.ndarray]) -&gt; Tuple[pd.Series, pd.DataFrame]:
+        &quot;&quot;&quot;Compute row-level Weirdness Index (MSE) and feature-level error breakdown.&quot;&quot;&quot;
+        import torch
+        
+        if isinstance(X, pd.DataFrame):
+            x_vals = X[self.feature_names_].to_numpy(dtype=np.float32)
+            index = X.index
+        else:
+            x_vals = np.asarray(X, dtype=np.float32)
+            index = pd.RangeIndex(len(x_vals))
+            
+        x_norm = (x_vals - self.mean_) / self.std_
+        tensor_x = torch.from_numpy(x_norm)
+        
+        self.model_.eval()
+        with torch.no_grad():
+            reconstructed = self.model_(tensor_x).numpy()
+            
+        # Squared error per feature
+        sq_errors = (x_norm - reconstructed) ** 2
+        weirdness_index = np.mean(sq_errors, axis=1)
+        
+        breakdown_df = pd.DataFrame(sq_errors, columns=self.feature_names_, index=index)
+        series_res = pd.Series(weirdness_index, index=index, name=&quot;weirdness_index&quot;)
+        
+        return series_res, breakdown_df</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.anomalies import AutoencoderWeirdnessDetector
 
 ae_detector = AutoencoderWeirdnessDetector(latent_dim=4, hidden_dim=12, epochs=150)
@@ -445,6 +1310,45 @@ weirdness_scores, feature_breakdown = ae_detector.transform(all_store_profiles)<
             $$LOF_k(p) = \frac{\sum_{o \in N_k(p)} \frac{\text{lrd}(o)}{\text{lrd}(p)}}{|N_k(p)|}$$
             <p>This flags localized compensation discrepancies and unusual promotion velocities that global checks overlook.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/anomalies.py)</div>
+            <pre><code class="language-python">def fit_pyod_local_outlier_factor(
+    df: pd.DataFrame,
+    feature_cols: List[str],
+    n_neighbors: int = 20,
+    contamination: float = 0.05,
+) -&gt; Tuple[pd.Series, pd.Series, dict]:
+    &quot;&quot;&quot;Fit Local Outlier Factor (LOF) using PyOD for density-based peer anomaly detection.
+    
+    Measures the local density deviation of a data point relative to its k-nearest neighbors.
+    Points in sparse local neighborhoods receive high LOF anomaly scores.
+    
+    Returns:
+        (lof_scores_series, is_outlier_series, model_metadata)
+    &quot;&quot;&quot;
+    from pyod.models.lof import LOF
+    from sklearn.preprocessing import StandardScaler
+    
+    X = df[feature_cols].to_numpy(dtype=float)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    clf = LOF(n_neighbors=n_neighbors, contamination=contamination)
+    clf.fit(X_scaled)
+    
+    # decision_scores_: larger values indicate lower local density (higher anomaly)
+    lof_scores = pd.Series(clf.decision_scores_, index=df.index, name=&quot;lof_anomaly_score&quot;)
+    is_outlier = pd.Series(clf.labels_, index=df.index, name=&quot;is_lof_outlier&quot;)
+    
+    meta = {
+        &quot;threshold&quot;: float(clf.threshold_),
+        &quot;n_neighbors&quot;: n_neighbors,
+        &quot;contamination&quot;: contamination,
+        &quot;model&quot;: clf,
+    }
+    
+    return lof_scores, is_outlier, meta</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.anomalies import fit_pyod_local_outlier_factor
 
 lof_scores, is_peer_outlier, lof_meta = fit_pyod_local_outlier_factor(
@@ -465,6 +1369,48 @@ lof_scores, is_peer_outlier, lof_meta = fit_pyod_local_outlier_factor(
             $$D_{\text{KL}}(P \parallel Q) = \sum_{x \in \mathcal{X}} P(x) \ln\left(\frac{P(x)}{Q(x) + \epsilon}\right)$$
             <p>To ensure numerical symmetry and stability, I also integrated Jensen-Shannon Divergence (JSD), which produces a bounded drift index in \([0, 1]\).</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/anomalies.py)</div>
+            <pre><code class="language-python">def calculate_kl_divergence(
+    p: np.ndarray,
+    q: np.ndarray,
+    epsilon: float = 1e-9,
+) -&gt; float:
+    &quot;&quot;&quot;Compute Kullback-Leibler (KL) Divergence D_KL(P || Q).
+    
+    Formula:
+        D_KL(P || Q) = sum_x P(x) * ln( P(x) / (Q(x) + epsilon) )
+        
+    Where:
+        P = observed local distribution (e.g. store role mix)
+        Q = reference benchmark distribution (corporate ideal)
+    &quot;&quot;&quot;
+    p_arr = np.asarray(p, dtype=float) + epsilon
+    q_arr = np.asarray(q, dtype=float) + epsilon
+    
+    p_norm = p_arr / np.sum(p_arr)
+    q_norm = q_arr / np.sum(q_arr)
+    
+    kl = np.sum(p_norm * np.log(p_norm / q_norm))
+    return max(0.0, float(kl))
+
+
+def calculate_jensen_shannon_divergence(
+    p: np.ndarray,
+    q: np.ndarray,
+    epsilon: float = 1e-9,
+) -&gt; float:
+    &quot;&quot;&quot;Compute symmetric Jensen-Shannon Divergence JSD(P || Q) in [0, 1].&quot;&quot;&quot;
+    p_arr = np.asarray(p, dtype=float) + epsilon
+    q_arr = np.asarray(q, dtype=float) + epsilon
+    
+    p_norm = p_arr / np.sum(p_arr)
+    q_norm = q_arr / np.sum(q_arr)
+    m = 0.5 * (p_norm + q_norm)
+    
+    jsd = 0.5 * calculate_kl_divergence(p_norm, m) + 0.5 * calculate_kl_divergence(q_norm, m)
+    return float(np.sqrt(max(0.0, jsd)))</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.anomalies import calculate_kl_divergence, calculate_jensen_shannon_divergence
 
 kl_drift = calculate_kl_divergence(store_role_counts, corporate_target_distribution)
@@ -481,6 +1427,56 @@ jsd_drift = calculate_jensen_shannon_divergence(store_role_counts, corporate_tar
             $$D(i, j) = |x_i - y_j| + \min\left(D(i-1, j), D(i, j-1), D(i-1, j-1)\right)$$
             <p>This allows regional labor profiles to be clustered based on underlying shape and amplitude regardless of local phase shifts.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/anomalies.py)</div>
+            <pre><code class="language-python">def compute_dtw_distance(
+    series1: Union[np.ndarray, pd.Series, List[float]],
+    series2: Union[np.ndarray, pd.Series, List[float]],
+) -&gt; Tuple[float, List[Tuple[int, int]], np.ndarray]:
+    &quot;&quot;&quot;Calculate exact Dynamic Time Warping (DTW) distance and optimal warping alignment path.
+    
+    Finds structural time-series similarity even when seasonal peaks are phase-shifted.
+    Returns:
+        (total_distance, warping_path, cost_matrix)
+    &quot;&quot;&quot;
+    s1 = np.asarray(series1, dtype=float)
+    s2 = np.asarray(series2, dtype=float)
+    
+    n = len(s1)
+    m = len(s2)
+    
+    # Cost matrix initialized to infinity
+    dtw_matrix = np.full((n + 1, m + 1), np.inf)
+    dtw_matrix[0, 0] = 0.0
+    
+    # Dynamic programming forward pass
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            cost = abs(s1[i - 1] - s2[j - 1])
+            dtw_matrix[i, j] = cost + min(
+                dtw_matrix[i - 1, j],      # Insertion
+                dtw_matrix[i, j - 1],      # Deletion
+                dtw_matrix[i - 1, j - 1],  # Match
+            )
+            
+    # Traceback optimal warping path
+    i, j = n, m
+    path = []
+    while i &gt; 0 and j &gt; 0:
+        path.append((i - 1, j - 1))
+        steps = [
+            (dtw_matrix[i - 1, j - 1], i - 1, j - 1),
+            (dtw_matrix[i - 1, j], i - 1, j),
+            (dtw_matrix[i, j - 1], i, j - 1),
+        ]
+        steps.sort(key=lambda x: x[0])
+        _, i, j = steps[0]
+        
+    path.reverse()
+    total_distance = float(dtw_matrix[n, m])
+    
+    return total_distance, path, dtw_matrix[1:, 1:]</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.anomalies import compute_dtw_distance
 
 total_dist, warping_path, cost_matrix = compute_dtw_distance(store_series, benchmark_series)</code></pre>
@@ -497,6 +1493,71 @@ total_dist, warping_path, cost_matrix = compute_dtw_distance(store_series, bench
             $$D_{\text{LCSS}}(X, Y) = 1 - \frac{\text{LCSS}(X, Y)}{\min(|X|, |Y|)}$$
             <p>Similarly, Edit Distance on Real Sequences (EDR) penalizes unmatched elements with a constant unit cost rather than raw Euclidean distance, making both algorithms robust to leaves of absence.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/anomalies.py)</div>
+            <pre><code class="language-python">def compute_lcss_distance(
+    series1: Union[np.ndarray, pd.Series, List[float]],
+    series2: Union[np.ndarray, pd.Series, List[float]],
+    epsilon: float = 2.5,
+    delta: int = 4,
+) -&gt; Tuple[int, float]:
+    &quot;&quot;&quot;Compute Longest Common Subsequence (LCSS) on Real Sequences with tolerance epsilon and window delta.
+    
+    Tolerates missing gaps (such as vacation leave or leave of absence) without severe DTW distortion.
+    
+    Returns:
+        (lcss_length, normalized_distance in [0, 1])
+        where normalized_distance = 1.0 - (lcss_length / min(len1, len2))
+    &quot;&quot;&quot;
+    s1 = np.asarray(series1, dtype=float)
+    s2 = np.asarray(series2, dtype=float)
+    n, m = len(s1), len(s2)
+    
+    dp = np.zeros((n + 1, m + 1), dtype=int)
+    
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            if abs(i - j) &lt;= delta and abs(s1[i - 1] - s2[j - 1]) &lt;= epsilon:
+                dp[i, j] = 1 + dp[i - 1, j - 1]
+            else:
+                dp[i, j] = max(dp[i - 1, j], dp[i, j - 1])
+                
+    lcss_len = int(dp[n, m])
+    norm_dist = 1.0 - (lcss_len / max(1, min(n, m)))
+    return lcss_len, float(norm_dist)
+
+
+def compute_edr_distance(
+    series1: Union[np.ndarray, pd.Series, List[float]],
+    series2: Union[np.ndarray, pd.Series, List[float]],
+    epsilon: float = 2.5,
+) -&gt; float:
+    &quot;&quot;&quot;Compute Edit Distance on Real Sequences (EDR) with spatial matching threshold epsilon.
+    
+    Cost function: subcost is 0 if |s1[i] - s2[j]| &lt;= epsilon, else 1. Insertion/deletion cost is 1.
+    Normalized by max(len1, len2).
+    &quot;&quot;&quot;
+    s1 = np.asarray(series1, dtype=float)
+    s2 = np.asarray(series2, dtype=float)
+    n, m = len(s1), len(s2)
+    
+    dp = np.zeros((n + 1, m + 1), dtype=float)
+    for i in range(n + 1):
+        dp[i, 0] = float(i)
+    for j in range(m + 1):
+        dp[0, j] = float(j)
+        
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            subcost = 0.0 if abs(s1[i - 1] - s2[j - 1]) &lt;= epsilon else 1.0
+            dp[i, j] = min(
+                dp[i - 1, j - 1] + subcost,
+                dp[i - 1, j] + 1.0,
+                dp[i, j - 1] + 1.0,
+            )
+            
+    return float(dp[n, m] / max(n, m))</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.anomalies import compute_lcss_distance, compute_edr_distance
 
 lcss_len, lcss_dist = compute_lcss_distance(seq_a, seq_b, epsilon=2.5, delta=4)
@@ -516,6 +1577,94 @@ edr_dist = compute_edr_distance(seq_a, seq_b, epsilon=2.5)</code></pre>
             $$\Delta R_{\text{rate}} = \sum_i L(w_i^1, w_i^0) \ln\left(\frac{r_i^1}{r_i^0}\right), \quad \Delta R_{\text{mix}} = \sum_i L(w_i^1, w_i^0) \ln\left(\frac{s_i^1}{s_i^0}\right)$$
             <p>Where \(L(a, b) = (a - b) / (\ln a - \ln b)\) is the logarithmic mean weight, \(r_i\) is departmental turnover rate, and \(s_i\) is departmental headcount share. Residual error: \(\Delta R_{\text{rate}} + \Delta R_{\text{mix}} - \Delta R \equiv 0.000000\).</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/attribution.py)</div>
+            <pre><code class="language-python">def logarithmic_mean(a: float, b: float, epsilon: float = 1e-12) -&gt; float:
+    &quot;&quot;&quot;Calculate the logarithmic mean L(a, b) = (a - b) / (ln(a) - ln(b)).
+    
+    Handles boundary cases when a == b or values are close to zero.
+    &quot;&quot;&quot;
+    if a &lt;= 0.0 or b &lt;= 0.0:
+        return 0.0
+    if abs(a - b) &lt; epsilon:
+        return float(a)
+    return float((a - b) / (np.log(a) - np.log(b)))
+
+
+def lmdi_rate_mix_decomposition(
+    df: pd.DataFrame,
+    dept_col: str = &quot;department&quot;,
+    h0_col: str = &quot;headcount_y0&quot;,
+    r0_col: str = &quot;turnover_rate_y0&quot;,
+    h1_col: str = &quot;headcount_y1&quot;,
+    r1_col: str = &quot;turnover_rate_y1&quot;,
+) -&gt; Tuple[pd.DataFrame, Dict[str, float]]:
+    &quot;&quot;&quot;Perform additive LMDI-I decomposition of total enterprise turnover rate change.
+    
+    Enterprise turnover rate:
+        R = sum_i s_i * r_i
+    Where:
+        s_i = headcount share of department i (H_i / H_total)
+        r_i = turnover rate of department i
+        
+    Change:
+        Delta R = R^1 - R^0 = Delta R_rate + Delta R_mix
+        
+    LMDI Weights:
+        w_i = s_i * r_i
+        L_i = L(w_i^1, w_i^0)
+        
+    Decomposed components:
+        Delta R_rate = sum_i L_i * ln(r_i^1 / r_i^0)
+        Delta R_mix  = sum_i L_i * ln(s_i^1 / s_i^0)
+        
+    Leaves zero residuals: Delta R_rate + Delta R_mix - Delta R == 0.000000.
+    &quot;&quot;&quot;
+    data = df.copy()
+    
+    total_h0 = data[h0_col].sum()
+    total_h1 = data[h1_col].sum()
+    
+    data[&quot;share_y0&quot;] = data[h0_col] / total_h0
+    data[&quot;share_y1&quot;] = data[h1_col] / total_h1
+    
+    data[&quot;weight_y0&quot;] = data[&quot;share_y0&quot;] * data[r0_col]
+    data[&quot;weight_y1&quot;] = data[&quot;share_y1&quot;] * data[r1_col]
+    
+    # Calculate logarithmic mean weight L(w1, w0)
+    data[&quot;log_mean_weight&quot;] = [
+        logarithmic_mean(w1, w0) for w1, w0 in zip(data[&quot;weight_y1&quot;], data[&quot;weight_y0&quot;])
+    ]
+    
+    # Rate and Mix effects per department
+    data[&quot;rate_effect&quot;] = data[&quot;log_mean_weight&quot;] * np.log(data[r1_col] / data[r0_col])
+    data[&quot;mix_effect&quot;] = data[&quot;log_mean_weight&quot;] * np.log(data[&quot;share_y1&quot;] / data[&quot;share_y0&quot;])
+    data[&quot;total_department_effect&quot;] = data[&quot;rate_effect&quot;] + data[&quot;mix_effect&quot;]
+    
+    # Enterprise aggregates
+    r_y0 = data[&quot;weight_y0&quot;].sum()
+    r_y1 = data[&quot;weight_y1&quot;].sum()
+    delta_r_actual = r_y1 - r_y0
+    
+    total_rate_effect = data[&quot;rate_effect&quot;].sum()
+    total_mix_effect = data[&quot;mix_effect&quot;].sum()
+    total_decomposed = total_rate_effect + total_mix_effect
+    residual = total_decomposed - delta_r_actual
+    
+    summary = {
+        &quot;turnover_rate_y0&quot;: float(r_y0),
+        &quot;turnover_rate_y1&quot;: float(r_y1),
+        &quot;delta_turnover_rate_actual&quot;: float(delta_r_actual),
+        &quot;rate_effect&quot;: float(total_rate_effect),
+        &quot;mix_effect&quot;: float(total_mix_effect),
+        &quot;total_decomposed&quot;: float(total_decomposed),
+        &quot;residual&quot;: float(residual),
+        &quot;rate_effect_pct_of_change&quot;: float(total_rate_effect / delta_r_actual * 100.0) if delta_r_actual != 0 else 0.0,
+        &quot;mix_effect_pct_of_change&quot;: float(total_mix_effect / delta_r_actual * 100.0) if delta_r_actual != 0 else 0.0,
+    }
+    
+    return data, summary</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.attribution import lmdi_rate_mix_decomposition
 
 decomposed_df, lmdi_summary = lmdi_rate_mix_decomposition(
@@ -536,6 +1685,62 @@ print(f"Mathematical Residual: {lmdi_summary['residual']:.10f}")  # Returns 0.00
             $$\Phi_{i, j} = \sum_{S \subseteq N \setminus \{i, j\}} \frac{|S|!(M - |S| - 2)!}{2(M - 1)!} \left[ f(S \cup \{i, j\}) - f(S \cup \{i\}) - f(S \cup \{j\}) + f(S) \right]$$
             <p>The diagonal captures pure main effects, while off-diagonal elements isolate pure non-linear risk synergies.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/attribution.py)</div>
+            <pre><code class="language-python">def compute_shap_interaction_matrix(
+    X: pd.DataFrame,
+    y: pd.Series,
+    feature_names: Optional[List[str]] = None,
+    is_classification: bool = True,
+    seed: int = 42,
+) -&gt; Tuple[np.ndarray, np.ndarray, pd.DataFrame]:
+    &quot;&quot;&quot;Train LightGBM model and compute exact SHAP 2D interaction value matrices.
+    
+    Decomposes model predictions into main effects (matrix diagonal) and
+    pairwise coupled interaction effects (off-diagonal).
+    
+    Returns:
+        (shap_interaction_values_3d, mean_abs_interaction_matrix_2d, interaction_pairs_df)
+    &quot;&quot;&quot;
+    import lightgbm as lgb
+    import shap
+    
+    cols = list(X.columns) if feature_names is None else feature_names
+    X_train = X[cols].copy()
+    
+    if is_classification:
+        model = lgb.LGBMClassifier(n_estimators=60, max_depth=4, random_state=seed, verbose=-1, n_jobs=1)
+    else:
+        model = lgb.LGBMRegressor(n_estimators=60, max_depth=4, random_state=seed, verbose=-1, n_jobs=1)
+        
+    model.fit(X_train, y)
+    
+    explainer = shap.TreeExplainer(model)
+    # 3D array: (n_samples, n_features, n_features)
+    interaction_vals = explainer.shap_interaction_values(X_train)
+    
+    # If binary classification returns list for each class, select positive class
+    if isinstance(interaction_vals, list):
+        interaction_vals = interaction_vals[1]
+        
+    # Mean absolute interaction matrix across all samples
+    mean_abs_matrix = np.mean(np.abs(interaction_vals), axis=0)
+    
+    # Extract ranked pairwise interactions (excluding diagonal main effects)
+    n_feat = len(cols)
+    pair_records = []
+    for i in range(n_feat):
+        for j in range(i + 1, n_feat):
+            pair_records.append({
+                &quot;feature_1&quot;: cols[i],
+                &quot;feature_2&quot;: cols[j],
+                &quot;interaction_strength&quot;: float(mean_abs_matrix[i, j] * 2),  # symmetric pair sum
+            })
+            
+    pairs_df = pd.DataFrame(pair_records).sort_values(&quot;interaction_strength&quot;, ascending=False).reset_index(drop=True)
+    
+    return interaction_vals, mean_abs_matrix, pairs_df</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.attribution import compute_shap_interaction_matrix
 
 shap_inter_matrix, summary_df = compute_shap_interaction_matrix(
@@ -556,6 +1761,188 @@ shap_inter_matrix, summary_df = compute_shap_interaction_matrix(
             $$\mathbf{M}_{\text{sym}} = \frac{1}{2}(\mathbf{M} + \mathbf{M}^T) + 0.1 \cdot \mathbf{I} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^T \implies \mathbf{Z} = \mathbf{U}_d \mathbf{\Sigma}_d^{1/2}$$
             <p>Role vectors are normalized to unit spheres (\(\|\mathbf{z}_r\| = 1\)). Associate career histories are embedded via recency-decayed historical vectors, allowing succession candidates to be ranked using cosine similarity and directional reachability.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/mobility.py)</div>
+            <pre><code class="language-python">class CareerMovementEmbeddings:
+    &quot;&quot;&quot;Generates low-dimensional dense embeddings for job roles and associate trajectories.
+    
+    Transforms discrete career sequences into continuous representations via
+    transition graph random walk diffusion and spectral decomposition.
+    &quot;&quot;&quot;
+    
+    def __init__(
+        self,
+        embedding_dim: int = 8,
+        max_steps: int = 3,
+        decay_factor: float = 0.6,
+        decay: Optional[float] = None,
+        seed: int = 42,
+    ):
+        self.embedding_dim = embedding_dim
+        self.max_steps = max_steps
+        self.decay_factor = decay if decay is not None else decay_factor
+        self.seed = seed
+        self.role_to_idx_: Dict[str, int] = {}
+        self.idx_to_role_: Dict[int, str] = {}
+        self.role_embeddings_: Optional[np.ndarray] = None
+        self.transition_matrix_: Optional[np.ndarray] = None
+        self.diffusion_matrix_: Optional[np.ndarray] = None
+        
+    def fit(self, career_sequences: List[List[str]]):
+        &quot;&quot;&quot;Fit role embeddings from a collection of associate career sequences.
+        
+        Args:
+            career_sequences: List of career histories, e.g.
+                              [[&#x27;Cashier&#x27;, &#x27;Stocker&#x27;, &#x27;Dept_Lead&#x27;], [&#x27;Stocker&#x27;, &#x27;Specialist&#x27;, ...]]
+        &quot;&quot;&quot;
+        # Build vocabulary of unique roles
+        unique_roles = sorted(list(set(role for seq in career_sequences for role in seq)))
+        self.role_to_idx_ = {role: idx for idx, role in enumerate(unique_roles)}
+        self.idx_to_role_ = {idx: role for idx, role in enumerate(unique_roles)}
+        V = len(unique_roles)
+        
+        if V &lt; 3:
+            raise ValueError(&quot;Need at least 3 distinct roles to build embedding space.&quot;)
+            
+        # 1. Directional transition counts: role_i -&gt; role_j
+        trans_counts = np.zeros((V, V), dtype=float)
+        for seq in career_sequences:
+            for i in range(len(seq) - 1):
+                u = self.role_to_idx_[seq[i]]
+                v = self.role_to_idx_[seq[i + 1]]
+                trans_counts[u, v] += 1.0
+                
+        # Row-normalize to transition probability matrix P
+        row_sums = trans_counts.sum(axis=1, keepdims=True)
+        # For absorbing / terminal roles, keep self-loop
+        row_sums[row_sums == 0] = 1.0
+        P = trans_counts / row_sums
+        self.transition_matrix_ = P.copy()
+        
+        # 2. Multi-step transition diffusion: M = sum_{k=1}^K gamma^(k-1) * P^k
+        M = np.zeros((V, V), dtype=float)
+        current_P = P.copy()
+        weight = 1.0
+        
+        for k in range(1, self.max_steps + 1):
+            M += weight * current_P
+            weight *= self.decay_factor
+            current_P = current_P @ P
+            
+        self.diffusion_matrix_ = M.copy()
+        
+        # 3. Spectral decomposition on affinity kernel S = (M + M^T)/2 + I*0.1
+        affinity = 0.5 * (M + M.T) + np.eye(V) * 0.1
+        actual_dim = min(self.embedding_dim, V - 2)
+        actual_dim = max(2, actual_dim)
+        
+        try:
+            U, S, _ = svds(affinity, k=actual_dim)
+            raw_embeddings = U * np.sqrt(np.maximum(1e-6, S))
+        except Exception:
+            U, S, _ = np.linalg.svd(affinity)
+            raw_embeddings = U[:, :actual_dim] * np.sqrt(np.maximum(1e-6, S[:actual_dim]))
+            
+        # L2 normalize
+        norms = np.linalg.norm(raw_embeddings, axis=1, keepdims=True)
+        norms[norms == 0] = 1.0
+        self.role_embeddings_ = raw_embeddings / norms
+        self.embedding_dim = actual_dim
+        
+        return self
+        
+    def get_role_embedding(self, role: str) -&gt; np.ndarray:
+        &quot;&quot;&quot;Retrieve unit-norm embedding vector for a specific job title.&quot;&quot;&quot;
+        if role not in self.role_to_idx_:
+            raise KeyError(f&quot;Role &#x27;{role}&#x27; not found in vocabulary.&quot;)
+        return self.role_embeddings_[self.role_to_idx_[role]]
+        
+    def get_associate_embedding(self, career_history: List[str], decay: float = 0.7) -&gt; np.ndarray:
+        &quot;&quot;&quot;Compute an associate&#x27;s vector embedding from their sequence of past roles with recency decay.&quot;&quot;&quot;
+        vectors = []
+        weights = []
+        T = len(career_history)
+        for t, role in enumerate(career_history):
+            if role in self.role_to_idx_:
+                vectors.append(self.get_role_embedding(role))
+                weights.append(decay ** (T - 1 - t))
+                
+        if not vectors:
+            return np.zeros(self.embedding_dim)
+            
+        weights = np.array(weights)[:, None]
+        combined = np.sum(np.array(vectors) * weights, axis=0)
+        norm = np.linalg.norm(combined)
+        return combined / norm if norm &gt; 0 else combined
+        
+    def get_role_similarity_matrix(self) -&gt; pd.DataFrame:
+        &quot;&quot;&quot;Compute complete pairwise cosine similarity matrix between all organizational roles.&quot;&quot;&quot;
+        sims = self.role_embeddings_ @ self.role_embeddings_.T
+        roles = [self.idx_to_role_[i] for i in range(len(self.idx_to_role_))]
+        return pd.DataFrame(sims, index=roles, columns=roles)
+        
+    def compute_role_similarity_matrix(self) -&gt; pd.DataFrame:
+        &quot;&quot;&quot;Alias for get_role_similarity_matrix.&quot;&quot;&quot;
+        return self.get_role_similarity_matrix()
+        
+    def recommend_succession_candidates(
+        self,
+        target_role: str,
+        associates_df: pd.DataFrame,
+        history_col: str = &quot;career_history&quot;,
+        current_role_col: str = &quot;current_role&quot;,
+        top_k: int = 5,
+    ) -&gt; pd.DataFrame:
+        &quot;&quot;&quot;Rank candidate associates for succession into a target role.
+        
+        Combines trajectory cosine similarity in embedding space with directional transition reachability:
+            Succession Score = 0.5 * Cosine_Similarity + 0.5 * (Reachability / Max_Reachability)
+        &quot;&quot;&quot;
+        if target_role not in self.role_to_idx_:
+            raise KeyError(f&quot;Target role &#x27;{target_role}&#x27; not in model vocabulary.&quot;)
+            
+        target_idx = self.role_to_idx_[target_role]
+        target_vec = self.get_role_embedding(target_role)
+        records = []
+        
+        # Max reachability into target role across all non-target roles
+        all_reach = self.diffusion_matrix_[:, target_idx].copy()
+        all_reach[target_idx] = 0.0
+        max_reach = float(np.max(all_reach)) if np.max(all_reach) &gt; 0 else 1.0
+        
+        for _, row in associates_df.iterrows():
+            emp_id = row.get(&quot;employee_id&quot;, &quot;EMP&quot;)
+            curr_role = row.get(current_role_col, &quot;&quot;)
+            history = row.get(history_col, [curr_role])
+            
+            # Skip if already in target role
+            if curr_role == target_role:
+                continue
+                
+            assoc_vec = self.get_associate_embedding(history)
+            cos_sim = float(np.dot(assoc_vec, target_vec))
+            
+            # Directional reachability from current role
+            curr_idx = self.role_to_idx_.get(curr_role, None)
+            reach_score = float(self.diffusion_matrix_[curr_idx, target_idx] / max_reach) if curr_idx is not None else 0.0
+            
+            # Combined succession potential
+            combined_score = 0.45 * cos_sim + 0.55 * reach_score
+            
+            records.append({
+                &quot;employee_id&quot;: emp_id,
+                &quot;current_role&quot;: curr_role,
+                &quot;career_history&quot;: &quot; -&gt; &quot;.join(history),
+                &quot;career_path_string&quot;: &quot; -&gt; &quot;.join(history),
+                &quot;embedding_cosine_similarity&quot;: round(cos_sim, 4),
+                &quot;transition_reachability&quot;: round(reach_score, 4),
+                &quot;succession_similarity&quot;: round(combined_score, 4),
+                &quot;trajectory_similarity_score&quot;: round(combined_score, 4),
+            })
+            
+        results = pd.DataFrame(records).sort_values(&quot;succession_similarity&quot;, ascending=False).head(top_k).reset_index(drop=True)
+        return results</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.mobility import CareerMovementEmbeddings
 
 movement_model = CareerMovementEmbeddings(embedding_dim=8, max_steps=3, decay_factor=0.6)
@@ -577,6 +1964,157 @@ succession_rankings = movement_model.recommend_succession_candidates(
             $$x^* = x_k - \hat{g}_j(x_k) \frac{x_{k+1} - x_k}{\hat{g}_j(x_{k+1}) - \hat{g}_j(x_k)}$$
             <p>This delineates protective regions (\(\text{SHAP} &lt; 0\)) from hazard regions (\(\text{SHAP} &gt; 0\)) across metrics like overtime hours, comp-ratios, commute duration, and manager 1-on-1 frequency.</p>
 
+            <div class="subheading-code">Complete Module Implementation Snapshot (src/attribution.py)</div>
+            <pre><code class="language-python">def extract_shap_inflection_thresholds(
+    X: pd.DataFrame,
+    shap_values: np.ndarray,
+    n_grid_points: int = 200,
+    seed: int = 42,
+) -&gt; Tuple[Dict[str, dict], pd.DataFrame]:
+    &quot;&quot;&quot;Extract critical behavioral inflection thresholds where SHAP values cross zero.
+    
+    Fits a 1D surrogate regression model on (feature_value, shap_value),
+    evaluates on a continuous grid, detects sign changes, and interpolates exact
+    zero-crossing thresholds where a metric shifts from protective (SHAP &lt; 0)
+    to hazardous (SHAP &gt; 0) for turnover/termination rates.
+    
+    Returns:
+        (thresholds_dict, summary_results_df)
+    &quot;&quot;&quot;
+    from sklearn.ensemble import GradientBoostingRegressor
+    
+    feature_names = list(X.columns)
+    # If shap_values is a list for binary classes, pick the positive outcome class (Terminated)
+    if isinstance(shap_values, list):
+        s_vals = shap_values[1]
+    elif shap_values.ndim == 3:
+        s_vals = shap_values[:, :, 1]
+    else:
+        s_vals = shap_values
+        
+    thresholds = {}
+    
+    for i, feat_name in enumerate(feature_names):
+        feat_vals = X[feat_name].to_numpy(dtype=float)
+        feat_shap = s_vals[:, i]
+        
+        # Sort values for monotonic grid evaluation
+        sort_idx = np.argsort(feat_vals)
+        sorted_x = feat_vals[sort_idx]
+        sorted_shap = feat_shap[sort_idx]
+        
+        # Fit 1D surrogate regressor (GradientBoostingRegressor ensures stable, smooth interpolation without C++ OpenMP thread conflicts)
+        surrogate_reg = GradientBoostingRegressor(
+            n_estimators=50,
+            max_depth=3,
+            learning_rate=0.1,
+            random_state=seed,
+        )
+        surrogate_reg.fit(sorted_x.reshape(-1, 1), sorted_shap)
+        
+        # Evaluate over fine grid across observed range
+        x_min, x_max = float(sorted_x.min()), float(sorted_x.max())
+        grid_x = np.linspace(x_min, x_max, n_grid_points)
+        pred_shap = surrogate_reg.predict(grid_x.reshape(-1, 1))
+        
+        # Find exact zero-crossings via sign changes with linear interpolation
+        zero_crossings = []
+        sign_changes = np.where(np.diff(np.sign(pred_shap)))[0]
+        
+        for idx in sign_changes:
+            x1, y1 = grid_x[idx], pred_shap[idx]
+            x2, y2 = grid_x[idx + 1], pred_shap[idx + 1]
+            if y1 * y2 &lt; 0:  # Confirmed sign change
+                zero_crossing = x1 - y1 * (x2 - x1) / (y2 - y1)
+                zero_crossings.append(round(float(zero_crossing), 2))
+                
+        # Direction of hazard at upper tail: is high value of feature driving positive SHAP (hazard)?
+        upper_hazard = bool(pred_shap[-1] &gt; 0)
+        
+        # Robust primary threshold selection:
+        # Filter out boundary crossings in extreme tails (&lt; 5th or &gt; 95th percentile)
+        q05, q95 = np.percentile(feat_vals, [5, 95])
+        support_crossings = [zc for zc in zero_crossings if q05 &lt;= zc &lt;= q95]
+        candidate_crossings = support_crossings if support_crossings else zero_crossings
+        
+        primary_threshold = None
+        if candidate_crossings:
+            # Pick crossing with largest local rate of change |dy/dx| (steepest inflection)
+            best_zc = candidate_crossings[0]
+            max_slope = -1.0
+            for zc in candidate_crossings:
+                c_idx = int(np.argmin(np.abs(grid_x - zc)))
+                i_lo = max(0, c_idx - 2)
+                i_hi = min(len(grid_x) - 1, c_idx + 2)
+                dx = grid_x[i_hi] - grid_x[i_lo]
+                dy = pred_shap[i_hi] - pred_shap[i_lo]
+                slope = abs(dy / dx) if dx &gt; 0 else 0.0
+                if slope &gt; max_slope:
+                    max_slope = slope
+                    best_zc = zc
+            primary_threshold = best_zc
+        
+        thresholds[feat_name] = {
+            &quot;predicted_thresholds&quot;: zero_crossings,
+            &quot;primary_threshold&quot;: primary_threshold,
+            &quot;mean&quot;: round(float(np.mean(feat_vals)), 2),
+            &quot;median&quot;: round(float(np.median(feat_vals)), 2),
+            &quot;high_value_is_hazard&quot;: upper_hazard,
+            &quot;grid_x&quot;: grid_x,
+            &quot;pred_shap&quot;: pred_shap,
+            &quot;sorted_x&quot;: sorted_x,
+            &quot;sorted_shap&quot;: sorted_shap,
+        }
+        
+    summary_rows = []
+    for k, v in thresholds.items():
+        summary_rows.append({
+            &quot;feature&quot;: k,
+            &quot;primary_inflection_threshold&quot;: v[&quot;primary_threshold&quot;],
+            &quot;all_thresholds&quot;: str(v[&quot;predicted_thresholds&quot;]),
+            &quot;cohort_mean&quot;: v[&quot;mean&quot;],
+            &quot;cohort_median&quot;: v[&quot;median&quot;],
+            &quot;high_value_increases_turnover_risk&quot;: v[&quot;high_value_is_hazard&quot;],
+        })
+        
+    results_df = pd.DataFrame(summary_rows).set_index(&quot;feature&quot;)
+    return thresholds, results_df
+
+
+def calculate_retained_vs_terminated_shap_contributions(
+    X: pd.DataFrame,
+    shap_values: np.ndarray,
+    y: pd.Series,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;Compute average SHAP value contributions for Retained vs Terminated cohorts.
+    
+    Computes directional attribution contrasting retained versus voluntary termination cohorts.
+    &quot;&quot;&quot;
+    feature_names = list(X.columns)
+    if isinstance(shap_values, list):
+        s_vals = shap_values[1]
+    elif shap_values.ndim == 3:
+        s_vals = shap_values[:, :, 1]
+    else:
+        s_vals = shap_values
+        
+    shap_df = pd.DataFrame(s_vals, columns=feature_names, index=X.index)
+    shap_df[&quot;is_terminated&quot;] = y.to_numpy()
+    
+    retained_mean = shap_df[shap_df[&quot;is_terminated&quot;] == 0][feature_names].mean()
+    terminated_mean = shap_df[shap_df[&quot;is_terminated&quot;] == 1][feature_names].mean()
+    
+    combined = pd.DataFrame({
+        &quot;Retained Cohort Mean SHAP&quot;: retained_mean,
+        &quot;Terminated Cohort Mean SHAP&quot;: terminated_mean,
+    })
+    
+    combined[&quot;total_absolute_shap&quot;] = combined[&quot;Retained Cohort Mean SHAP&quot;].abs() + combined[&quot;Terminated Cohort Mean SHAP&quot;].abs()
+    combined = combined.sort_values(&quot;total_absolute_shap&quot;, ascending=True)
+    
+    return combined</code></pre>
+
+            <div class="subheading-code">Pipeline Execution Code</div>
             <pre><code class="language-python">from src.attribution import (
     extract_shap_inflection_thresholds,
     calculate_retained_vs_terminated_shap_contributions
@@ -624,6 +2162,12 @@ uv run pytest tests/ -v</code></pre>
         </article>
     </div>
 
+    <!-- Full Window Lightbox Modal -->
+    <div id="lightbox-modal">
+        <span id="lightbox-close" title="Close (Esc)">&times;</span>
+        <img id="lightbox-img" src="" alt="Expanded View">
+    </div>
+
     <!-- Syntax Highlighting (PrismJS) & Copy Button Script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
@@ -632,6 +2176,7 @@ uv run pytest tests/ -v</code></pre>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // 1. Copy Button Setup
             document.querySelectorAll('pre').forEach((preBlock) => {
                 if (preBlock.querySelector('.copy-btn')) return;
 
@@ -669,6 +2214,39 @@ uv run pytest tests/ -v</code></pre>
                 });
 
                 preBlock.appendChild(button);
+            });
+
+            // 2. Full-Window Lightbox Modal Logic
+            const modal = document.getElementById('lightbox-modal');
+            const modalImg = document.getElementById('lightbox-img');
+            const closeBtn = document.getElementById('lightbox-close');
+
+            function openLightbox(src, alt) {
+                modalImg.src = src;
+                modalImg.alt = alt || 'Expanded View';
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLightbox() {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            document.querySelectorAll('figure img, .hero-thumbnail-img').forEach(img => {
+                img.addEventListener('click', () => {
+                    openLightbox(img.src, img.alt);
+                });
+            });
+
+            if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
+            if (modal) modal.addEventListener('click', (e) => {
+                if (e.target !== modalImg) closeLightbox();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+                    closeLightbox();
+                }
             });
         });
     </script>
