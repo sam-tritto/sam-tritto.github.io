@@ -8,10 +8,11 @@
     <meta property="og:image" content="advanced-people-analytics-features/thumbnail.png">
     <meta name="twitter:image" content="advanced-people-analytics-features/thumbnail.png">
     <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         /* OneDark Pro / VS Code Dark Code Block Styling */
-        pre {
+        pre[class*="language-"], pre {
             background-color: #21252b !important;
             background: #21252b !important;
             color: #abb2bf !important;
@@ -25,7 +26,16 @@
             font-size: 0.88rem !important;
             line-height: 1.6 !important;
         }
-        code {
+        code[class*="language-"], pre code {
+            font-family: 'JetBrains Mono', SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace !important;
+            font-size: 0.88em !important;
+            background-color: transparent !important;
+            background: transparent !important;
+            color: #abb2bf !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+        }
+        p code, li code, td code {
             font-family: 'JetBrains Mono', SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace !important;
             font-size: 0.88em !important;
             background-color: #282c34 !important;
@@ -34,15 +44,17 @@
             padding: 0.2em 0.4em !important;
             border-radius: 4px !important;
         }
-        pre code {
-            padding: 0 !important;
-            background: transparent !important;
-            background-color: transparent !important;
-            color: inherit !important;
-            font-size: 1em !important;
-            border-radius: 0 !important;
-        }
-
+        /* OneDark Pro Syntax Highlighting Token Tweaks */
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #5c6370 !important; font-style: italic !important; }
+        .token.function, .token.class-name { color: #61afef !important; }
+        .token.keyword { color: #c678dd !important; font-weight: 600 !important; }
+        .token.string, .token.char, .token.attr-value { color: #98c379 !important; }
+        .token.number, .token.boolean { color: #d19a66 !important; }
+        .token.operator, .token.entity, .token.url { color: #56b6c2 !important; }
+        .token.decorator, .token.builtin { color: #e5c07b !important; }
+        .token.property, .token.tag, .token.symbol { color: #e06c75 !important; }
+        .token.punctuation { color: #abb2bf !important; }
+        .token.variable { color: #e06c75 !important; }
         /* Interactive Copy Button */
         .copy-btn {
             position: absolute;
@@ -260,9 +272,9 @@
         </header>
 
         <main class="post-content-area">
-            <figure>
-                <img src="advanced-people-analytics-features/thumbnail.png" alt="Advanced People Analytics Feature Engineering Overview" class="hero-thumbnail-img">
-                <figcaption>Figure 0: Full architectural taxonomy and feature distribution across 11 pillars in the <code>people-analytics-toolkit</code> package (click to expand full-screen).</figcaption>
+                        <figure style="margin: 2rem auto; text-align: center; max-width: 540px;">
+                <img src="advanced-people-analytics-features/logo.png" alt="People Analytics Toolkit Logo" class="hero-thumbnail-img" style="max-height: 290px; width: auto; object-fit: contain; margin: 0 auto; display: block; border: none; box-shadow: none;">
+                <figcaption><strong>people-analytics-toolkit</strong>: A production-grade Python library for workforce intelligence, causal uplift, and talent feature engineering.</figcaption>
             </figure>
 
             <section>
@@ -287,7 +299,7 @@
                 <p>
                     The <code>people-analytics-toolkit</code> package is built for modern Python (3.11+) and integrates directly with the standard scientific Python ecosystem. You can install it using <code>pip</code>:
                 </p>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>pip install people-analytics-toolkit</code></pre>
+                <pre><code class="language-bash">pip install people-analytics-toolkit</code></pre>
                 <p>
                     The toolkit leverages standard dependencies:
                 </p>
@@ -321,57 +333,140 @@
                         <tr>
                             <td><strong>1. High Cardinality &amp; Hierarchies</strong></td>
                             <td>Cohort size disparity, sparse departments, leakage</td>
-                            <td>F01: Bayesian Target Encoding, F02: Grouped LOO Z-Score, F03: LOO-ED</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                                    <li><a href="#feature-1">Bayesian Target Encoding</a></li>
+                                    <li><a href="#feature-2">Grouped Leave-One-Out (LOO) Z-Scores</a></li>
+                                    <li><a href="#feature-3">Leave-One-Out Expected Differential (LOO-ED)</a></li>
+                                </ul>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>2. Preserving Memory &amp; Lifecycles</strong></td>
                             <td>Long-range temporal decay, non-stationary headcounts</td>
-                            <td>F04: Fractional Differencing, F05: Weighted Weeks Since, F06: EWMA &amp; EWMS, F07: Holt-Winters, F08: Hazard Embeddings, F09: Rolling Pipeline, F10: Singular Spectrum Analysis, F11: Hierarchical Lags, F12: Growth Rates</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                                    <li><a href="#feature-4">Fractional Differencing</a></li>
+                                    <li><a href="#feature-5">Weighted Weeks Since (Continuous Event-Decay)</a></li>
+                                    <li><a href="#feature-6">Exponentially Weighted Moving Average (EWMA) &amp; Sum (EWMS)</a></li>
+                                    <li><a href="#feature-7">Double and Triple Exponential Smoothing (Holt-Winters)</a></li>
+                                    <li><a href="#feature-8">Kaplan-Meier &amp; Nelson-Aalen Hazard Embeddings</a></li>
+                                    <li><a href="#feature-9">Configuration-Driven Rolling Metrics Pipeline</a></li>
+                                    <li><a href="#feature-10">Singular Spectrum Analysis (SVD Smoothing)</a></li>
+                                    <li><a href="#feature-11">Hierarchical Lag &amp; Autoregressive Features</a></li>
+                                    <li><a href="#feature-12">Multi-Horizon Differencing &amp; Growth Rates</a></li>
+                                </ul>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>3. Chaos, Volatility &amp; Regimes</strong></td>
                             <td>Scheduling turbulence, variance clustering, contagion</td>
-                            <td>F13: Shannon Entropy, F14: GARCH(1,1), F15: Hawkes Contagion, F16: HMM Regimes, F17: Bradford Factor</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                                    <li><a href="#feature-13">Rolling Shannon Entropy (The Chaos Index)</a></li>
+                                    <li><a href="#feature-14">GARCH(1,1) Dynamic Volatility Index</a></li>
+                                    <li><a href="#feature-15">Hawkes Process Intensity (The Contagion Feature)</a></li>
+                                    <li><a href="#feature-16">Hidden Markov Model (HMM) Latent States</a></li>
+                                    <li><a href="#feature-17">The Bradford Factor (Absenteeism Friction Score)</a></li>
+                                </ul>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>4. Structural Anomalies &amp; Sequences</strong></td>
                             <td>Outlier profiles, career sequence divergence, drift</td>
-                            <td>F18: Autoencoder Weirdness, F19: LOF via PyOD, F20: KL Divergence Drift, F21: DTW Distance, F22: LCSS &amp; EDR, F50: Mahalanobis Distance</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                                    <li><a href="#feature-18">Autoencoder Reconstruction Error (The Weirdness Index)</a></li>
+                                    <li><a href="#feature-19">Local Outlier Factor (LOF via PyOD)</a></li>
+                                    <li><a href="#feature-20">Kullback-Leibler (KL) Divergence (The Drift Index)</a></li>
+                                    <li><a href="#feature-21">Dynamic Time Warping (DTW) Distance</a></li>
+                                    <li><a href="#feature-22">Longest Common Subsequence (LCSS) &amp; Edit Distance (EDR)</a></li>
+                                    <li><a href="#feature-50">Multivariate Mahalanobis Distance (Covariance Outliers)</a></li>
+                                </ul>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>5. Attribution, Interactions &amp; Accounting</strong></td>
                             <td>Rate-mix shifts, synergistic risks, hypothesis audits</td>
-                            <td>F23: LMDI-I Decomposition, F24: SHAP Interactions, F25: Correlation Heatmap Report</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                                    <li><a href="#feature-23">Log-Mean Decomposition (LMDI-I)</a></li>
+                                    <li><a href="#feature-24">SHAP Interaction Values (2D Non-Linear Synergies)</a></li>
+                                    <li><a href="#feature-25">Correlation Heatmap Table (with CIs &amp; p-values)</a></li>
+                                </ul>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>6. Career Mobility &amp; Tipping Points</strong></td>
                             <td>Graph transitions, stagnation spikes, flight risk surges</td>
-                            <td>F26: Movement Embeddings, F27: SHAP Inflections, F28: Time-in-Position Stagnation</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                                    <li><a href="#feature-26">Movement Embeddings (Career Trajectory &amp; Graph Embeddings)</a></li>
+                                    <li><a href="#feature-27">SHAP Inflection Thresholds for Term Rates (Tipping Points)</a></li>
+                                    <li><a href="#feature-28">Time-in-Position (The Stagnation Index)</a></li>
+                                </ul>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>7. Compensation &amp; Pay Equity</strong></td>
                             <td>Band parity, salary compression, red/green circling</td>
-                            <td>F29: Compa-Ratio, F30: Range Penetration &amp; Status</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                                    <li><a href="#feature-29">Compa-Ratio (Midpoint and Market Parity)</a></li>
+                                    <li><a href="#feature-30">Range Penetration &amp; Status Classification</a></li>
+                                </ul>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>8. Relational Dynamics &amp; ONA</strong></td>
                             <td>Information bottlenecks, structural holes, manager load</td>
-                            <td>F31: Betweenness Centrality, F32: Eigenvector Centrality, F33: Burt Constraint, F34: Euler Centrality, F35: Span of Control</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                                    <li><a href="#feature-31">Betweenness Centrality (Cross-Functional Brokers)</a></li>
+                                    <li><a href="#feature-32">Eigenvector Centrality (Informal Enterprise Hubs)</a></li>
+                                    <li><a href="#feature-33">Ronald Burt's Network Constraint Index</a></li>
+                                    <li><a href="#feature-34">Euler Centrality &amp; Leinster Metric Space Magnitude</a></li>
+                                    <li><a href="#feature-35">Span of Control (Managerial Load &amp; Reorganization Shock)</a></li>
+                                </ul>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>9. Algorithmic Equity &amp; Fairness</strong></td>
                             <td>Pay gap decomposition, equal opportunity, Lipschitz</td>
-                            <td>F36: Oaxaca-Blinder, F37: Demographic Parity, F38: Equalized Odds Reduction, F39: Individual Fairness</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                                    <li><a href="#feature-36">Oaxaca-Blinder Pay Gap Decomposition</a></li>
+                                    <li><a href="#feature-37">Demographic Parity Difference &amp; Ratio</a></li>
+                                    <li><a href="#feature-38">Equalized Odds Constraint via Exponentiated Gradient</a></li>
+                                    <li><a href="#feature-39">Individual Fairness &amp; Local Predictive Consistency</a></li>
+                                </ul>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>10. Prescriptive Causal Interventions</strong></td>
                             <td>Confounded observational policies, uplift targeting</td>
-                            <td>F40: AIPW Estimator, F41: Synthetic DiD, F42: CausalForestDML, F43: Qini &amp; Prescriptive Uplift, F44: Synthetic Control Twin, F45: Directed Causal DAG</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                                    <li><a href="#feature-40">Augmented Inverse Propensity Weighting (AIPW ATE)</a></li>
+                                    <li><a href="#feature-41">Synthetic Difference-in-Differences (SDiD)</a></li>
+                                    <li><a href="#feature-42">Causal Forest with Double Machine Learning (CausalForestDML)</a></li>
+                                    <li><a href="#feature-43">Prescriptive Uplift Evaluation (Qini Curve &amp; AUUC)</a></li>
+                                    <li><a href="#feature-44">Synthetic Control Weights (Synth-DiD Twin)</a></li>
+                                    <li><a href="#feature-45">Directed Causal Edge Weights (NOTEARS DAG Discovery)</a></li>
+                                </ul>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>11. Continuous Trajectories &amp; Graph Learning</strong></td>
                             <td>Holding durations, multi-relational skills, attention</td>
-                            <td>F46: Continuous-Time Markov Chains, F47: Meta-Path Walks, F48: Metapath2Vec, F49: Dynamic Trajectory Self-Attention</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                                    <li><a href="#feature-46">Continuous-Time Markov Chain (CTMC) Career Trajectories</a></li>
+                                    <li><a href="#feature-47">Meta-Path Biased Random Walks on Heterogeneous Multigraphs</a></li>
+                                    <li><a href="#feature-48">Metapath2Vec Graph Representation Learning</a></li>
+                                    <li><a href="#feature-49">Dynamic Entity &amp; Trajectory Self-Attention Aggregator</a></li>
+                                </ul>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -396,7 +491,7 @@
                 </p>
                 $$\hat{S}_i = \lambda(n_i) \cdot \bar{y}_i + (1 - \lambda(n_i)) \cdot \bar{y}_{\text{global}}, \quad \lambda(n_i) = \frac{n_i}{n_i + m}$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.cardinality import BayesianTargetEncoder
+                <pre><code class="language-python">from people_analytics_toolkit.cardinality import BayesianTargetEncoder
 
 # Instantiate encoder with smoothing prior and cross-validation folds
 bte = BayesianTargetEncoder(
@@ -434,7 +529,7 @@ test_encoded = bte.transform(
                 </p>
                 $$\mu_{-i} = \frac{\sum_{j \neq i} x_j}{n - 1}, \quad \sigma_{-i} = \sqrt{\frac{\sum_{j \neq i} (x_j - \mu_{-i})^2}{n - 2}}, \quad z_i = \frac{x_i - \mu_{-i}}{\sigma_{-i} + \epsilon}$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.cardinality import GroupedLOOZScore, calculate_grouped_loo_zscore
+                <pre><code class="language-python">from people_analytics_toolkit.cardinality import GroupedLOOZScore, calculate_grouped_loo_zscore
 
 # Object-oriented pipeline approach
 loo_calculator = GroupedLOOZScore(
@@ -470,7 +565,7 @@ loo_z_series = calculate_grouped_loo_zscore(
                 </p>
                 $$\Delta_{\text{LOO-ED}, i} = y_i - \mathbb{E}[y \mid \text{Cohort}_{-i}]$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.attribution import LeaveOneOutExpectedDifferential
+                <pre><code class="language-python">from people_analytics_toolkit.attribution import LeaveOneOutExpectedDifferential
 
 # Quantify manager value-add / cohort differential
 loo_ed_model = LeaveOneOutExpectedDifferential(
@@ -507,7 +602,7 @@ ed_series = loo_ed_model.transform(
                 </p>
                 $$(1 - L)^d = \sum_{k=0}^{\infty} (-1)^k \binom{d}{k} L^k = 1 - dL + \frac{d(d-1)}{2!} L^2 - \frac{d(d-1)(d-2)}{3!} L^3 + \dots$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.memory import fractional_difference, scan_fractional_differencing
+                <pre><code class="language-python">from people_analytics_toolkit.memory import fractional_difference, scan_fractional_differencing
 
 # Compute fractional differencing on workforce headcount or demand series
 fd_series = fractional_difference(
@@ -539,7 +634,7 @@ scan_results_df = scan_fractional_differencing(
                 </p>
                 $$W_i(t) = \sum_{e \in E_i} w_e \cdot \exp\left(-\frac{\ln(2)}{\tau} (t - t_e)\right)$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.memory import weighted_weeks_since
+                <pre><code class="language-python">from people_analytics_toolkit.memory import weighted_weeks_since
 
 # Calculate continuous decaying recognition capital
 decay_df = weighted_weeks_since(
@@ -573,7 +668,7 @@ decay_df = weighted_weeks_since(
                 </p>
                 $$y_t = \alpha x_t + (1 - \alpha) y_{t-1}, \quad \alpha = \frac{2}{\text{span} + 1}$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.memory import calculate_ewma, calculate_ewms, scan_ewma_spans
+                <pre><code class="language-python">from people_analytics_toolkit.memory import calculate_ewma, calculate_ewms, scan_ewma_spans
 
 # Continuous variable EWMA
 traffic_ewma = calculate_ewma(
@@ -610,7 +705,7 @@ incidents_ewms = calculate_ewms(
                     <strong>Business Context:</strong> Enterprise workforce demand exhibits both long-term staffing growth (trend) and cyclical holiday or fiscal cycles (seasonality). Holt-Winters separates baseline level, slope trend, and seasonal components, enabling reliable multi-step headcount projections.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.memory import double_exponential_smoothing, triple_exponential_smoothing
+                <pre><code class="language-python">from people_analytics_toolkit.memory import double_exponential_smoothing, triple_exponential_smoothing
 
 # Triple exponential smoothing with additive seasonality and trend damping
 smoothed_s, forecast_df, hw_res = triple_exponential_smoothing(
@@ -641,7 +736,7 @@ smoothed_s, forecast_df, hw_res = triple_exponential_smoothing(
                 </p>
                 $$\hat{S}(t) = \prod_{t_i \leq t} \left(1 - \frac{d_i}{n_i}\right), \quad \hat{H}(t) = \sum_{t_i \leq t} \frac{d_i}{n_i}$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.memory import fit_hazard_embeddings, HazardEmbeddingTransformer
+                <pre><code class="language-python">from people_analytics_toolkit.memory import fit_hazard_embeddings, HazardEmbeddingTransformer
 
 # Fit non-parametric survival and hazard models on employee census
 embedded_roster, hazard_models = fit_hazard_embeddings(
@@ -663,7 +758,7 @@ embedded_roster, hazard_models = fit_hazard_embeddings(
                     <strong>Business Context:</strong> Enterprise feature stores require consistent, reproducible feature pipelines that aggregate multiple operational signals across varying horizons (4, 12, 26, 52 weeks) without ad-hoc code duplication. This pipeline provides declarative multi-horizon rolling statistics.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.memory import compute_rolling_metrics, RollingMetricConfig, RollingMetricsPipeline
+                <pre><code class="language-python">from people_analytics_toolkit.memory import compute_rolling_metrics, RollingMetricConfig, RollingMetricsPipeline
 
 # Declarative multi-horizon cohort rolling feature generation
 rolling_df = compute_rolling_metrics(
@@ -687,7 +782,7 @@ rolling_df = compute_rolling_metrics(
                     <strong>Business Context:</strong> Moving averages inevitably introduce phase lag, delaying the detection of operational shifts. Singular Spectrum Analysis (SSA) embeds the 1D time-series into a multidimensional trajectory Hankel matrix and applies SVD decomposition to reconstruct a clean, lag-free baseline trajectory.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.memory import singular_spectrum_analysis, SingularSpectrumAnalysis
+                <pre><code class="language-python">from people_analytics_toolkit.memory import singular_spectrum_analysis, SingularSpectrumAnalysis
 
 # Extract lag-free signal baseline via Hankel SVD
 ssa_results = singular_spectrum_analysis(
@@ -710,7 +805,7 @@ ssa_results = singular_spectrum_analysis(
                     <strong>Business Context:</strong> Time-series forecasting for store-level turnover and headcount requires historical autoregressive anchors. Computing hierarchical lags within each organizational unit prevents cross-entity leakage across store boundaries.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.memory import compute_lag_features
+                <pre><code class="language-python">from people_analytics_toolkit.memory import compute_lag_features
 
 # Generate group-aware autoregressive lag features
 lagged_df = compute_lag_features(
@@ -733,7 +828,7 @@ lagged_df = compute_lag_features(
                     <strong>Business Context:</strong> Executive leadership monitors growth velocities: Year-over-Year (YoY), Month-over-Month (MoM), and Week-over-Week (WoW) percent changes. This function computes absolute deltas and relative growth rates across user-specified multi-horizons.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.memory import compute_differencing_features
+                <pre><code class="language-python">from people_analytics_toolkit.memory import compute_differencing_features
 
 # Multi-horizon growth velocities
 diff_df = compute_differencing_features(
@@ -769,7 +864,7 @@ diff_df = compute_differencing_features(
                 </p>
                 $$H(X) = -\sum_{k=1}^{K} p_k \log_2(p_k), \quad H_{\text{norm}}(X) = \frac{H(X)}{\log_2(K)} \in [0, 1]$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.chaos import rolling_shannon_entropy, calculate_shannon_entropy
+                <pre><code class="language-python">from people_analytics_toolkit.chaos import rolling_shannon_entropy, calculate_shannon_entropy
 
 # Compute per-associate rolling scheduling entropy
 entropy_series = rolling_shannon_entropy(
@@ -797,7 +892,7 @@ entropy_series = rolling_shannon_entropy(
                 </p>
                 $$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2, \quad \alpha + \beta &lt; 1$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.chaos import fit_garch_volatility, rolling_garch_volatility, GARCHVolatilityModel
+                <pre><code class="language-python">from people_analytics_toolkit.chaos import fit_garch_volatility, rolling_garch_volatility, GARCHVolatilityModel
 
 # Fit GARCH(1,1) model to unexpected scheduling variance residuals
 cond_vol, garch_res = fit_garch_volatility(
@@ -824,7 +919,7 @@ cond_vol, garch_res = fit_garch_volatility(
                 </p>
                 $$\lambda(t) = \mu + \sum_{t_i &lt; t} \alpha \cdot \exp(-\beta(t - t_i))$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.chaos import HawkesProcessContagion
+                <pre><code class="language-python">from people_analytics_toolkit.chaos import HawkesProcessContagion
 
 # Initialize Hawkes contagion model
 hawkes = HawkesProcessContagion(
@@ -855,7 +950,7 @@ contagion_intensity = hawkes.predict_intensity(
                     <strong>Business Context:</strong> Organizations transition through unobserved operational regimes: Stable Operations, Acute Crisis (e.g., peak holiday rush with high overtime and callouts), and Post-Crisis Recovery. A Gaussian Hidden Markov Model infers these hidden states from multivariate operational emissions.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.chaos import fit_workforce_hmm_regimes, WorkforceHMMRegimes
+                <pre><code class="language-python">from people_analytics_toolkit.chaos import fit_workforce_hmm_regimes, WorkforceHMMRegimes
 
 # Uncover latent operational regimes via multivariate Gaussian HMM
 regime_df, trans_matrix, hmm_meta = fit_workforce_hmm_regimes(
@@ -882,7 +977,7 @@ regime_df, trans_matrix, hmm_meta = fit_workforce_hmm_regimes(
                 </p>
                 $$B = S^2 \times D$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.chaos import calculate_bradford_score, classify_bradford_risk
+                <pre><code class="language-python">from people_analytics_toolkit.chaos import calculate_bradford_score, classify_bradford_risk
 
 # Calculate Bradford friction score
 b_score = calculate_bradford_score(
@@ -919,7 +1014,7 @@ risk_tier = classify_bradford_risk(
                 </p>
                 $$\mathcal{L}(x, \hat{x}) = \frac{1}{D} \sum_{d=1}^{D} (x_d - \hat{x}_d)^2$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.anomalies import AutoencoderWeirdnessDetector
+                <pre><code class="language-python">from people_analytics_toolkit.anomalies import AutoencoderWeirdnessDetector
 
 # Train deep bottleneck autoencoder on multidimensional store profiles
 detector = AutoencoderWeirdnessDetector(
@@ -945,7 +1040,7 @@ weirdness_scores = detector.fit_transform(
                     <strong>Business Context:</strong> Global outlier models fail when data clusters into regions of varying density (e.g., engineering salaries vs retail store wages). An executive earning $250k is normal; an entry-level clerk earning $140k in a low-cost region is a local anomaly. LOF evaluates an associate's local reachability density against their \(k\)-nearest neighbors.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.anomalies import fit_pyod_local_outlier_factor, PyODLocalOutlierFactor
+                <pre><code class="language-python">from people_analytics_toolkit.anomalies import fit_pyod_local_outlier_factor, PyODLocalOutlierFactor
 
 # Fit density-based local outlier detection on compensation velocity
 lof_scores, is_outlier, lof_meta = fit_pyod_local_outlier_factor(
@@ -971,7 +1066,7 @@ lof_scores, is_outlier, lof_meta = fit_pyod_local_outlier_factor(
                 </p>
                 $$D_{\text{KL}}(P \parallel Q) = \sum_{k=1}^{K} P(k) \ln\left(\frac{P(k)}{Q(k) + \epsilon}\right)$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.anomalies import calculate_kl_divergence, calculate_jensen_shannon_divergence
+                <pre><code class="language-python">from people_analytics_toolkit.anomalies import calculate_kl_divergence, calculate_jensen_shannon_divergence
 
 # Calculate organizational staffing mix divergence from corporate benchmark
 kl_drift = calculate_kl_divergence(
@@ -998,7 +1093,7 @@ js_drift = calculate_jensen_shannon_divergence(
                     <strong>Business Context:</strong> Comparing seasonal staffing patterns across retail locations requires temporal flexibility. Store A might experience its holiday hiring rush in week 44, while Store B experiences it in week 46 due to regional weather. Euclidean distance misclassifies them as divergent; DTW non-linearly aligns the time axes.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.anomalies import compute_dtw_distance
+                <pre><code class="language-python">from people_analytics_toolkit.anomalies import compute_dtw_distance
 
 # Non-linearly align seasonal curves
 dtw_dist = compute_dtw_distance(
@@ -1020,7 +1115,7 @@ dtw_dist = compute_dtw_distance(
                     <strong>Business Context:</strong> Career paths consist of ordered sequences of roles, certifications, and project assignments. An associate moving from [Sales Rep &rarr; Team Lead &rarr; Manager] follows a standard trajectory. LCSS and EDR measure similarity between real-valued career sequences under noise and gaps.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.anomalies import compute_lcss_distance, compute_edr_distance
+                <pre><code class="language-python">from people_analytics_toolkit.anomalies import compute_lcss_distance, compute_edr_distance
 
 # Compute sequence distance on career trajectory codes
 lcss_distance = compute_lcss_distance(
@@ -1052,7 +1147,7 @@ edr_distance = compute_edr_distance(
                 </p>
                 $$D_M(x) = \sqrt{(x - \mu)^T \Sigma^{-1} (x - \mu)}$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.anomalies import calculate_mahalanobis_distance
+                <pre><code class="language-python">from people_analytics_toolkit.anomalies import calculate_mahalanobis_distance
 
 # Compute covariance-scaled anomaly distance
 mahalanobis_scores = calculate_mahalanobis_distance(
@@ -1085,7 +1180,7 @@ mahalanobis_scores = calculate_mahalanobis_distance(
                 </p>
                 $$L(a, b) = \frac{a - b}{\ln(a) - \ln(b)}, \quad \Delta R = \Delta R_{\text{rate}} + \Delta R_{\text{mix}} \quad (\text{Residual} \equiv 0)$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.attribution import lmdi_rate_mix_decomposition, logarithmic_mean
+                <pre><code class="language-python">from people_analytics_toolkit.attribution import lmdi_rate_mix_decomposition, logarithmic_mean
 
 # Decompose aggregate turnover shift into rate vs mix effects
 breakdown_df, total_effects = lmdi_rate_mix_decomposition(
@@ -1110,7 +1205,7 @@ breakdown_df, total_effects = lmdi_rate_mix_decomposition(
                     <strong>Business Context:</strong> Individual feature importances miss toxic synergies. For example, high overtime alone might increase turnover risk by +10%; a poor manager alone might increase risk by +15%. Combined, they might increase risk by +60%. SHAP interaction values decompose tree model predictions into main effects and pure pairwise non-linear synergies based on game-theoretic Shapley values.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.attribution import compute_shap_interaction_matrix
+                <pre><code class="language-python">from people_analytics_toolkit.attribution import compute_shap_interaction_matrix
 
 # Compute exact TreeSHAP pairwise interaction matrix
 interaction_matrix = compute_shap_interaction_matrix(
@@ -1132,7 +1227,7 @@ interaction_matrix = compute_shap_interaction_matrix(
                     <strong>Business Context:</strong> Presenting raw correlation numbers to leadership without statistical significance tests invites faulty policy decisions. This module computes comprehensive correlation reports including Pearson, Spearman rank, and Kendall tau statistics, complete with Fisher \(z\)-transformed 95% confidence intervals and exact \(p\)-values.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.attribution import correlation_heatmap_df
+                <pre><code class="language-python">from people_analytics_toolkit.attribution import correlation_heatmap_df
 
 # Generate auditable correlation matrix with p-values and confidence bounds
 corr_report_df = correlation_heatmap_df(
@@ -1162,7 +1257,7 @@ corr_report_df = correlation_heatmap_df(
                     <strong>Business Context:</strong> Standard talent analytics treats job titles as independent strings. However, "Senior Financial Analyst" shares latent competencies with "Operations Research Associate." By sampling career paths as transition walks through an organizational graph, Word2Vec/Skip-gram embeddings learn dense vector representations where cosine similarity directly mirrors internal mobility feasibility.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.mobility import CareerMovementEmbeddings, get_role_similarity_matrix
+                <pre><code class="language-python">from people_analytics_toolkit.mobility import CareerMovementEmbeddings, get_role_similarity_matrix
 
 # Learn latent role vector representations from historical internal mobility logs
 embedder = CareerMovementEmbeddings(
@@ -1194,7 +1289,7 @@ role_sim_df = get_role_similarity_matrix(embedder)</code></pre>
                     <strong>Business Context:</strong> Feature impact is rarely linear. Overtime might have zero impact on retention up to 5 hours/week, moderate impact from 5 to 12 hours, and exponential turnover risk beyond 12 hours. Spline-fitting SHAP dependence plots detects the exact mathematical zero-crossing inflection point (\(\text{SHAP}(x) = 0\)), providing actionable operational ceilings for managerial policies.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.attribution import extract_shap_inflection_thresholds
+                <pre><code class="language-python">from people_analytics_toolkit.attribution import extract_shap_inflection_thresholds
 
 # Detect exact zero-crossing tipping points from SHAP values
 inflections, curves_df = extract_shap_inflection_thresholds(
@@ -1221,7 +1316,7 @@ inflections, curves_df = extract_shap_inflection_thresholds(
                     <strong>Business Context:</strong> An associate who has spent 36 months in an entry-level role whose median promotion time is 18 months experiences severe psychological stagnation. The Stagnation Index normalizes raw time-in-position against the empirical job family median, identifying associates at imminent risk of departure due to blocked mobility.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.mobility import calculate_time_in_position, calculate_stagnation_index
+                <pre><code class="language-python">from people_analytics_toolkit.mobility import calculate_time_in_position, calculate_stagnation_index
 
 # Compute stagnation index relative to job family benchmarks
 stagnation_df = calculate_stagnation_index(
@@ -1256,7 +1351,7 @@ stagnation_df = calculate_stagnation_index(
                 </p>
                 $$\text{Compa-Ratio} = \frac{\text{Base Salary}}{\text{Salary Band Midpoint}}$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.compensation import calculate_compa_ratio
+                <pre><code class="language-python">from people_analytics_toolkit.compensation import calculate_compa_ratio
 
 # Calculate scale-free Compa-Ratio
 compa_series = calculate_compa_ratio(
@@ -1276,7 +1371,7 @@ compa_series = calculate_compa_ratio(
                 </p>
                 $$\text{Range Penetration} = \frac{\text{Base Salary} - \text{Band Minimum}}{\text{Band Maximum} - \text{Band Minimum}}$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.compensation import (
+                <pre><code class="language-python">from people_analytics_toolkit.compensation import (
     calculate_range_penetration,
     classify_pay_band_status,
     is_red_circled,
@@ -1319,7 +1414,7 @@ audit_status = classify_pay_band_status(
                 </p>
                 $$C_B(v) = \sum_{s \neq v \neq t} \frac{\sigma_{st}(v)}{\sigma_{st}}$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.ona import calculate_betweenness_centrality
+                <pre><code class="language-python">from people_analytics_toolkit.ona import calculate_betweenness_centrality
 
 # Quantify cross-silo information brokerage
 betweenness_dict = calculate_betweenness_centrality(
@@ -1340,7 +1435,7 @@ betweenness_dict = calculate_betweenness_centrality(
                 </p>
                 $$\lambda x_v = \sum_{u \in N(v)} A_{vu} x_u$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.ona import calculate_eigenvector_centrality
+                <pre><code class="language-python">from people_analytics_toolkit.ona import calculate_eigenvector_centrality
 
 # Compute informal influence hub scores via power iteration
 eigenvector_dict = calculate_eigenvector_centrality(
@@ -1362,7 +1457,7 @@ eigenvector_dict = calculate_eigenvector_centrality(
                 </p>
                 $$C_i = \sum_{j} c_{ij}, \quad c_{ij} = \left(p_{ij} + \sum_{q \neq i \neq j} p_{iq} p_{qj}\right)^2$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.ona import calculate_burt_constraint
+                <pre><code class="language-python">from people_analytics_toolkit.ona import calculate_burt_constraint
 
 # Calculate Ronald Burt network constraint index
 constraint_dict = calculate_burt_constraint(
@@ -1379,7 +1474,7 @@ constraint_dict = calculate_burt_constraint(
                     <strong>Business Context:</strong> Local graph metrics miss global organizational diversity. Leinster metric space magnitude treats the enterprise graph as a metric space with similarity kernel \(Z_{uv} = \exp(-d(u,v))\). Solving the system \(Z \mathbf{w} = \mathbf{1}\) yields Euler weights \(\mathbf{w}\), quantifying each associate's non-redundant structural contribution to global organizational capital.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.ona import calculate_euler_centrality, compute_complete_ona_profile
+                <pre><code class="language-python">from people_analytics_toolkit.ona import calculate_euler_centrality, compute_complete_ona_profile
 
 # Compute Leinster magnitude Euler weights
 euler_scores = calculate_euler_centrality(
@@ -1401,7 +1496,7 @@ full_ona_df = compute_complete_ona_profile(G=enterprise_collaboration_graph)</co
                     <strong>Business Context:</strong> Managerial span of control directly influences associate attrition. When restructuring leaves a manager with 22 direct reports instead of 7, 1-on-1 coaching evaporates, causing associate flight risk to surge. This module extracts hierarchical spans and evaluates reorganization shocks.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.ona import calculate_span_of_control, evaluate_span_reorganization_shock
+                <pre><code class="language-python">from people_analytics_toolkit.ona import calculate_span_of_control, evaluate_span_reorganization_shock
 
 # Extract reporting hierarchy spans
 spans_df = calculate_span_of_control(
@@ -1444,7 +1539,7 @@ reorg_shock_df = evaluate_span_reorganization_shock(
                 </p>
                 $$\bar{Y}_A - \bar{Y}_B = (\bar{X}_A - \bar{X}_B)\hat{\beta}^* + \left[ \bar{X}_A(\hat{\beta}_A - \hat{\beta}^*) + \bar{X}_B(\hat{\beta}^* - \hat{\beta}_B) \right]$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.equity import oaxaca_blinder_decomposition, OaxacaBlinderResult
+                <pre><code class="language-python">from people_analytics_toolkit.equity import oaxaca_blinder_decomposition, OaxacaBlinderResult
 
 # Perform econometric pay gap decomposition
 ob_result = oaxaca_blinder_decomposition(
@@ -1475,7 +1570,7 @@ ob_result = oaxaca_blinder_decomposition(
                 </p>
                 $$\Delta_{\text{DP}} = |P(\hat{Y}=1 \mid A=1) - P(\hat{Y}=1 \mid A=0)| \leq \epsilon$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.equity import demographic_parity_difference, demographic_parity_ratio
+                <pre><code class="language-python">from people_analytics_toolkit.equity import demographic_parity_difference, demographic_parity_ratio
 
 # Evaluate selection parity differences across protected attributes
 dp_diff = demographic_parity_difference(
@@ -1500,7 +1595,7 @@ dp_ratio = demographic_parity_ratio(
                 </p>
                 $$P(\hat{Y}=1 \mid A=1, Y=y) = P(\hat{Y}=1 \mid A=0, Y=y) \quad \forall y \in \{0, 1\}$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.equity import equalized_odds_difference, ExponentiatedGradientFairness
+                <pre><code class="language-python">from people_analytics_toolkit.equity import equalized_odds_difference, ExponentiatedGradientFairness
 from sklearn.linear_model import LogisticRegression
 
 # Audit equalized odds disparity
@@ -1527,7 +1622,7 @@ fair_classifier.fit(X=X_train, y=y_train, sensitive_features=gender_train)</code
                     <strong>Business Context:</strong> Group fairness metrics can be satisfied while still treating similar individuals unfairly (e.g., flipping decisions for two identical candidates). Dwork's Individual Fairness principle dictates: "Similar individuals must receive similar outcomes." This module calculates local Lipschitz neighborhood predictive concordance in job qualification space.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.equity import compute_individual_fairness_consistency
+                <pre><code class="language-python">from people_analytics_toolkit.equity import compute_individual_fairness_consistency
 
 # Evaluate local individual predictive consistency across qualification neighbors
 local_cons, global_cons, audit_meta = compute_individual_fairness_consistency(
@@ -1562,7 +1657,7 @@ local_cons, global_cons, audit_meta = compute_individual_fairness_consistency(
                 </p>
                 $$\hat{\tau}_{\text{AIPW}} = \frac{1}{N} \sum_{i=1}^{N} \left[ \hat{\mu}_1(X_i) - \hat{\mu}_0(X_i) + \frac{W_i(Y_i - \hat{\mu}_1(X_i))}{\hat{e}(X_i)} - \frac{(1 - W_i)(Y_i - \hat{\mu}_0(X_i))}{1 - \hat{e}(X_i)} \right]$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.prescriptive import aipw_estimator, AIPWResult
+                <pre><code class="language-python">from people_analytics_toolkit.prescriptive import aipw_estimator, AIPWResult
 
 # Estimate true causal Average Treatment Effect (ATE) with double robustness
 aipw_res = aipw_estimator(
@@ -1585,7 +1680,7 @@ aipw_res = aipw_estimator(
                     <strong>Business Context:</strong> When an enterprise rolls out a new workplace policy (e.g., a 4-day workweek or scheduling app) in a single market, standard Difference-in-Differences (DiD) fails if the parallel trends assumption is violated. Synthetic DiD combines unit weights (creating a synthetic control twin) with time weights (re-weighting pre-intervention periods), delivering robust policy evaluation on panel data.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.prescriptive import synthetic_difference_in_differences
+                <pre><code class="language-python">from people_analytics_toolkit.prescriptive import synthetic_difference_in_differences
 
 # Evaluate panel policy intervention effect
 sdid_res = synthetic_difference_in_differences(
@@ -1611,7 +1706,7 @@ sdid_res = synthetic_difference_in_differences(
                 </p>
                 $$\tilde{Y} = Y - \hat{\mathbb{E}}[Y \mid X], \quad \tilde{W} = W - \hat{\mathbb{E}}[W \mid X], \quad \tau(x) = \arg\min_\tau \mathbb{E}\left[(\tilde{Y} - \tau(X)\tilde{W})^2\right]$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.prescriptive import CausalForestDML
+                <pre><code class="language-python">from people_analytics_toolkit.prescriptive import CausalForestDML
 
 # Train honest Causal Forest DML to estimate personalized treatment effects
 cf_dml = CausalForestDML(
@@ -1640,7 +1735,7 @@ individual_cate = cf_dml.predict_cate(X=associate_covariates_df)</code></pre>
                     <strong>Business Context:</strong> ROC-AUC is useless for prescriptive targeting. An organization needs to prioritize the "Persuadables" (who only retain if treated) over "Sure Things" or "Lost Causes." The Qini curve sorts associates by predicted uplift and plots cumulative incremental gains over random targeting, quantifying the Area Under the Uplift Curve (AUUC).
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.prescriptive import qini_curve, area_under_uplift_curve, doubly_robust_uplift_eval
+                <pre><code class="language-python">from people_analytics_toolkit.prescriptive import qini_curve, area_under_uplift_curve, doubly_robust_uplift_eval
 
 # Compute cumulative Qini targeting curve
 qini_df = qini_curve(
@@ -1677,7 +1772,7 @@ dr_eval = doubly_robust_uplift_eval(
                     <strong>Business Context:</strong> When testing a retention initiative in a single flagship location, finding an identical control store is impossible. Synthetic Control solves a convex optimization problem to find a weighted combination of donor control stores that perfectly mirrors the pre-treatment trajectory of the pilot unit.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.prescriptive import build_synthetic_control_twin, compute_synthetic_control_weights
+                <pre><code class="language-python">from people_analytics_toolkit.prescriptive import build_synthetic_control_twin, compute_synthetic_control_weights
 
 # Construct synthetic control twin for pilot retail store
 synth_twin_df = build_synthetic_control_twin(
@@ -1708,7 +1803,7 @@ synth_twin_df = build_synthetic_control_twin(
                 </p>
                 $$\min_{W} \frac{1}{2n} \|X - XW\|_F^2 + \lambda_1 \|W\|_1 \quad \text{s.t.} \quad h(W) = \text{tr}\left(e^{W \circ W}\right) - d = 0$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.prescriptive import (
+                <pre><code class="language-python">from people_analytics_toolkit.prescriptive import (
     compute_directed_causal_edge_weights,
     diagnose_causal_confounding,
     notears_linear
@@ -1761,7 +1856,7 @@ confounding_diag = diagnose_causal_confounding(
                 </p>
                 $$\mathbf{P}(t) = \exp(\mathbf{Q} t) = \sum_{k=0}^{\infty} \frac{(\mathbf{Q} t)^k}{k!}, \quad \mathbb{E}[\text{Sojourn}_i] = -\frac{1}{q_{ii}}$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.trajectories import ContinuousTimeMarkovChain
+                <pre><code class="language-python">from people_analytics_toolkit.trajectories import ContinuousTimeMarkovChain
 
 # Initialize CTMC with career grade states
 ctmc = ContinuousTimeMarkovChain(
@@ -1791,7 +1886,7 @@ sojourn_times = ctmc.expected_sojourn_times()</code></pre>
                     <strong>Business Context:</strong> An enterprise graph contains multiple entity types: Employees, Skills, and Projects. Unconstrained random walks produce meaningless traversals. Meta-path biased random walks force paths to follow specific organizational semantic templates (such as <code>Employee &rarr; Project &rarr; Employee</code> for collaboration affinity, or <code>Employee &rarr; Skill &rarr; Employee</code> for skill complementarity).
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.trajectories import generate_metapath_walks
+                <pre><code class="language-python">from people_analytics_toolkit.trajectories import generate_metapath_walks
 
 # Generate semantic meta-path random walks over heterogeneous multigraph
 sampled_walks = generate_metapath_walks(
@@ -1814,7 +1909,7 @@ sampled_walks = generate_metapath_walks(
                     <strong>Business Context:</strong> Traditional team staffing matches associates by keyword search. Metapath2Vec applies heterogeneous Skip-gram embedding with negative sampling to the meta-path walk corpus generated in Feature 47. The resulting latent embeddings capture deep organizational complementarity, enabling algorithmic team formation and cross-functional staffing.
                 </p>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.trajectories import Metapath2Vec
+                <pre><code class="language-python">from people_analytics_toolkit.trajectories import Metapath2Vec
 
 # Train heterogeneous graph embedding model
 mp2v = Metapath2Vec(
@@ -1843,7 +1938,7 @@ node_embeddings = mp2v.fit_transform(
                 </p>
                 $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
-                <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code>from people_analytics_toolkit.trajectories import DynamicEntitySelfAttention
+                <pre><code class="language-python">from people_analytics_toolkit.trajectories import DynamicEntitySelfAttention
 
 # Initialize multi-head self-attention trajectory aggregator
 attention_aggregator = DynamicEntitySelfAttention(
@@ -1866,6 +1961,11 @@ agg_vector, attn_weights = attention_aggregator.aggregate(
             <!-- ========================================== -->
             <!-- CONCLUSION & PACKAGE DEPLOYMENT -->
             <!-- ========================================== -->
+                        <figure style="margin: 3rem auto 2rem auto; text-align: center; max-width: 650px;">
+                <img src="advanced-people-analytics-features/toby_1.jpeg" alt="HR Analytics in Practice - Toby Flenderson" class="hero-thumbnail-img">
+                <figcaption>"There is no such thing as an appropriate joke. That's why it's called a joke." - Moving Human Resources away from legacy friction and exit questionnaires toward automated, mathematically robust People Analytics.</figcaption>
+            </figure>
+
             <section>
                 <h2>Conclusion &amp; Production Deployment Recommendations</h2>
                 <p>
@@ -1885,7 +1985,7 @@ agg_vector, attn_weights = attention_aggregator.aggregate(
         </main>
 
         <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #e2e8f0; font-size: 0.88rem; color: #64748b; text-align: center;">
-            <p>&copy; 2026 Sam Tritto. Built for the People Analytics and Data Science Community.</p>
+            <p>Open Source Project released under the MIT License &bull; Built for the People Analytics and Data Science Community.</p>
         </footer>
     </div>
 
@@ -1895,24 +1995,54 @@ agg_vector, attn_weights = attention_aggregator.aggregate(
         <img id="lightbox-img" src="" alt="Expanded View">
     </div>
 
+    <!-- Syntax Highlighting (PrismJS) & Copy Button Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
     <script>
-        // Interactive Code Block Copy Functionality
-        function copyCode(btn) {
-            const pre = btn.parentElement;
-            const code = pre.querySelector('code');
-            const originalText = btn.innerText;
-            navigator.clipboard.writeText(code.innerText).then(() => {
-                btn.innerText = 'Copied!';
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.classList.remove('copied');
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy code: ', err);
-            });
-        }
+        // Inject copy buttons dynamically
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('pre').forEach((preBlock) => {
+                if (preBlock.querySelector('.copy-btn')) return;
 
+                const button = document.createElement('button');
+                button.className = 'copy-btn';
+                button.type = 'button';
+                button.setAttribute('aria-label', 'Copy code to clipboard');
+                button.innerHTML = `
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg> Copy`;
+
+                button.addEventListener('click', async () => {
+                    const code = preBlock.querySelector('code');
+                    const text = code ? code.innerText : preBlock.innerText;
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        button.classList.add('copied');
+                        button.innerHTML = `
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg> Copied!`;
+                        setTimeout(() => {
+                            button.classList.remove('copied');
+                            button.innerHTML = `
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg> Copy`;
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                    }
+                });
+
+                preBlock.appendChild(button);
+            });
+        });
+    </script>
+    <script>
         // Full-Window Lightbox Modal Handling
         const modal = document.getElementById('lightbox-modal');
         const modalImg = document.getElementById('lightbox-img');
