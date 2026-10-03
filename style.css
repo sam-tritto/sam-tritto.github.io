@@ -362,18 +362,77 @@ body {
 }
 
 .post-back-container {
-    margin-bottom: 2rem;
+    margin-bottom: 2.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.post-back {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 500;
+/* Prominent filled rectangular button for all Back to Projects / Back to Portfolio buttons */
+.post-back-btn,
+a.post-back[href*="index.html"],
+a.post-back[href*="more-projects.html"],
+.post-back-container > a:first-child:not([target="_blank"]) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--primary-color, #30406e) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    padding: 0.65rem 1.35rem;
+    border-radius: 6px;
     font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.3;
+    border: 1px solid var(--primary-color, #30406e) !important;
+    box-shadow: 0 2px 6px rgba(48, 64, 110, 0.25);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
 }
 
-.post-back:hover {
-    text-decoration: underline;
+.post-back-btn:hover,
+a.post-back[href*="index.html"]:hover,
+a.post-back[href*="more-projects.html"]:hover,
+.post-back-container > a:first-child:not([target="_blank"]):hover {
+    background-color: var(--primary-hover, #263358) !important;
+    border-color: var(--primary-hover, #263358) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(48, 64, 110, 0.35);
+}
+
+/* Secondary action links on the right (GitHub, PyPI, etc.) */
+.post-action-link,
+.post-back-container a[target="_blank"],
+.post-back-container div a.post-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--primary-color, #30406e) !important;
+    border: 1px solid var(--border-color, #e5e7eb);
+    background-color: #ffffff;
+    padding: 0.55rem 1.05rem;
+    border-radius: 6px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    line-height: 1.3;
+    text-decoration: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.post-action-link:hover,
+.post-back-container a[target="_blank"]:hover,
+.post-back-container div a.post-back:hover {
+    background-color: var(--bg-alt, #f8f9fa);
+    border-color: #cbd5e1;
+    color: var(--primary-hover, #263358) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    text-decoration: none !important;
 }
 
 .post-content {
