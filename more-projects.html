@@ -197,8 +197,12 @@
                         
                         const isAsset = p.image.startsWith('assets/') || p.image.startsWith('http');
                         const imgSrc = isAsset ? p.image : `projects/${p.image}`;
-                        const fitType = (p.slug === 'bayesian-cortex-agent-routing.html' || p.slug === 'battle-beach-thrillers-tabfm-catboost.html' || p.slug === 'advanced-people-analytics-features.html') ? 'cover' : 'contain';
-                        const imageHtml = p.image ? `<img src="${imgSrc}" alt="${p.title}" class="project-thumb" style="object-fit: ${fitType}; background-color: #f8f9fc;" fetchpriority="high">` : '';
+                        const isLogo = (p.slug === 'advanced-people-analytics-features.html');
+                        const fitType = (p.slug === 'bayesian-cortex-agent-routing.html' || p.slug === 'battle-beach-thrillers-tabfm-catboost.html') ? 'cover' : 'contain';
+                        const thumbStyle = isLogo
+                            ? 'object-fit: contain; background-color: #ffffff; padding: 0.85rem; box-sizing: border-box;'
+                            : `object-fit: ${fitType}; background-color: #f8f9fc;`;
+                        const imageHtml = p.image ? `<img src="${imgSrc}" alt="${p.title}" class="project-thumb" style="${thumbStyle}" fetchpriority="high">` : '';
                         
                         return `
                             <a href="${href}"${targetAttr} class="project-card">
