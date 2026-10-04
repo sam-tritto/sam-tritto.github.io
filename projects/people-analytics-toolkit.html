@@ -288,26 +288,95 @@
             <section>
                 <h2>Installation and Core Dependencies</h2>
                 <p>
-                    The <code>people-analytics-toolkit</code> package is built for modern Python (3.11+) and integrates directly with the standard scientific Python ecosystem. You can install it using <code>pip</code>:
+                    The <code>people-analytics-toolkit</code> package is built for modern Python (3.11+) and integrates directly with the standard scientific Python ecosystem.
                 </p>
-                <pre><code class="language-bash">pip install people-analytics-toolkit
 
-# Optional explainability extra (SHAP &amp; LightGBM)
-pip install 'people-analytics-toolkit[explainability]'</code></pre>
+                <h3 style="margin-top: 1.75rem; margin-bottom: 0.5rem; font-size: 1.15rem; color: #1e293b;">From PyPI</h3>
                 <p>
-                    The toolkit leverages standard dependencies:
+                    Install the core framework or include optional feature engineering bundles in square brackets:
+                </p>
+                <pre><code class="language-bash"># Core package (base statistical and mathematical features)
+pip install people-analytics-toolkit
+
+# All optional feature engineering bundles
+pip install "people-analytics-toolkit[all]"
+
+# Or select specific domain bundles
+pip install "people-analytics-toolkit[timeseries,explainability]"</code></pre>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 0.5rem; font-size: 1.15rem; color: #1e293b;">Optional Dependency Bundles</h3>
+                <p>
+                    To keep the base installation lightweight and fast, specialized mathematical and domain-specific dependencies are organized into modular extras:
+                </p>
+                <table class="taxonomy-table">
+                    <thead>
+                        <tr>
+                            <th>Bundle Extra</th>
+                            <th>Included Libraries</th>
+                            <th>Features &amp; Capabilities Enabled</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>[timeseries]</code></td>
+                            <td><code>arch</code>, <code>hmmlearn</code></td>
+                            <td>GARCH(1,1) dynamic volatility indices, Hidden Markov Model (HMM) latent regimes</td>
+                        </tr>
+                        <tr>
+                            <td><code>[anomalies]</code></td>
+                            <td><code>pyod</code></td>
+                            <td>Local Outlier Factor (LOF) and density-based anomaly detectors</td>
+                        </tr>
+                        <tr>
+                            <td><code>[deeplearning]</code></td>
+                            <td><code>torch</code>, <code>pyod</code></td>
+                            <td>Autoencoder reconstruction error, deep trajectory embeddings</td>
+                        </tr>
+                        <tr>
+                            <td><code>[survival]</code></td>
+                            <td><code>lifelines</code></td>
+                            <td>Kaplan-Meier &amp; Nelson-Aalen hazard rate embeddings, survival curves</td>
+                        </tr>
+                        <tr>
+                            <td><code>[explainability]</code></td>
+                            <td><code>shap</code>, <code>lightgbm</code></td>
+                            <td>2D SHAP interaction matrices, turnover risk inflection thresholds</td>
+                        </tr>
+                        <tr>
+                            <td><code>[all]</code></td>
+                            <td><em>All of the above</em></td>
+                            <td>Complete 50-feature analytical and modeling suite</td>
+                        </tr>
+                        <tr>
+                            <td><code>[dev]</code></td>
+                            <td><code>pytest</code>, <code>hypothesis</code>, <code>jupyterlab</code>, <code>mypy</code>, <code>matplotlib</code>, <code>seaborn</code></td>
+                            <td>Development, property testing, CI validation, and interactive notebooks</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 0.5rem; font-size: 1.15rem; color: #1e293b;">Core Foundation Libraries</h3>
+                <p>
+                    The base package installation without extras provides zero-overhead access to core mathematical, econometric, and organizational network formulations:
                 </p>
                 <ul>
-                    <li><strong>pandas &amp; numpy:</strong> Vectorized matrix math, windowing, and high-performance cohort group operations.</li>
-                    <li><strong>scipy &amp; statsmodels:</strong> Econometric estimation, SVD decomposition, and time-series kernel smoothing.</li>
-                    <li><strong>scikit-learn:</strong> Base estimators, cross-validation folds, and manifold metrics.</li>
-                    <li><strong>networkx:</strong> Graph traversal, centrality decomposition, and random walk generation.</li>
-                    <li><strong>arch:</strong> Generalized autoregressive conditional heteroskedasticity (GARCH) volatility modeling.</li>
-                    <li><strong>hmmlearn:</strong> Expectation-maximization fitting of hidden operational regimes.</li>
-                    <li><strong>lifelines:</strong> Non-parametric Kaplan-Meier survival curves and Nelson-Aalen cumulative hazard estimators.</li>
-                    <li><strong>pyod:</strong> Local Outlier Factor density estimation for career velocity tracking.</li>
-                    <li><strong>shap:</strong> TreeSHAP interaction tensors and non-linear zero-crossing inflection detection.</li>
+                    <li><strong>pandas &amp; numpy:</strong> Vectorized matrix math, temporal windowing, and high-performance cohort group operations.</li>
+                    <li><strong>scipy &amp; statsmodels:</strong> Econometric estimation, empirical Bayes shrinkage, SVD decomposition, and time-series kernel smoothing.</li>
+                    <li><strong>scikit-learn:</strong> Estimators, cross-validation splits, and manifold distance metrics.</li>
+                    <li><strong>networkx:</strong> Organizational network graph traversal, centrality decomposition, and random walk generation.</li>
                 </ul>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 0.5rem; font-size: 1.15rem; color: #1e293b;">Local Development with <code>uv</code></h3>
+                <p>
+                    If you are contributing to the codebase, running benchmarks, or validating CI tests locally, synchronize dependencies using <code>uv</code>:
+                </p>
+                <pre><code class="language-bash">cd people-analytics-toolkit
+
+# Sync with all 50-feature mathematical dependencies:
+uv sync --extra all
+
+# Or sync all dependencies including testing, JupyterLab, and dev tooling:
+uv sync --all-extras</code></pre>
             </section>
 
             <hr style="border: 0; border-top: 1px solid var(--border-color, #e2e8f0); margin: 3.5rem 0 2.5rem 0;">
@@ -734,6 +803,7 @@ smoothed_s, forecast_df, hw_res = triple_exponential_smoothing(
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
                 <pre><code class="language-python">from people_analytics_toolkit.memory import fit_hazard_embeddings, HazardEmbeddingTransformer
 
+# Requires: pip install 'people-analytics-toolkit[survival]'
 # Fit non-parametric survival and hazard models on employee census
 embedded_roster, hazard_models = fit_hazard_embeddings(
     roster_df=roster_df,             # Census DataFrame containing tenure and survival status
@@ -890,6 +960,7 @@ entropy_series = rolling_shannon_entropy(
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
                 <pre><code class="language-python">from people_analytics_toolkit.chaos import fit_garch_volatility, rolling_garch_volatility, GARCHVolatilityModel
 
+# Requires: pip install 'people-analytics-toolkit[timeseries]'
 # Fit GARCH(1,1) model to unexpected scheduling variance residuals
 cond_vol, garch_res = fit_garch_volatility(
     series=scheduling_variance_residuals, # 1D time-series of zero-mean operational shock residuals
@@ -948,6 +1019,7 @@ contagion_intensity = hawkes.predict_intensity(
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
                 <pre><code class="language-python">from people_analytics_toolkit.chaos import fit_workforce_hmm_regimes, WorkforceHMMRegimes
 
+# Requires: pip install 'people-analytics-toolkit[timeseries]'
 # Uncover latent operational regimes via multivariate Gaussian HMM
 regime_df, trans_matrix, hmm_meta = fit_workforce_hmm_regimes(
     df=workforce_telemetry_df,       # Longitudinal multivariate operational telemetry
@@ -1012,6 +1084,7 @@ risk_tier = classify_bradford_risk(
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
                 <pre><code class="language-python">from people_analytics_toolkit.anomalies import AutoencoderWeirdnessDetector
 
+# Requires: pip install 'people-analytics-toolkit[deeplearning]'
 # Train deep bottleneck autoencoder on multidimensional store profiles
 detector = AutoencoderWeirdnessDetector(
     hidden_dims=[32, 16, 8],         # Encoder layer sizes tapering to latent bottleneck (e.g., [64, 32, 16])
@@ -1038,6 +1111,7 @@ weirdness_scores = detector.fit_transform(
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
                 <pre><code class="language-python">from people_analytics_toolkit.anomalies import fit_pyod_local_outlier_factor, PyODLocalOutlierFactor
 
+# Requires: pip install 'people-analytics-toolkit[anomalies]'
 # Fit density-based local outlier detection on compensation velocity
 lof_scores, is_outlier, lof_meta = fit_pyod_local_outlier_factor(
     df=comp_velocity_df,             # Compensation and career progression DataFrame
@@ -1288,6 +1362,7 @@ role_sim_df = get_role_similarity_matrix(embedder)</code></pre>
                 <div class="subheading-code">API Usage &amp; Full Parameter Specification:</div>
                 <pre><code class="language-python">from people_analytics_toolkit.attribution import extract_shap_inflection_thresholds
 
+# Requires: pip install 'people-analytics-toolkit[explainability]'
 # Detect exact zero-crossing tipping points from SHAP values
 inflections, curves_df = extract_shap_inflection_thresholds(
     X=employee_covariates_df,        # Feature matrix
