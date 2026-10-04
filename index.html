@@ -60,7 +60,14 @@
             <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading featured projects...</div>
         </div>
 
-        <h2 style="margin-top: 4rem; margin-bottom: 2rem; color: var(--primary-dark); font-weight: 700;">Featured Software & Open Sourced Projects</h2>
+        <h2 style="margin-top: 4rem; margin-bottom: 2rem; color: var(--primary-dark); font-weight: 700;">Featured Open Sourced Projects</h2>
+
+        <!-- Open Sourced Projects Cards Grid -->
+        <div class="project-list" id="open-source-list">
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading featured open source projects...</div>
+        </div>
+
+        <h2 style="margin-top: 4rem; margin-bottom: 2rem; color: var(--primary-dark); font-weight: 700;">Featured Software</h2>
 
         <!-- Software Cards Grid -->
         <div class="project-list" id="software-list">
@@ -173,6 +180,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const projectList = document.getElementById('project-list');
+            const openSourceList = document.getElementById('open-source-list');
             const softwareList = document.getElementById('software-list');
 
             try {
@@ -188,20 +196,27 @@
                 projects.sort((a, b) => featuredProjectSlugs.indexOf(a.slug) - featuredProjectSlugs.indexOf(b.slug));
                 renderCards(projectList, projects);
 
-                // 2. Featured Software & Open Sourced Projects
-                const featuredSoftwareSlugs = [
-                    'https://www.phonetag.me',
+                // 2. Featured Open Sourced Projects
+                const featuredOpenSourceSlugs = [
+                    'people-analytics-toolkit.html',
                     'bxai-bayesian-feature-selection.html',
                     'bayesian-cortex-agent-routing.html'
                 ];
+                const openSourceProjects = data.filter(p => featuredOpenSourceSlugs.includes(p.slug));
+                openSourceProjects.sort((a, b) => featuredOpenSourceSlugs.indexOf(a.slug) - featuredOpenSourceSlugs.indexOf(b.slug));
+                renderCards(openSourceList, openSourceProjects);
+
+                // 3. Featured Software
+                const featuredSoftwareSlugs = [
+                    'https://www.phonetag.me'
+                ];
                 const software = data.filter(p => featuredSoftwareSlugs.includes(p.slug));
                 software.sort((a, b) => featuredSoftwareSlugs.indexOf(a.slug) - featuredSoftwareSlugs.indexOf(b.slug));
-                
-                // Render software cards
                 renderCards(softwareList, software);
 
             } catch (err) {
                 projectList.innerHTML = '<div style="color: red; text-align: center;">Error loading projects.</div>';
+                if (openSourceList) openSourceList.innerHTML = '<div style="color: red; text-align: center;">Error loading open source projects.</div>';
                 softwareList.innerHTML = '<div style="color: red; text-align: center;">Error loading software.</div>';
                 console.error(err);
             }
