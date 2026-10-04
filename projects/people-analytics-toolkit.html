@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>People Analytics Toolkit: 50 Production-Grade Feature Engineering Formulations - Sam's Data Portfolio</title>
     <meta name="description" content="Official documentation and mathematical tutorial for the people-analytics-toolkit Python package. Covers 50 advanced workforce feature engineering techniques across 11 pillars: Bayesian target shrinkage, Hawkes contagion, GARCH volatility, ONA centrality, Oaxaca-Blinder pay decomposition, CausalForestDML, continuous-time Markov chains, and Metapath2Vec embeddings.">
-    <meta property="og:image" content="advanced-people-analytics-features/thumbnail.png">
-    <meta name="twitter:image" content="advanced-people-analytics-features/thumbnail.png">
+    <meta property="og:image" content="people-analytics-toolkit/thumbnail.png">
+    <meta name="twitter:image" content="people-analytics-toolkit/thumbnail.png">
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -259,7 +259,7 @@
 
         <main class="post-content-area">
                         <figure style="margin: 2rem auto; text-align: center; max-width: 540px;">
-                <img src="advanced-people-analytics-features/logo.png" alt="People Analytics Toolkit Logo" class="hero-thumbnail-img" style="max-height: 290px; width: auto; object-fit: contain; margin: 0 auto; display: block; border: none; box-shadow: none;">
+                <img src="people-analytics-toolkit/logo.png" alt="People Analytics Toolkit Logo" class="hero-thumbnail-img" style="max-height: 290px; width: auto; object-fit: contain; margin: 0 auto; display: block; border: none; box-shadow: none;">
                 <figcaption><strong>people-analytics-toolkit</strong>: A production-grade Python library for workforce intelligence, causal uplift, and talent feature engineering.</figcaption>
             </figure>
 
@@ -281,7 +281,7 @@
             </div>
 
             <figure style="margin: 2.5rem auto; text-align: center; max-width: 650px;">
-                <img src="advanced-people-analytics-features/toby_2.jpeg" alt="HR Analytics in Practice - Toby Flenderson" class="hero-thumbnail-img">
+                <img src="people-analytics-toolkit/toby_2.jpeg" alt="HR Analytics in Practice - Toby Flenderson" class="hero-thumbnail-img">
                 <figcaption>Why is HR the way that it is? Elevating Human Resources from administrative burden into predictive, data-driven workforce intelligence.</figcaption>
             </figure>
 
@@ -507,7 +507,7 @@ test_encoded = bte.transform(
     group_col='store_dept'
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_01_bayesian_target_encoding.png" alt="Bayesian Target Encoding shrinkage curve">
+                    <img src="people-analytics-toolkit/feature_01_bayesian_target_encoding.png" alt="Bayesian Target Encoding shrinkage curve">
                     <figcaption>Figure 1: Empirical Bayes shrinkage curves. Small cohorts (\(n &lt; 15\)) are regularized heavily toward the enterprise base rate, while large cohorts retain their empirical group mean.</figcaption>
                 </figure>
             </div>
@@ -543,7 +543,7 @@ loo_z_series = calculate_grouped_loo_zscore(
     eps=1e-8
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_02_grouped_loo_zscores.png" alt="Grouped Leave-One-Out Z-Scores distribution">
+                    <img src="people-analytics-toolkit/feature_02_grouped_loo_zscores.png" alt="Grouped Leave-One-Out Z-Scores distribution">
                     <figcaption>Figure 2: Distribution of Grouped LOO Z-Scores across operational cohorts, exposing true departmental outliers without focal self-attenuation.</figcaption>
                 </figure>
             </div>
@@ -572,7 +572,7 @@ ed_series = loo_ed_model.transform(
     df=shift_manager_performance_df # DataFrame containing shift and cohort observations
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_03_loo_expected_differential.png" alt="Leave-One-Out Expected Differential distribution">
+                    <img src="people-analytics-toolkit/feature_03_loo_expected_differential.png" alt="Leave-One-Out Expected Differential distribution">
                     <figcaption>Figure 3: Shift manager value-add quantified via LOO-ED, isolating supervisor capability from baseline crew performance.</figcaption>
                 </figure>
             </div>
@@ -612,7 +612,7 @@ scan_results_df = scan_fractional_differencing(
     threshold=1e-4
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_04_fractional_differencing.png" alt="Fractional Differencing ADF stationarity scan">
+                    <img src="people-analytics-toolkit/feature_04_fractional_differencing.png" alt="Fractional Differencing ADF stationarity scan">
                     <figcaption>Figure 4: Fractional differencing memory scan. At \(d=0.42\), the headcount series passes the ADF 95% stationarity threshold while preserving over 78% of original autocorrelation memory.</figcaption>
                 </figure>
             </div>
@@ -646,7 +646,7 @@ decay_df = weighted_weeks_since(
     }
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_05_weighted_weeks_since.png" alt="Weighted Weeks Since Event Decay Trajectories">
+                    <img src="people-analytics-toolkit/feature_05_weighted_weeks_since.png" alt="Weighted Weeks Since Event Decay Trajectories">
                     <figcaption>Figure 5: Tier-weighted recognition decay profiles over 52 operational weeks, tracking the psychological half-life of incentive programs.</figcaption>
                 </figure>
             </div>
@@ -683,11 +683,11 @@ incidents_ewms = calculate_ewms(
     adjust=False                   # False preserves raw cumulative count scaling
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_06_ewma_smoothing.png" alt="EWMA continuous labor hours smoothing">
+                    <img src="people-analytics-toolkit/feature_06_ewma_smoothing.png" alt="EWMA continuous labor hours smoothing">
                     <figcaption>Figure 6: EWMA continuous labor hours filtering across 104 weeks, mitigating short-term noise while tracking macro operational trends.</figcaption>
                 </figure>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_06b_ewms_count_filtering.png" alt="EWMS count data incident stream filtering">
+                    <img src="people-analytics-toolkit/feature_06b_ewms_count_filtering.png" alt="EWMS count data incident stream filtering">
                     <figcaption>Figure 6b: EWMS count data filtering applied to discrete safety incidents, tracking cumulative risk momentum without boundary cliff-effects.</figcaption>
                 </figure>
             </div>
@@ -714,7 +714,7 @@ smoothed_s, forecast_df, hw_res = triple_exponential_smoothing(
     forecast_periods=12             # Number of out-of-sample periods to project forward
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_07_holt_winters_smoothing.png" alt="Holt-Winters double and triple exponential smoothing decomposition">
+                    <img src="people-analytics-toolkit/feature_07_holt_winters_smoothing.png" alt="Holt-Winters double and triple exponential smoothing decomposition">
                     <figcaption>Figure 7: Holt-Winters decomposition of a 3-year weekly workforce demand stream, isolating trend drift and 52-week seasonal hiring peaks.</figcaption>
                 </figure>
             </div>
@@ -740,7 +740,7 @@ embedded_roster, hazard_models = fit_hazard_embeddings(
 )
 # Returns embedded_roster with: 'km_survival_prob', 'na_cum_hazard', 'hazard_quantile_bucket'</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_08_hazard_embeddings.png" alt="Kaplan-Meier survival and Nelson-Aalen hazard curves">
+                    <img src="people-analytics-toolkit/feature_08_hazard_embeddings.png" alt="Kaplan-Meier survival and Nelson-Aalen hazard curves">
                     <figcaption>Figure 8: Kaplan-Meier survival probability and Nelson-Aalen cumulative hazard curves across tenure cohorts, showing the 1-year and 3-year flight risk cliffs.</figcaption>
                 </figure>
             </div>
@@ -764,7 +764,7 @@ rolling_df = compute_rolling_metrics(
     group_col='department_id'        # Cohort grouping key (None for global un-grouped series)
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_09_rolling_metrics_pipeline.png" alt="Configuration-driven rolling metrics pipeline">
+                    <img src="people-analytics-toolkit/feature_09_rolling_metrics_pipeline.png" alt="Configuration-driven rolling metrics pipeline">
                     <figcaption>Figure 9: Multi-horizon rolling metrics generated across department cohorts, showing rolling means, standard deviations, and kurtosis.</figcaption>
                 </figure>
             </div>
@@ -787,7 +787,7 @@ ssa_results = singular_spectrum_analysis(
 )
 # Returns dict: 'reconstructed', 'components', 'singular_values', 'explained_variance'</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_10_singular_spectrum_analysis.png" alt="Singular Spectrum Analysis lag-free SVD reconstruction">
+                    <img src="people-analytics-toolkit/feature_10_singular_spectrum_analysis.png" alt="Singular Spectrum Analysis lag-free SVD reconstruction">
                     <figcaption>Figure 10: Singular Spectrum Analysis (SSA) decomposing noisy daily store foot traffic into trend, harmonic seasonality, and high-frequency noise components.</figcaption>
                 </figure>
             </div>
@@ -810,7 +810,7 @@ lagged_df = compute_lag_features(
     lags=[1, 2, 4, 12, 52]           # Autoregressive lag steps (1-wk, 2-wk, 1-mo, 1-qtr, 1-yr)
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_11_hierarchical_lags.png" alt="Hierarchical lag and autoregressive correlation">
+                    <img src="people-analytics-toolkit/feature_11_hierarchical_lags.png" alt="Hierarchical lag and autoregressive correlation">
                     <figcaption>Figure 11: Hierarchical autoregressive lag structure across store clusters, showing seasonal 52-week correlation and short-term operational persistence.</figcaption>
                 </figure>
             </div>
@@ -834,7 +834,7 @@ diff_df = compute_differencing_features(
     relative=True                    # True returns percentage growth rate: (x_t - x_{t-k}) / x_{t-k}
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_12_differencing_growth_rates.png" alt="Multi-horizon growth rate velocities">
+                    <img src="people-analytics-toolkit/feature_12_differencing_growth_rates.png" alt="Multi-horizon growth rate velocities">
                     <figcaption>Figure 12: Multi-horizon growth rate velocities (WoW, MoM, YoY) capturing acceleration and deceleration in departmental labor allocation.</figcaption>
                 </figure>
             </div>
@@ -870,7 +870,7 @@ entropy_series = rolling_shannon_entropy(
     normalize=True                   # True normalizes by log(K) so entropy ranges strictly in [0.0, 1.0]
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_13_rolling_shannon_entropy.png" alt="Rolling Shannon Entropy Chaos Index">
+                    <img src="people-analytics-toolkit/feature_13_rolling_shannon_entropy.png" alt="Rolling Shannon Entropy Chaos Index">
                     <figcaption>Figure 13: Rolling Shannon Entropy ("Chaos Index") over a 600-shift schedule stream. Sudden spikes reflect severe scheduling volatility prior to associate resignation.</figcaption>
                 </figure>
             </div>
@@ -897,7 +897,7 @@ cond_vol, garch_res = fit_garch_volatility(
 )
 # Returns: cond_vol (conditional volatility series), garch_res (model summary with alpha, beta, omega)</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_14_garch_volatility.png" alt="GARCH(1,1) Dynamic Volatility Index">
+                    <img src="people-analytics-toolkit/feature_14_garch_volatility.png" alt="GARCH(1,1) Dynamic Volatility Index">
                     <figcaption>Figure 14: GARCH(1,1) conditional volatility tracking scheduling instability clusters across an operational distribution center.</figcaption>
                 </figure>
             </div>
@@ -932,7 +932,7 @@ contagion_intensity = hawkes.predict_intensity(
     query_times=evaluation_grid      # Array of query timestamps
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_15_hawkes_contagion.png" alt="Hawkes Process Absence Contagion Intensity">
+                    <img src="people-analytics-toolkit/feature_15_hawkes_contagion.png" alt="Hawkes Process Absence Contagion Intensity">
                     <figcaption>Figure 15: Hawkes process intensity curve tracking absence contagion spikes across a 120-day observation window.</figcaption>
                 </figure>
             </div>
@@ -955,7 +955,7 @@ regime_df, trans_matrix, hmm_meta = fit_workforce_hmm_regimes(
 )
 # Returns: regime_df with 'latent_state' and posterior probabilities, trans_matrix (transition probabilities)</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_16_hmm_regimes.png" alt="Hidden Markov Model Latent Operational Regimes">
+                    <img src="people-analytics-toolkit/feature_16_hmm_regimes.png" alt="Hidden Markov Model Latent Operational Regimes">
                     <figcaption>Figure 16: Gaussian HMM latent operational regimes inferred from callouts, overtime, and schedule churn, identifying critical organizational state transitions.</figcaption>
                 </figure>
             </div>
@@ -984,7 +984,7 @@ risk_tier = classify_bradford_risk(
     score=b_score                    # Returns: 'Low Risk' (<50), 'Moderate Concern' (50-200), 'Severe Disruption' (>200)
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_17_bradford_factor.png" alt="Bradford Factor Absenteeism Friction Score">
+                    <img src="people-analytics-toolkit/feature_17_bradford_factor.png" alt="Bradford Factor Absenteeism Friction Score">
                     <figcaption>Figure 17: Bradford Factor friction surface. Squaring absence spells penalizes intermittent disruptions far more heavily than sustained absences.</figcaption>
                 </figure>
             </div>
@@ -1022,7 +1022,7 @@ weirdness_scores = detector.fit_transform(
     X=store_feature_matrix           # Standardized continuous feature matrix of organizational profiles
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_18_autoencoder_weirdness.png" alt="Autoencoder Reconstruction Error Weirdness Index">
+                    <img src="people-analytics-toolkit/feature_18_autoencoder_weirdness.png" alt="Autoencoder Reconstruction Error Weirdness Index">
                     <figcaption>Figure 18: Autoencoder reconstruction loss distribution isolating structural organizational anomalies on the right tail.</figcaption>
                 </figure>
             </div>
@@ -1044,7 +1044,7 @@ lof_scores, is_outlier, lof_meta = fit_pyod_local_outlier_factor(
     contamination=0.04               # Expected prior proportion of true outliers (e.g., 0.01 to 0.05)
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_19_local_outlier_factor.png" alt="Local Outlier Factor LOF compensation velocity">
+                    <img src="people-analytics-toolkit/feature_19_local_outlier_factor.png" alt="Local Outlier Factor LOF compensation velocity">
                     <figcaption>Figure 19: PyOD Local Outlier Factor separating localized compensation outliers from legitimate tenure progression clusters.</figcaption>
                 </figure>
             </div>
@@ -1075,7 +1075,7 @@ js_drift = calculate_jensen_shannon_divergence(
     q=corporate_benchmark_profile
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_20_kl_divergence_drift.png" alt="Kullback-Leibler Divergence Staffing Drift">
+                    <img src="people-analytics-toolkit/feature_20_kl_divergence_drift.png" alt="Kullback-Leibler Divergence Staffing Drift">
                     <figcaption>Figure 20: KL Divergence ("Drift Index") across stores, highlighting units whose staffing mix has severely diverged from target headcount models.</figcaption>
                 </figure>
             </div>
@@ -1097,7 +1097,7 @@ dtw_dist = compute_dtw_distance(
     distance_metric='euclidean'      # Pointwise distance metric: 'euclidean', 'manhattan', 'sqeuclidean'
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_21_dynamic_time_warping.png" alt="Dynamic Time Warping Seasonal Trajectory Alignment">
+                    <img src="people-analytics-toolkit/feature_21_dynamic_time_warping.png" alt="Dynamic Time Warping Seasonal Trajectory Alignment">
                     <figcaption>Figure 21: Dynamic Time Warping warping path aligning phase-shifted seasonal staffing curves between retail stores.</figcaption>
                 </figure>
             </div>
@@ -1125,7 +1125,7 @@ edr_distance = compute_edr_distance(
     epsilon=1.0
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_22_lcss_edr_sequences.png" alt="LCSS and EDR Career Sequence Trajectories">
+                    <img src="people-analytics-toolkit/feature_22_lcss_edr_sequences.png" alt="LCSS and EDR Career Sequence Trajectories">
                     <figcaption>Figure 22: LCSS and EDR sequence similarity matrices comparing individual associate career progressions against standard talent pipelines.</figcaption>
                 </figure>
             </div>
@@ -1150,7 +1150,7 @@ mahalanobis_scores = calculate_mahalanobis_distance(
     robust=True                      # True fits Minimum Covariance Determinant (MCD) to prevent masking
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_50_mahalanobis_distance.png" alt="Multivariate Mahalanobis Distance Chi-Squared Ellipses">
+                    <img src="people-analytics-toolkit/feature_50_mahalanobis_distance.png" alt="Multivariate Mahalanobis Distance Chi-Squared Ellipses">
                     <figcaption>Figure 50: Mahalanobis distance ellipses (\(\chi^2\) 95% and 99% contours) isolating multivariate outliers that escape univariate screening.</figcaption>
                 </figure>
             </div>
@@ -1187,7 +1187,7 @@ breakdown_df, total_effects = lmdi_rate_mix_decomposition(
 )
 # Returns: breakdown_df (per-dept rate and mix deltas), total_effects ('delta_rate', 'delta_mix', 'delta_total')</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_23_lmdi_decomposition.png" alt="Log-Mean Decomposition LMDI-I Rate Mix Decomposition">
+                    <img src="people-analytics-toolkit/feature_23_lmdi_decomposition.png" alt="Log-Mean Decomposition LMDI-I Rate Mix Decomposition">
                     <figcaption>Figure 23: LMDI-I perfect decomposition proving whether organizational turnover spikes stem from worsening working conditions (rate effect) or structural hiring shifts (mix effect).</figcaption>
                 </figure>
             </div>
@@ -1210,7 +1210,7 @@ interaction_matrix = compute_shap_interaction_matrix(
     max_samples=500                  # Subsample limit for high-speed TreeSHAP evaluation
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_24_shap_interactions.png" alt="SHAP Pairwise Interaction Matrix">
+                    <img src="people-analytics-toolkit/feature_24_shap_interactions.png" alt="SHAP Pairwise Interaction Matrix">
                     <figcaption>Figure 24: SHAP 2D interaction tensor exposing non-linear risk compounding between excessive overtime and low managerial quality.</figcaption>
                 </figure>
             </div>
@@ -1232,7 +1232,7 @@ corr_report_df = correlation_heatmap_df(
     alpha=0.05                       # Significance level for Fisher-z confidence intervals
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_25_correlation_heatmap.png" alt="Correlation Heatmap Table with Confidence Intervals">
+                    <img src="people-analytics-toolkit/feature_25_correlation_heatmap.png" alt="Correlation Heatmap Table with Confidence Intervals">
                     <figcaption>Figure 25: Correlation audit matrix with Fisher-z confidence intervals, distinguishing statistically validated behavioral drivers from random noise.</figcaption>
                 </figure>
             </div>
@@ -1272,7 +1272,7 @@ embedder.fit(
 # Extract full cosine similarity matrix across enterprise job catalog
 role_sim_df = get_role_similarity_matrix(embedder)</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_26_movement_embeddings.png" alt="Career Movement Embeddings 2D Projection">
+                    <img src="people-analytics-toolkit/feature_26_movement_embeddings.png" alt="Career Movement Embeddings 2D Projection">
                     <figcaption>Figure 26: 2D UMAP projection of learned Career Movement Embeddings, clustering interchangeable roles and uncovering non-traditional succession pathways.</figcaption>
                 </figure>
             </div>
@@ -1295,11 +1295,11 @@ inflections, curves_df = extract_shap_inflection_thresholds(
 )
 # Returns: dict of inflection points per feature, and spline curves DataFrame</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_27a_shap_inflection_thresholds.png" alt="SHAP Inflection Threshold Zero Crossing Curves">
+                    <img src="people-analytics-toolkit/feature_27a_shap_inflection_thresholds.png" alt="SHAP Inflection Threshold Zero Crossing Curves">
                     <figcaption>Figure 27: Zero-crossing SHAP dependence curves identifying the exact overtime and tenure tipping points where retention risk flips positive.</figcaption>
                 </figure>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_27b_retained_vs_terminated_shap.png" alt="Retained vs Terminated SHAP Contributions">
+                    <img src="people-analytics-toolkit/feature_27b_retained_vs_terminated_shap.png" alt="Retained vs Terminated SHAP Contributions">
                     <figcaption>Figure 27b: Aggregate SHAP value breakdown comparing retained associates against voluntary terminations across critical tipping features.</figcaption>
                 </figure>
             </div>
@@ -1322,7 +1322,7 @@ stagnation_df = calculate_stagnation_index(
     benchmark_median_months=36.0     # Baseline benchmark months (or dict mapping job families)
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_28_time_in_position_stagnation.png" alt="Time-in-Position Stagnation Index Flight Risk Surge">
+                    <img src="people-analytics-toolkit/feature_28_time_in_position_stagnation.png" alt="Time-in-Position Stagnation Index Flight Risk Surge">
                     <figcaption>Figure 28: Stagnation Index mapping associate duration against median job family promotion cycles, exposing the steep turnover surge beyond 1.5x benchmark.</figcaption>
                 </figure>
             </div>
@@ -1385,7 +1385,7 @@ audit_status = classify_pay_band_status(
     range_penetration=range_pen_series
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_29_30_compensation_equity_bands.png" alt="Compensation Equity Bands, Compa-Ratio and Range Penetration Dashboard">
+                    <img src="people-analytics-toolkit/feature_29_30_compensation_equity_bands.png" alt="Compensation Equity Bands, Compa-Ratio and Range Penetration Dashboard">
                     <figcaption>Figure 29-30: 4-Panel Enterprise Compensation Parity Dashboard displaying salary band distributions, departmental Compa-Ratio vs parity, tenure compression, and audit status.</figcaption>
                 </figure>
             </div>
@@ -1479,7 +1479,7 @@ euler_scores = calculate_euler_centrality(
 # Or compute complete unified ONA feature profile in one vectorized call
 full_ona_df = compute_complete_ona_profile(G=enterprise_collaboration_graph)</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_31_34_organizational_network_analysis.png" alt="Enterprise Organizational Network Analysis 4-Panel Dashboard">
+                    <img src="people-analytics-toolkit/feature_31_34_organizational_network_analysis.png" alt="Enterprise Organizational Network Analysis 4-Panel Dashboard">
                     <figcaption>Figure 31-34: Enterprise ONA Dashboard displaying network topology, betweenness broker scores, structural holes vs hub influence, Euler systemic capital, and departure contagion shock.</figcaption>
                 </figure>
             </div>
@@ -1510,7 +1510,7 @@ reorg_shock_df = evaluate_span_reorganization_shock(
     shock_sensitivity=0.15           # Multiplier per newly added direct report
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_35_span_of_control.png" alt="Span of Control and Reorganization Shock Evaluation">
+                    <img src="people-analytics-toolkit/feature_35_span_of_control.png" alt="Span of Control and Reorganization Shock Evaluation">
                     <figcaption>Figure 35: Span of control distribution before and after organizational restructuring, tracking the managerial overload shock on associate flight risk.</figcaption>
                 </figure>
             </div>
@@ -1628,7 +1628,7 @@ local_cons, global_cons, audit_meta = compute_individual_fairness_consistency(
 )
 # Returns: local consistency per associate, global consistency scalar, neighbor distance metadata</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_36_39_algorithmic_equity_fairness.png" alt="Algorithmic Equity and Fairness Audit Dashboard">
+                    <img src="people-analytics-toolkit/feature_36_39_algorithmic_equity_fairness.png" alt="Algorithmic Equity and Fairness Audit Dashboard">
                     <figcaption>Figure 36-39: 4-Panel Algorithmic Fairness Dashboard displaying Oaxaca-Blinder pay decomposition, exponentiated gradient parity convergence, group fairness enforcement, and individual consistency.</figcaption>
                 </figure>
             </div>
@@ -1755,7 +1755,7 @@ dr_eval = doubly_robust_uplift_eval(
     clip_range=(0.01, 0.99)
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_40_43_prescriptive_causal_uplift.png" alt="Prescriptive Interventions Causal Inference and Uplift Dashboard">
+                    <img src="people-analytics-toolkit/feature_40_43_prescriptive_causal_uplift.png" alt="Prescriptive Interventions Causal Inference and Uplift Dashboard">
                     <figcaption>Figure 40-43: Prescriptive Uplift Dashboard displaying AIPW confounding adjustment, SDiD panel policy lift, CATE heterogeneity distributions, and Qini targeting efficiency.</figcaption>
                 </figure>
             </div>
@@ -1782,7 +1782,7 @@ synth_twin_df = build_synthetic_control_twin(
     l2_regularization=1e-4           # L2 ridge regularization penalty on donor weights
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_44_synthetic_control_weights.png" alt="Synthetic Control Weights and Synthetic Twin Trajectory">
+                    <img src="people-analytics-toolkit/feature_44_synthetic_control_weights.png" alt="Synthetic Control Weights and Synthetic Twin Trajectory">
                     <figcaption>Figure 44: Synthetic control twin trajectory tracking Pilot Store 01 pre-intervention and exposing the true causal turnover reduction post-intervention.</figcaption>
                 </figure>
             </div>
@@ -1827,7 +1827,7 @@ confounding_diag = diagnose_causal_confounding(
     corr_matrix=dag_results['correlation_matrix']
 )</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_45_directed_causal_dag.png" alt="Directed Causal Edge Weights NOTEARS DAG Discovery">
+                    <img src="people-analytics-toolkit/feature_45_directed_causal_dag.png" alt="Directed Causal Edge Weights NOTEARS DAG Discovery">
                     <figcaption>Figure 45: Directed acyclic graph (DAG) learned via continuous NOTEARS optimization, separating direct causal drivers from spurious observational correlations.</figcaption>
                 </figure>
             </div>
@@ -1948,7 +1948,7 @@ agg_vector, attn_weights = attention_aggregator.aggregate(
 )
 # Returns: aggregated candidate representation vector and attention weight matrix</code></pre>
                 <figure>
-                    <img src="advanced-people-analytics-features/feature_46_49_trajectories_and_graph_learning.png" alt="Continuous-Time Trajectories and Heterogeneous Graph Learning Dashboard">
+                    <img src="people-analytics-toolkit/feature_46_49_trajectories_and_graph_learning.png" alt="Continuous-Time Trajectories and Heterogeneous Graph Learning Dashboard">
                     <figcaption>Figure 46-49: Continuous-Time Trajectories &amp; Heterogeneous Graph Representation Dashboard displaying CTMC transition probabilities P(t), sojourn bottleneck durations, Metapath2Vec 2D projection, and self-attention candidate profile aggregation.</figcaption>
                 </figure>
             </div>
@@ -1957,7 +1957,7 @@ agg_vector, attn_weights = attention_aggregator.aggregate(
             <!-- CONCLUSION & PACKAGE DEPLOYMENT -->
             <!-- ========================================== -->
                         <figure style="margin: 3rem auto 2rem auto; text-align: center; max-width: 650px;">
-                <img src="advanced-people-analytics-features/toby_1.jpeg" alt="HR Analytics in Practice - Toby Flenderson" class="hero-thumbnail-img">
+                <img src="people-analytics-toolkit/toby_1.jpeg" alt="HR Analytics in Practice - Toby Flenderson" class="hero-thumbnail-img">
                 <figcaption>"There is no such thing as an appropriate joke. That's why it's called a joke." - Moving Human Resources away from legacy friction and exit questionnaires toward automated, mathematically robust People Analytics.</figcaption>
             </figure>
 

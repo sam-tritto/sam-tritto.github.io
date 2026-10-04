@@ -74,7 +74,7 @@
                 const lowerSlug = (slug || '').toLowerCase();
                 const tags = [];
                 
-                if (lowerSlug.includes('advanced-people-analytics-features') || lowerTitle.includes('people analytics')) {
+                if (lowerSlug.includes('people-analytics-toolkit') || lowerSlug.includes('advanced-people-analytics-features') || lowerTitle.includes('people analytics')) {
                     tags.push({ id: 'apps-dev', label: 'Software Engineering' });
                     tags.push({ id: 'ml', label: 'Machine Learning' });
                     tags.push({ id: 'stats', label: 'Statistics' });
@@ -206,7 +206,7 @@
                         
                         const isAsset = p.image.startsWith('assets/') || p.image.startsWith('http');
                         const imgSrc = isAsset ? p.image : `projects/${p.image}`;
-                        const isLogo = (p.slug === 'advanced-people-analytics-features.html');
+                        const isLogo = (p.slug === 'people-analytics-toolkit.html' || p.slug === 'advanced-people-analytics-features.html');
                         const fitType = (p.slug === 'bayesian-cortex-agent-routing.html' || p.slug === 'battle-beach-thrillers-tabfm-catboost.html') ? 'cover' : 'contain';
                         const thumbStyle = isLogo
                             ? 'object-fit: contain; background-color: #ffffff; padding: 0.85rem; box-sizing: border-box;'

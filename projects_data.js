@@ -8,10 +8,10 @@ window.PROJECTS_DATA = [
   },
   {
     "title": "People Analytics Toolkit: 50 Production-Grade Feature Engineering Formulations",
-    "slug": "advanced-people-analytics-features.html",
+    "slug": "people-analytics-toolkit.html",
     "snippet": "Comprehensive documentation and engineering tutorial for the people-analytics-toolkit Python package. Covers 50 advanced workforce feature engineering formulations across 11 pillars: Bayesian target shrinkage, Hawkes contagion, GARCH volatility, ONA centrality, Oaxaca-Blinder pay decomposition, CausalForestDML, continuous-time Markov chains, and Metapath2Vec embeddings.",
-    "image": "advanced-people-analytics-features/thumbnail.png",
-    "filename": "advanced-people-analytics-features.html",
+    "image": "people-analytics-toolkit/thumbnail.png",
+    "filename": "people-analytics-toolkit.html",
     "date": "October 2026",
     "tags": ["Software Engineering", "Machine Learning", "Statistics", "Bayesian"]
   },

@@ -220,7 +220,7 @@
                     
                     const isAsset = p.image.startsWith('assets/') || p.image.startsWith('http');
                     const imgSrc = isAsset ? p.image : `projects/${p.image}`;
-                    const isLogo = (p.slug === 'advanced-people-analytics-features.html');
+                    const isLogo = (p.slug === 'people-analytics-toolkit.html' || p.slug === 'advanced-people-analytics-features.html');
                     const fitType = (p.slug === 'bayesian-cortex-agent-routing.html' || p.slug === 'battle-beach-thrillers-tabfm-catboost.html') ? 'cover' : 'contain';
                     const thumbStyle = isLogo
                         ? 'object-fit: contain; background-color: #ffffff; padding: 0.85rem; box-sizing: border-box;'
