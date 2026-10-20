@@ -60,18 +60,18 @@
             <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading featured projects...</div>
         </div>
 
-        <h2 style="margin-top: 4rem; margin-bottom: 2rem; color: var(--primary-dark); font-weight: 700;">Research Papers</h2>
-
-        <!-- Research Papers Cards Grid -->
-        <div class="project-list" id="research-paper-list">
-            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading research papers...</div>
-        </div>
-
         <h2 style="margin-top: 4rem; margin-bottom: 2rem; color: var(--primary-dark); font-weight: 700;">Featured Open Sourced Projects</h2>
 
         <!-- Open Sourced Projects Cards Grid -->
         <div class="project-list" id="open-source-list">
             <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading featured open source projects...</div>
+        </div>
+
+        <h2 style="margin-top: 4rem; margin-bottom: 2rem; color: var(--primary-dark); font-weight: 700;">Research Papers</h2>
+
+        <!-- Research Papers Cards Grid -->
+        <div class="project-list" id="research-paper-list">
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading research papers...</div>
         </div>
 
         <h2 style="margin-top: 4rem; margin-bottom: 2rem; color: var(--primary-dark); font-weight: 700;">Featured Software</h2>
@@ -204,15 +204,7 @@
                 projects.sort((a, b) => featuredProjectSlugs.indexOf(a.slug) - featuredProjectSlugs.indexOf(b.slug));
                 renderCards(projectList, projects);
 
-                // 2. Research Papers
-                const featuredResearchPaperSlugs = [
-                    'https://doi.org/10.5281/zenodo.23307101'
-                ];
-                const researchPapers = data.filter(p => featuredResearchPaperSlugs.includes(p.slug));
-                researchPapers.sort((a, b) => featuredResearchPaperSlugs.indexOf(a.slug) - featuredResearchPaperSlugs.indexOf(b.slug));
-                renderCards(researchPaperList, researchPapers);
-
-                // 3. Featured Open Sourced Projects
+                // 2. Featured Open Sourced Projects
                 const featuredOpenSourceSlugs = [
                     'people-analytics-toolkit.html',
                     'bxai-bayesian-feature-selection.html',
@@ -221,6 +213,14 @@
                 const openSourceProjects = data.filter(p => featuredOpenSourceSlugs.includes(p.slug));
                 openSourceProjects.sort((a, b) => featuredOpenSourceSlugs.indexOf(a.slug) - featuredOpenSourceSlugs.indexOf(b.slug));
                 renderCards(openSourceList, openSourceProjects);
+
+                // 3. Research Papers
+                const featuredResearchPaperSlugs = [
+                    'https://doi.org/10.5281/zenodo.23307101'
+                ];
+                const researchPapers = data.filter(p => featuredResearchPaperSlugs.includes(p.slug));
+                researchPapers.sort((a, b) => featuredResearchPaperSlugs.indexOf(a.slug) - featuredResearchPaperSlugs.indexOf(b.slug));
+                renderCards(researchPaperList, researchPapers);
 
                 // 4. Featured Software
                 const featuredSoftwareSlugs = [
