@@ -7,6 +7,16 @@ window.PROJECTS_DATA = [
     "filename": "2026.html"
   },
   {
+    "title": "Physics-RAG: Invariant Latent Manifolds, Conformal Uncertainty Quantification, and Hierarchical Cascade Retrieval for Continuous Physical Systems",
+    "slug": "https://doi.org/10.5281/zenodo.23307101",
+    "snippet": "Operational scientific machine learning and retrieval framework for continuous physical dynamics across 175,000+ sensor hours. Bridges phase-space degeneracy and temporal mismatch in oceanographic telemetry using 14D invariant manifold embeddings, distribution-free conformal prediction intervals, and sub-millisecond DuckDB parent sequence hydration.",
+    "image": "assets/physics_rag_thumbnail.webp",
+    "filename": "physics-rag-zenodo",
+    "date": "October 2026",
+    "doi": "10.5281/zenodo.23307101",
+    "tags": ["Research Paper", "Scientific Machine Learning", "RAG", "Conformal Prediction", "Physics"]
+  },
+  {
     "title": "People Analytics Toolkit: 50 Production-Grade Feature Engineering Formulations",
     "slug": "people-analytics-toolkit.html",
     "snippet": "Comprehensive documentation and engineering tutorial for the people-analytics-toolkit Python package. Covers 50 advanced workforce feature engineering formulations across 11 pillars: Bayesian target shrinkage, Hawkes contagion, GARCH volatility, ONA centrality, Oaxaca-Blinder pay decomposition, CausalForestDML, continuous-time Markov chains, and Metapath2Vec embeddings.",

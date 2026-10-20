@@ -60,6 +60,13 @@
             <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading featured projects...</div>
         </div>
 
+        <h2 style="margin-top: 4rem; margin-bottom: 2rem; color: var(--primary-dark); font-weight: 700;">Research Papers</h2>
+
+        <!-- Research Papers Cards Grid -->
+        <div class="project-list" id="research-paper-list">
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading research papers...</div>
+        </div>
+
         <h2 style="margin-top: 4rem; margin-bottom: 2rem; color: var(--primary-dark); font-weight: 700;">Featured Open Sourced Projects</h2>
 
         <!-- Open Sourced Projects Cards Grid -->
@@ -180,6 +187,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const projectList = document.getElementById('project-list');
+            const researchPaperList = document.getElementById('research-paper-list');
             const openSourceList = document.getElementById('open-source-list');
             const softwareList = document.getElementById('software-list');
 
@@ -196,7 +204,15 @@
                 projects.sort((a, b) => featuredProjectSlugs.indexOf(a.slug) - featuredProjectSlugs.indexOf(b.slug));
                 renderCards(projectList, projects);
 
-                // 2. Featured Open Sourced Projects
+                // 2. Research Papers
+                const featuredResearchPaperSlugs = [
+                    'https://doi.org/10.5281/zenodo.23307101'
+                ];
+                const researchPapers = data.filter(p => featuredResearchPaperSlugs.includes(p.slug));
+                researchPapers.sort((a, b) => featuredResearchPaperSlugs.indexOf(a.slug) - featuredResearchPaperSlugs.indexOf(b.slug));
+                renderCards(researchPaperList, researchPapers);
+
+                // 3. Featured Open Sourced Projects
                 const featuredOpenSourceSlugs = [
                     'people-analytics-toolkit.html',
                     'bxai-bayesian-feature-selection.html',
@@ -206,7 +222,7 @@
                 openSourceProjects.sort((a, b) => featuredOpenSourceSlugs.indexOf(a.slug) - featuredOpenSourceSlugs.indexOf(b.slug));
                 renderCards(openSourceList, openSourceProjects);
 
-                // 3. Featured Software
+                // 4. Featured Software
                 const featuredSoftwareSlugs = [
                     'https://www.phonetag.me'
                 ];
@@ -216,12 +232,14 @@
 
             } catch (err) {
                 projectList.innerHTML = '<div style="color: red; text-align: center;">Error loading projects.</div>';
+                if (researchPaperList) researchPaperList.innerHTML = '<div style="color: red; text-align: center;">Error loading research papers.</div>';
                 if (openSourceList) openSourceList.innerHTML = '<div style="color: red; text-align: center;">Error loading open source projects.</div>';
                 softwareList.innerHTML = '<div style="color: red; text-align: center;">Error loading software.</div>';
                 console.error(err);
             }
 
             function renderCards(container, items) {
+                if (!container) return;
                 if (items.length === 0) {
                     container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No projects found.</div>';
                     return;
@@ -236,12 +254,30 @@
                     const isAsset = p.image.startsWith('assets/') || p.image.startsWith('http');
                     const imgSrc = isAsset ? p.image : `projects/${p.image}`;
                     const isLogo = (p.slug === 'people-analytics-toolkit.html' || p.slug === 'advanced-people-analytics-features.html');
+                    const isResearchPaper = (p.doi || p.slug.includes('zenodo') || p.slug.includes('doi.org'));
                     const fitType = (p.slug === 'bayesian-cortex-agent-routing.html' || p.slug === 'battle-beach-thrillers-tabfm-catboost.html') ? 'cover' : 'contain';
-                    const thumbStyle = isLogo
-                        ? 'object-fit: contain; background-color: #ffffff; padding: 0.85rem; box-sizing: border-box;'
-                        : `object-fit: ${fitType}; background-color: #f8f9fc;`;
+                    
+                    let thumbStyle = `object-fit: ${fitType}; background-color: #f8f9fc;`;
+                    if (isLogo) {
+                        thumbStyle = 'object-fit: contain; background-color: #ffffff; padding: 0.85rem; box-sizing: border-box;';
+                    } else if (isResearchPaper) {
+                        thumbStyle = 'object-fit: contain; background-color: #ffffff; padding: 0.6rem; box-sizing: border-box; border-bottom: 1px solid var(--border-light);';
+                    }
+
                     const imageHtml = p.image ? `<img src="${imgSrc}" alt="${p.title}" class="project-thumb" style="${thumbStyle}" loading="lazy">` : '';
                     
+                    const badgeHtml = p.doi ? `
+                        <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <span style="display: inline-flex; align-items: center; gap: 0.35rem; background-color: #0b5394; color: #ffffff; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-decoration: none;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0 7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                Zenodo DOI: ${p.doi}
+                            </span>
+                            <span style="display: inline-flex; align-items: center; background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.72rem; font-weight: 500;">
+                                Preprint Publication
+                            </span>
+                        </div>
+                    ` : '';
+
                     return `
                         <a href="${href}"${targetAttr} class="project-card">
                             ${imageHtml}
@@ -249,6 +285,7 @@
                                 <div class="project-header">
                                     <h2 class="project-title">${p.title}</h2>
                                     ${p.date ? `<div class="project-date" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; font-weight: 500;">${p.date}</div>` : ''}
+                                    ${badgeHtml}
                                 </div>
                                 ${snippetHtml}
                             </div>
